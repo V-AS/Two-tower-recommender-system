@@ -22,72 +22,52 @@
 \toprule
 \textbf{Date} & \textbf{Developer(s)} & \textbf{Change}\\
 \midrule
-Date1 & Name(s) & Description of changes\\
-Date2 & Name(s) & Description of changes\\
-... & ... & ...\\
+Jan 17 2025 & Yinying Huo & First Draft \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \section{Problem Statement}
 
-\wss{You should check your problem statement with the
-\href{https://github.com/smiths/capTemplate/blob/main/docs/Checklists/ProbState-Checklist.pdf}
-{problem statement checklist}.} 
-
-\wss{You can change the section headings, as long as you include the required
-information.}
-
 \subsection{Problem}
+Recommendation systems play a pivotal role in enhancing user experience by tailoring content to individual preferences. Book recommendation systems, in particular, help users discover content aligned with their tastes, enriching their reading experiences. The Tow Tower embeddings(TTE) model architecture typically consists of a query tower and an item tower. In the context of book recommendations, the query tower encodes user-specific information. The item tower processes book-specific information, including title, authors, and publication details, to generate item embeddings. TTE is particularly well-suited for studying relationships between two entity types, such as readers and books. Its structure effectively models interactions between user preferences and book attributes, making it a natural choice for personalized book recommendation systems.
 
 \subsection{Inputs and Outputs}
 
-\wss{Characterize the problem in terms of ``high level'' inputs and outputs.  
-Use abstraction so that you can avoid details.}
+The training dataset I will be using is from \url{https://www.kaggle.com/datasets/arashnic/book-recommendation-dataset?select=Ratings.csv}. It consists of about 271k books and 340k user book ratings with some user information.
+
+After the training, the input of the model will be the user's information, and the output will be the recommended book for this specific user.
 
 \subsection{Stakeholders}
 
-\subsection{Environment}
+Students who like to learn about how to build a recommendation system.
 
-\wss{Hardware and software environment}
+\subsection{Environment}
+The software will be developed and executed in a Python-based environment, leveraging standard machine learning libraries such as PyTorch. It will be designed to run on personal computing devices without the need for high-performance computing resources.
 
 \section{Goals}
+\begin{itemize}
+    \item Develop a functional two-tower recommendation system specifically designed for book recommendations
+    \item Create a clear and modular codebase that facilitates easy understanding and modification
+    \item Ensure the system is lightweight and can run on personal computing devices
+\end{itemize}
 
 \section{Stretch Goals}
-
+support importing custom datasets, enabling users to adapt it to different domains beyond book recommendations.
 \section{Challenge Level and Extras}
+Challenge Level: Non-resaerch project \\
+Extras: User Manual
 
-\wss{State your expected challenge level (advanced, general or basic).  The
-challenge can come through the required domain knowledge, the implementation or
-something else.  Usually the greater the novelty of a project the greater its
-challenge level.  You should include your rationale for the selected level.
-Approval of the level will be part of the discussion with the instructor for
-approving the project.  The challenge level, with the approval (or request) of
-the instructor, can be modified over the course of the term.}
-
-\wss{Teams may wish to include extras as either potential bonus grades, or to
-make up for a less advanced challenge level.  Potential extras include usability
-testing, code walkthroughs, user documentation, formal proof, GenderMag
-personas, Design Thinking, etc.  Normally the maximum number of extras will be
-two.  Approval of the extras will be part of the discussion with the instructor
-for approving the project.  The extras, with the approval (or request) of the
-instructor, can be modified over the course of the term.}
 
 \newpage{}
 
 \section*{Appendix --- Reflection}
 
-\wss{Not required for CAS 741}
-
-\input{../Reflection.tex}
-
 \begin{enumerate}
-    \item What went well while writing this deliverable? 
-    \item What pain points did you experience during this deliverable, and how
-    did you resolve them?
-    \item How did you and your team adjust the scope of your goals to ensure
-    they are suitable for a Capstone project (not overly ambitious but also of
-    appropriate complexity for a senior design project)?
+    \item What pain points did you experience during this deliverable, and how did you resolve them?
+    
+        Finding a good dataset was challenging. All public datasets have very limited user information, probably due to privacy concerns.
+
 \end{enumerate}  
 
 \end{document}
