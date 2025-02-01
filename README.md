@@ -1,10 +1,10 @@
-# Project Name
+# Project Name: Two-tower-recommentation-system
 
-Developer Names:
+Developer Names: Yinying Huo
 
-Date of project start:
+Date of project start: Jan 2025
 
-This project is ...
+This project is to fulfill the CAS 741 project.
 
 The folders and files for this project are as follows:
 
