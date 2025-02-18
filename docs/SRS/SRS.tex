@@ -191,7 +191,7 @@ This section records information for easy reference.
   \textbf{symbol} & \textbf{description}\\
   \midrule 
   $\mathbb{R}$ & Real number\\
-  $\theta$ & model parameter,a vector of real numbers\\
+  $\theta$ & model parameter, a vector of real numbers\\
   $u(\cdot)$ & A function that map model parameter $\theta$ and features of user to the embedding space.\\
   $v(\cdot)$ & A function that map model parameter $\theta $ and features of item to the embedding space.\\
   $x_i$ & user feature\\
@@ -199,9 +199,10 @@ This section records information for easy reference.
   $r_i$ & the associated reward for each user and item pair\\ 
   $J(\cdot)$ & regularization function to prevent overfitting\\
   $\mathcal{L}(\theta)$ & Loss function\\
-  $\eta $ & learning rate\\
-  $B $ & mini-batch\\
-  \bottomrule
+  $\eta $ & Learning rate\\
+  $B $ & Mini-batch\\
+  $\gamma$ & Hyperparameter to control the regularization term. \\
+    \bottomrule
 \end{tabular}\\
 
 \section{Introduction}
@@ -491,7 +492,7 @@ The goals \gsref{GS1} and \gsref{GS2} are addressed by the following mathematica
         \begin{itemize}
           \item Computes exact dot product scores: $s(x_i,y_i) = \langle u(x_i;\theta),v(y_i;\theta) \rangle$.
           \item Sorts candidates in descending order of $s(x_i,y_i)$.
-          \item Returns top-$N$ items: $I_{\text{ranked}} = \text{argsort}(s_i)[:N]$.
+          \item Returns top-$N$ items.
         \end{itemize}\\
         \hline
         Sources& \url{https://en.wikipedia.org/wiki/Dot_product}\\
