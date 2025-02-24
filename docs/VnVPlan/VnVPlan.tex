@@ -2,6 +2,7 @@
 
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{graphicx}
 \usepackage{hyperref}
 \hypersetup{
     colorlinks,
@@ -30,34 +31,17 @@
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
-Feb 14 2025 & 1.0 & First Draft\\
+Feb 24, 2025 & 1.0 & First draft – Unit tests will be added later.\\
 \bottomrule
 \end{tabularx}
 
 ~\\
-\wss{The intention of the VnV plan is to increase confidence in the software.
-However, this does not mean listing every verification and validation technique
-that has ever been devised.  The VnV plan should also be a \textbf{feasible}
-plan. Execution of the plan should be possible with the time and team available.
-If the full plan cannot be completed during the time available, it can either be
-modified to ``fake it'', or a better solution is to add a section describing
-what work has been completed and what work is still planned for the future.}
-
-\wss{The VnV plan is typically started after the requirements stage, but before
-the design stage.  This means that the sections related to unit testing cannot
-initially be completed.  The sections will be filled in after the design stage
-is complete.  the final version of the VnV plan should have all sections filled
-in.}
 
 \newpage
 
 \tableofcontents
 
 \listoftables
-\wss{Remove this section if it isn't needed}
-
-\listoffigures
-\wss{Remove this section if it isn't needed}
 
 \newpage
 
@@ -69,294 +53,241 @@ in.}
   \textbf{symbol} & \textbf{description}\\
   \midrule 
   T & Test\\
+  R & Requirement\\
+  NFR & Nonfunctional Requirement\\
+  TTE & Two Tower embedding\\
+  RecSys & Recommendation system\\
+  ANN & Approximate Nearest Neighbor\\
+  SRS & Software Requirements Specification\\
   \bottomrule
 \end{tabular}\\
-
-\wss{symbols, abbreviations, or acronyms --- you can simply reference the SRS
-  \citep{SRS} tables, if appropriate}
-
-\wss{Remove this section if it isn't needed}
 
 \newpage
 
 \pagenumbering{arabic}
 
-This document ... \wss{provide an introductory blurb and roadmap of the
-  Verification and Validation plan}
+This document outlines the verification and validation plan for the Two-Tower Embeddings Recommendation System (TTE RecSys) to ensure compliance with the requirements and objectives specified in the Software Requirements Specification (SRS). It is structured to first present general information and verification strategies, followed by detailed descriptions of system and unit testing for both functional and non-functional requirements.
 
 \section{General Information}
 
 \subsection{Summary}
 
-\wss{Say what software is being tested.  Give its name and a brief overview of
-  its general functions.}
+The software under test is a Two-Tower Embedding Recommendation System, which generates personalized recommendations using user and item embeddings. The system consists of two main components:
+\begin{itemize}
+  \item Training Phase: Learns user and item embedding functions using a deep neural network architecture, optimized via stochastic gradient descent (SGD).
+  \item Inference Phase: Retrieves candidate items using Approximate Nearest Neighbor (ANN) search and ranks them by dot product similarity.
+\end{itemize}
+
+The system is implemented in Python, leveraging libraries such as PyTorch for model training and FAISS for ANN search.
 
 \subsection{Objectives}
+The primary objectives of this VnV plan are:
+\begin{itemize}
+  \item Correctness: Verify that the system correctly implements the mathematical models for training (e.g., MSE loss, gradient descent) and inference (e.g., ANN search, dot product ranking).
+  \item Accuracy: Validate that the system achieves acceptable prediction accuracy on a held-out test set.
+  \item Scalability: Demonstrate that the system can handle a large number of users or items with reasonable latency.
+\end{itemize}
+\noindent Out-of-Scope Objectives
 
-\wss{State what is intended to be accomplished.  The objective will be around
-  the qualities that are most important for your project.  You might have
-  something like: ``build confidence in the software correctness,''
-  ``demonstrate adequate usability.'' etc.  You won't list all of the qualities,
-  just those that are most important.}
-
-\wss{You should also list the objectives that are out of scope.  You don't have 
-the resources to do everything, so what will you be leaving out.  For instance, 
-if you are not going to verify the quality of usability, state this.  It is also 
-worthwhile to justify why the objectives are left out.}
-
-\wss{The objectives are important because they highlight that you are aware of 
-limitations in your resources for verification and validation.  You can't do everything, 
-so what are you going to prioritize?  As an example, if your system depends on an 
-external library, you can explicitly state that you will assume that external library 
-has already been verified by its implementation team.}
+\begin{itemize}
+  \item External Library Verification: Libraries such as PyTorch and FAISS are assumed to be correct and are not verified as part of this plan.
+\end{itemize}
 
 \subsection{Challenge Level and Extras}
-
-\wss{State the challenge level (advanced, general, basic) for your project.
-Your challenge level should exactly match what is included in your problem
-statement.  This should be the challenge level agreed on between you and the
-course instructor.  You can use a pull request to update your challenge level
-(in TeamComposition.csv or Repos.csv) if your plan changes as a result of the
-VnV planning exercise.}
-
-\wss{Summarize the extras (if any) that were tackled by this project.  Extras
-can include usability testing, code walkthroughs, user documentation, formal
-proof, GenderMag personas, Design Thinking, etc.  Extras should have already
-been approved by the course instructor as included in your problem statement.
-You can use a pull request to update your extras (in TeamComposition.csv or
-Repos.csv) if your plan changes as a result of the VnV planning exercise.}
+This is a non-research project. The extra component of this project will be a user manual.
 
 \subsection{Relevant Documentation}
 
-\wss{Reference relevant documentation.  This will definitely include your SRS
-  and your other project documents (design documents, like MG, MIS, etc).  You
-  can include these even before they are written, since by the time the project
-  is done, they will be written.  You can create BibTeX entries for your
-  documents and within those entries include a hyperlink to the documents.}
-
-\citet{SRS}
-
-\wss{Don't just list the other documents.  You should explain why they are relevant and 
-how they relate to your VnV efforts.}
+\citet{Yinying2025RecSys} Software requirements specification for this project.
 
 \section{Plan}
 
 \wss{Introduce this section.  You can provide a roadmap of the sections to
   come.}
 
-\subsection{Verification and Validation Team}
+\subsection{Verification and Validation Team}\label{VnVT}
 
-\wss{Your teammates.  Maybe your supervisor.
-  You should do more than list names.  You should say what each person's role is
-  for the project's verification.  A table is a good way to summarize this information.}
-
+\begin{table}[h]
+  \centering
+  \resizebox{\textwidth}{!}{ %
+      \begin{tabular}{ |l|l|p{2cm}|p{5cm}| } 
+  \hline        
+  
+     Name & Document & Role & Description \\
+  \hline
+    Yinying Huo & All & Author & Prepare all documentation, develop the software, and validate the implementation accoridng to the VnV plan. \\ \hline
+    Dr. Spencer Smith & All & Instructor/ Reviewer & Review all the documents.  \\ \hline
+    Yuanqi Xue & All & Domain Expert & Review all the documents.  \\ \hline     	  
+  \hline
+  \end{tabular} %
+  }
+  \caption{Verification and Validation Team}
+  \label{Table:VnVT}
+  \end{table}
+  
 \subsection{SRS Verification Plan}
 
-\wss{List any approaches you intend to use for SRS verification.  This may
-  include ad hoc feedback from reviewers, like your classmates (like your
-  primary reviewer), or you may plan for something more rigorous/systematic.}
+The Software Requirements Specification (SRS) will be reviewed by domain expert Yuanqi Xue and Dr. Smith. Feedback from reviewers will be provided on GitHub, and the author will need to address it.
 
-\wss{If you have a supervisor for the project, you shouldn't just say they will
-read over the SRS.  You should explain your structured approach to the review.
-Will you have a meeting?  What will you present?  What questions will you ask?
-Will you give them instructions for a task-based inspection?  Will you use your
-issue tracker?}
-
-\wss{Maybe create an SRS checklist?}
+\noindent There is a \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/Checklists/SRS-Checklist.pdf}{SRS checklist} designed by Dr. Spencer Smith available to use.
 
 \subsection{Design Verification Plan}
 
-\wss{Plans for design verification}
+The design verification, including the Module Guide (MG) and Module Interface Specification (MIS), will be reviewed by domain expert Yuanqi Xue and Dr. Smith. Feedback from reviewers will be provided on GitHub, and the author will need to address it.
 
-\wss{The review will include reviews by your classmates}
-
-\wss{Create a checklists?}
+\noindent Dr. Spencer Smith has created a \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/Checklists/MG-Checklist.pdf}{MG checklist} and \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/Checklists/MIS-Checklist.pdf}{MSI checklist}, both of which are available for use.
 
 \subsection{Verification and Validation Plan Verification Plan}
 
-\wss{The verification and validation plan is an artifact that should also be
-verified.  Techniques for this include review and mutation testing.}
+The Verification and Validation (VnV) Plan will be reviewed by domain expert Yuanqi Xue and Dr. Smith. Feedback from reviewers will be provided on GitHub, and the author will need to address it.
 
-\wss{The review will include reviews by your classmates}
-
-\wss{Create a checklists?}
+\noindent  There is a \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/Checklists/VnV-Checklist.pdf}{VnV checklist} designed by Dr. Spencer Smith available to use.
+%
 
 \subsection{Implementation Verification Plan}
 
-\wss{You should at least point to the tests listed in this document and the unit
-  testing plan.}
-
-\wss{In this section you would also give any details of any plans for static
-  verification of the implementation.  Potential techniques include code
-  walkthroughs, code inspection, static analyzers, etc.}
-
-\wss{The final class presentation in CAS 741 could be used as a code
-walkthrough.  There is also a possibility of using the final presentation (in
-CAS741) for a partial usability survey.}
+The implementation will be verified by testing both the functional and non-functional requirements outlined in section \ref{SystemTest}. Unit tests, as described in section \ref{UnitTest}, will also be performed. Additionally, a code walkthrough will be conducted with the class during the final presentation.
 
 \subsection{Automated Testing and Verification Tools}
-
-\wss{What tools are you using for automated testing.  Likely a unit testing
-  framework and maybe a profiling tool, like ValGrind.  Other possible tools
-  include a static analyzer, make, continuous integration tools, test coverage
-  tools, etc.  Explain your plans for summarizing code coverage metrics.
-  Linters are another important class of tools.  For the programming language
-  you select, you should look at the available linters.  There may also be tools
-  that verify that coding standards have been respected, like flake9 for
-  Python.}
-
-\wss{If you have already done this in the development plan, you can point to
-that document.}
-
-\wss{The details of this section will likely evolve as you get closer to the
-  implementation.}
+The following tools will be used for automated testing and verification:
+\begin{itemize}
+\item \textbf{Unit Testing}:
+\begin{itemize}
+\item \textbf{Pytest}: For testing individual components (e.g., embedding functions, ANN search, ranking logic).
+\end{itemize}
+\item \textbf{Continuous Integration (CI)}:
+\begin{itemize}
+\item \textbf{GitHub Actions}: To automate testing and deployment workflows.
+\item \textbf{CML (Continuous Machine Learning)}: Automatically generates performance reports and emails metrics when changes are pushed to GitHub.
+\item The CI workflow will run all unit tests.
+\end{itemize}
+\item \textbf{Static Analysis and Linting}:
+\begin{itemize}
+\item \textbf{Black}: For automated code formatting.
+\item \textbf{Flake8}: For enforcing Python coding standards.
+\end{itemize}
+\end{itemize}
 
 \subsection{Software Validation Plan}
 
-\wss{If there is any external data that can be used for validation, you should
-  point to it here.  If there are no plans for validation, you should state that
-  here.}
+The system will be validated using a 20\% testing dataset split from the original dataset. This dataset will be used to evaluate the performance of the two embedding functions (user and item towers) by measuring metrics such as recall and precision.
 
-\wss{You might want to use review sessions with the stakeholder to check that
-the requirements document captures the right requirements.  Maybe task based
-inspection?}
+\section{System Tests}\label{SystemTest}
 
-\wss{For those capstone teams with an external supervisor, the Rev 0 demo should 
-be used as an opportunity to validate the requirements.  You should plan on 
-demonstrating your project to your supervisor shortly after the scheduled Rev 0 demo.  
-The feedback from your supervisor will be very useful for improving your project.}
-
-\wss{For teams without an external supervisor, user testing can serve the same purpose 
-as a Rev 0 demo for the supervisor.}
-
-\wss{This section might reference back to the SRS verification section.}
-
-\section{System Tests}
-
-\wss{There should be text between all headings, even if it is just a roadmap of
-the contents of the subsections.}
+This section covers the system tests that will be applied to both the functional and non-functional requirements.
 
 \subsection{Tests for Functional Requirements}
 
-\wss{Subsets of the tests may be in related, so this section is divided into
-  different areas.  If there are no identifiable subsets for the tests, this
-  level of document structure can be removed.}
+The functional requirements are tested in the following areas: input validation, ranking consistency, and output correctness. These tests ensure the system behaves as expected under various conditions.
 
-\wss{Include a blurb here to explain why the subsections below
-  cover the requirements.  References to the SRS would be good here.}
+\subsubsection{Area of Testing1: Input Validation}
 
-\subsubsection{Area of Testing1}
-
-\wss{It would be nice to have a blurb here to explain why the subsections below
-  cover the requirements.  References to the SRS would be good here.  If a section
-  covers tests for input constraints, you should reference the data constraints
-  table in the SRS.}
+The following test will ensure that there is no missing data in the training and testing datasets, and that all input constraints are satisfied as specified in the data constraints table of the \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.
 		
-\paragraph{Title for Test}
+\paragraph{Test for Valid Inputs}
 
 \begin{enumerate}
 
-\item{test-id1\\}
+  \item{test-id1\\}
+  Control: Automatic\\
+  Initial State: During the data cleaning, before traning the embedding function.\\
+  Input: Valid user features (e.g., location, age), item features (e.g., book title, author, year of publication), and the corresponding rating for each user-item pair.\\
+  Output: Each user-item pair have an accosiated reward and no missing features.\\
+  Test Case Derivation: Ensures the system handles valid inputs as specified in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}. \\
+  How test will be performed: Automated test using Pytest.
+					
+\end{enumerate}
 
-Control: Manual versus Automatic
-					
-Initial State: 
-					
-Input: 
-					
-Output: \wss{The expected result for the given inputs.  Output is not how you
-are going to return the results of the test.  The output is the expected
-result.}
+\subsubsection{Area of Testing 2: Performance of the embedding functions}
 
-Test Case Derivation: \wss{Justify the expected value given in the Output field}
-					
-How test will be performed: 
-					
-\item{test-id2\\}
+\paragraph{Test for performance}
 
-Control: Manual versus Automatic
-					
-Initial State: 
-					
-Input: 
-					
-Output: \wss{The expected result for the given inputs}
+\begin{enumerate}
+  \item{test-id2\\}
 
-Test Case Derivation: \wss{Justify the expected value given in the Output field}
+  Control: Automatic\\
+  Initial State: After training of the embedding functions\\
+  Input: The testing dataset\\
+  Output: The performance of the user embedding and item embedding functions is acceptable (accuracy $>$ 80\%)\\
+  Test Case Derivation: Ensures the correctness of the output as specified in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.\\
+  How the test will be performed: Use GitHub Actions to automatically evaluate the performance once the training is finished.
 
-How test will be performed: 
+\item{test-id3\\}
+
+Control: Automatic\\
+Initial State: System initialized with pre-computed item embeddings.\\
+Input:  user embeddings\\
+Output: The rankings for the top 10 items should generally be the same for identical user embeddings, but non-consistent rankings are allowed (up to 5\%) due to the inherent randomness in machine learning.\\
+Test Case Derivation: Ensures that identical user embeddings produce identical item rankings, as stated in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.\\
+How the test will be performed: Automated test using Pytest.
 
 \end{enumerate}
 
-\subsubsection{Area of Testing2}
-
-...
 
 \subsection{Tests for Nonfunctional Requirements}
 
-\wss{The nonfunctional requirements for accuracy will likely just reference the
-  appropriate functional tests from above.  The test cases should mention
-  reporting the relative error for these tests.  Not all projects will
-  necessarily have nonfunctional requirements related to accuracy.}
+\subsubsection{Reliability}
 
-\wss{For some nonfunctional tests, you won't be setting a target threshold for
-passing the test, but rather describing the experiment you will do to measure
-the quality for different inputs.  For instance, you could measure speed versus
-the problem size.  The output of the test isn't pass/fail, but rather a summary
-table or graph.}
+The reliability of the software is tested through the tests for
+functional requirements in section 4.1 .
 
-\wss{Tests related to usability could include conducting a usability test and
-  survey.  The survey will be in the Appendix.}
-
-\wss{Static tests, review, inspections, and walkthroughs, will not follow the
-format for the tests given below.}
-
-\wss{If you introduce static tests in your plan, you need to provide details.
-How will they be done?  In cases like code (or document) walkthroughs, who will
-be involved? Be specific.}
-
-\subsubsection{Area of Testing1}
-		
-\paragraph{Title for Test}
+\subsubsection{Portability}
 
 \begin{enumerate}
 
-\item{test-id1\\}
+\item{test-id4\\}
 
-Type: Functional, Dynamic, Manual, Static etc.
+Type: Manual
 					
-Initial State: 
+Initial State: None
 					
-Input/Condition: 
+Input/Condition: None
 					
-Output/Result: 
+Output/Result: The system operates correctly on users' machines, with all functionalities working as expected.
 					
-How test will be performed: 
-					
-\item{test-id2\\}
+How test will be performed: Potential users will install the software on their computers (Windows or Linux) and execute a sample workflow.
+\end{enumerate}
 
-Type: Functional, Dynamic, Manual, Static etc.
-					
-Initial State: 
-					
-Input: 
-					
-Output: 
-					
-How test will be performed: 
+
+\subsubsection{Scalability}
+
+\begin{enumerate}
+
+\item{test-id5\\}
+
+Type: Manual
+
+Initial State: System initialized with a model trained on 70\% of the dataset.
+
+Input/Condition: Remaining 30\% of the dataset added as new data.
+
+Output/Result: Model updates complete within 1 minute.
+
+How test will be performed: Because there is no external data for updates, the system will first train the model on 70\% of the training set. The remaining 30\% will then be added as new data to simulate incremental updates. The time taken to update the model will be measured and verified to complete within the expected time.
+
 
 \end{enumerate}
 
-\subsubsection{Area of Testing2}
-
-...
-
 \subsection{Traceability Between Test Cases and Requirements}
 
-\wss{Provide a table that shows which test cases are supporting which
-  requirements.}
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|c|}
+  \hline
+    & test-id1& test-id2& test-id3& test-id4& test-id5 \\
+  \hline
+  R1        & X& & & & \\ \hline
+  R2        & & X & & & \\ \hline
+  R3        & &  & X& & \\ \hline
+  NFR1      &  &  & & & X\\ \hline
+  NFR2      & & X & X & & \\ \hline
+  NFR3      &  &  & &X& \\ \hline
+  \end{tabular}
+  \caption{Traceability Matrix Showing the Connections Between Test Cases and Requirements}
+  \label{Table:A_trace}
+  \end{table}
 
-\section{Unit Test Description}
+\section{Unit Test Description}\label{UnitTest}
 
 \wss{This section should not be filled in until after the MIS (detailed design
   document) has been completed.}
