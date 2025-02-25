@@ -183,15 +183,17 @@ The following test will ensure that there is no missing data in the training and
 
   \item{test-id1\\}
   Control: Automatic\\
-  Initial State: During the data cleaning, before traning the embedding function.\\
-  Input: Valid user features (e.g., location, age), item features (e.g., book title, author, year of publication), and the corresponding rating for each user-item pair.\\
-  Output: Each user-item pair have an accosiated reward and no missing features.\\
+  Initial State: Before training the embedding functions.\\
+  Input: Dataset\\
+  Output: A verified dataset where each user-item pair in the verified dataset has an associated reward and no missing values.\\
   Test Case Derivation: Ensures the system handles valid inputs as specified in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}. \\
   How test will be performed: Automated test using Pytest.
 					
 \end{enumerate}
 
 \subsubsection{Area of Testing 2: Performance of the embedding functions}
+
+The following test will ensure that the project has a reasonable performance for the embedding functions, as specified in the SRS.
 
 \paragraph{Test for performance}
 
@@ -200,19 +202,19 @@ The following test will ensure that there is no missing data in the training and
 
   Control: Automatic\\
   Initial State: After training of the embedding functions\\
-  Input: The testing dataset\\
+  Input: The testing dataset and embedding functions\\
   Output: The performance of the user embedding and item embedding functions is acceptable (accuracy $>$ 80\%)\\
   Test Case Derivation: Ensures the correctness of the output as specified in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.\\
-  How the test will be performed: Use GitHub Actions to automatically evaluate the performance once the training is finished.
+  How the test will be performed: This test will be performed automatically using GitHub Actions once the training is finished.
 
 \item{test-id3\\}
 
 Control: Automatic\\
-Initial State: System initialized with pre-computed item embeddings.\\
+Initial State: System initialized with pre-computed item embeddings and trained ANN index.\\
 Input:  user embeddings\\
-Output: The rankings for the top 10 items should generally be the same for identical user embeddings, but non-consistent rankings are allowed (up to 5\%) due to the inherent randomness in machine learning.\\
+Output: The ranking for the top 5 items should generally be the same for identical user embeddings. Non-consistent rankings are allowed (up to 5\%) due to the inherent randomness in machine learning.\\
 Test Case Derivation: Ensures that identical user embeddings produce identical item rankings, as stated in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.\\
-How the test will be performed: Automated test using Pytest.
+How the test will be performed: This test will be performed automatically using GitHub Actions. It will use the user feature 100 times to generate 100 lists of recommended items.\\
 
 \end{enumerate}
 
@@ -236,9 +238,9 @@ Initial State: None
 					
 Input/Condition: None
 					
-Output/Result: The system operates correctly on users' machines, with all functionalities working as expected.
-					
-How test will be performed: Potential users will install the software on their computers (Windows or Linux) and execute a sample workflow.
+Output/Result: The project should pass all the tests for functional requirements and run without any errors.
+
+How test will be performed: Potential users will install the project on their computers (Windows, macOS, or Linux) and execute a sample workflow. 
 \end{enumerate}
 
 
@@ -256,7 +258,7 @@ Input/Condition: Remaining 30\% of the dataset added as new data.
 
 Output/Result: Model updates complete within 1 minute.
 
-How test will be performed: Because there is no external data for updates, the system will first train the model on 70\% of the training set. The remaining 30\% will then be added as new data to simulate incremental updates. The time taken to update the model will be measured and verified to complete within the expected time.
+How test will be performed: Because there is no external data for updates, the system will first train the model on 70\% of the training set. After training is done and all the functional requirements have passed, the remaining 30\% will be added as new data to simulate incremental updates.
 
 
 \end{enumerate}
@@ -270,10 +272,10 @@ How test will be performed: Because there is no external data for updates, the s
     & test-id1& test-id2& test-id3& test-id4& test-id5 \\
   \hline
   R1        & X& & & & \\ \hline
-  R2        & & X & & & \\ \hline
-  R3        & &  & X& & \\ \hline
+  R2        & & X &X & & \\ \hline
+  R3        & & X & X& & X\\ \hline
   NFR1      &  &  & & & X\\ \hline
-  NFR2      & & X & X & & \\ \hline
+  NFR2      & X& X & X & & \\ \hline
   NFR3      &  &  & &X& \\ \hline
   \end{tabular}
   \caption{Traceability Matrix Showing the Connections Between Test Cases and Requirements}
