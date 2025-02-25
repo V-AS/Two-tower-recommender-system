@@ -233,7 +233,7 @@ The following test verifies that the entire recommendation pipeline works as exp
 % Input:  user embeddings\\
 % Output: The ranking for the top 5 items should generally be the same for identical user embeddings. Non-consistent rankings are allowed (up to 5\%) due to the inherent randomness in machine learning.\\
 % Test Case Derivation: Ensures that identical user embeddings produce identical item rankings, as stated in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.\\
-% How the test will be performed: This test will be performed automatically using GitHub Actions. It will use the user feature 100 times to generate 100 lists of recommended items.\\
+% How the test will be performed: This test will be performed automatically using GitHub Actions. It will generate 100 lists of recommended items for a random user.\\
 
 % \end{enumerate}
 
