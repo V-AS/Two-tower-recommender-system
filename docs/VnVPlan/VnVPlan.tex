@@ -31,7 +31,8 @@
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
-Feb 24, 2025 & 1.0 & First draft – Unit tests will be added later.\\
+Feb 24, 2025 & 1.0 & First draft - Unit tests will be added after the MIS has been completed..\\
+Feb 25, 2025 & 1.1 & Minor update after VnV presentation\\
 \bottomrule
 \end{tabularx}
 
@@ -60,6 +61,7 @@ Feb 24, 2025 & 1.0 & First draft – Unit tests will be added later.\\
   ANN & Approximate Nearest Neighbor\\
   SRS & Software Requirements Specification\\
   FAISS & Facebook AI Similarity Search\\
+
   \bottomrule
 \end{tabular}\\
 
@@ -73,7 +75,7 @@ This document outlines the verification and validation plan for the Two-Tower Em
 
 \subsection{Summary}
 
-The software under test is a Two-Tower Embedding Recommendation System, which generates personalized recommendations using user and item embeddings. The system consists of two main components:
+The software under test is the Two-Tower Embedding Recommendation System, which generates personalized recommendations using user and item embeddings. The system consists of two main components:
 \begin{itemize}
   \item Training Phase: Learns user and item embedding functions using a deep neural network architecture, optimized via stochastic gradient descent (SGD).
   \item Inference Phase: Retrieves candidate items using Approximate Nearest Neighbor (ANN) search and ranks them by dot product similarity.
@@ -84,9 +86,9 @@ The system is implemented in Python, leveraging libraries such as PyTorch for mo
 \subsection{Objectives}
 The primary objectives of this VnV plan are:
 \begin{itemize}
-  \item Correctness: Verify that the system correctly implements the mathematical models for training (e.g., MSE loss, gradient descent) and inference (e.g., ANN search, dot product ranking).
+  \item Correctness: Verify that the system correctly implements the mathematical models for training (e.g., MSE loss) and inference (e.g., ANN search, dot product ranking).
   \item Accuracy: Validate that the system achieves acceptable prediction accuracy on a held-out test set.
-  \item Scalability: Demonstrate that the system can handle a large number of users or items with reasonable latency.
+  \item Scalability: Demonstrate that the system can support incremental update when new data available.
 \end{itemize}
 \noindent Out-of-Scope Objectives
 
@@ -174,68 +176,68 @@ This section covers the system tests that will be applied to both the functional
 
 The functional requirements are tested in the following areas: input validation, ranking consistency, and output correctness. These tests ensure the system behaves as expected under various conditions.
 
-\subsubsection{Area of Testing 1: End-to-End Recommendation}
+\subsubsection{Area of Testing 1: Dataset}
 
-The following test verifies that the entire recommendation pipeline works as expected—from data ingestion, through embedding generation, to the delivery of final recommendations.
+% The following test verifies that the entire recommendation pipeline works as expected—from data ingestion, through embedding generation, to the delivery of final recommendations.
 		
-\paragraph{Test for Full Recommendation Pipeline}  
+% \paragraph{Test for Full Recommendation Pipeline}  
 
-\begin{enumerate}  
-  \item{test-id1\\}  
-  Type: Automatic 
+% \begin{enumerate}  
+%   \item{test-id1\\}  
+%   Type: Automatic 
 
-  Initial State: Untrained system. 
+%   Initial State: Untrained system. 
 
-  Input/Condition: Full training dataset.  
+%   Input/Condition: Full training dataset.  
 
-  Output/Result: A ranked list of recommendations for test users.
+%   Output/Result: A ranked list of recommendations for test users.
 
-  Test Case Derivation: Validates the entire workflow (training → embedding → ANN search → ranking).  
+%   Test Case Derivation: Validates the entire workflow (training → embedding → ANN search → ranking).  
 
-  How test will be performed:  
+%   How test will be performed:  
 
-  - Train the model on training dataset. 
+%   - Train the model on training dataset. 
 
-  - Generate recommendations for test users. 
+%   - Generate recommendations for test users. 
 
-  - Verify output.  
-\end{enumerate}  
+%   - Verify output.  
+% \end{enumerate}  
 
-% \begin{enumerate}
+\begin{enumerate}
 
-%   \item{test-id1\\}
-%   Control: Automatic\\
-%   Initial State: Before training the embedding functions.\\
-%   Input: Dataset\\
-%   Output: A verified dataset where each user-item pair in the verified dataset has an associated reward and no missing values.\\
-%   Test Case Derivation: Ensures the system handles valid inputs as specified in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}. \\
-%   How test will be performed: Automated test using Pytest.
+  \item{test-id1\\}
+  Control: Automatic\\
+  Initial State: Before training the embedding functions.\\
+  Input: Dataset\\
+  Output: A verified dataset where each user-item pair in the verified dataset has an associated reward and no missing values.\\
+  Test Case Derivation: Ensures the system handles valid inputs as specified in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}. \\
+  How test will be performed: Automated test using GitHub Actions.
 					
-% \end{enumerate}
+\end{enumerate}
 
 
-% \paragraph{Test for performance}
+\subsubsection{Test for performance}
 
-% \begin{enumerate}
-%   \item{test-id2\\}
+\begin{enumerate}
+  \item{test-id2\\}
 
-%   Control: Automatic\\
-%   Initial State: After training of the embedding functions\\
-%   Input: The testing dataset and embedding functions\\
-%   Output: The performance of the user embedding and item embedding functions is acceptable (accuracy $>$ 80\%)\\
-%   Test Case Derivation: Ensures the correctness of the output as specified in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.\\
-%   How the test will be performed: This test will be performed automatically using GitHub Actions once the training is finished.
+  Control: Automatic\\
+  Initial State: After training of the embedding functions\\
+  Input: The testing dataset and embedding functions\\
+  Output: The performance of the user embedding and item embedding functions is acceptable (accuracy $>$ 80\%)\\
+  Test Case Derivation: Ensures the correctness of the output as specified in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.\\
+  How the test will be performed: This test will be performed automatically using GitHub Actions once the training is finished.
 
-% \item{test-id3\\}
+\item{test-id3\\}
 
-% Control: Automatic\\
-% Initial State: System initialized with pre-computed item embeddings and trained ANN index.\\
-% Input:  user embeddings\\
-% Output: The ranking for the top 5 items should generally be the same for identical user embeddings. Non-consistent rankings are allowed (up to 5\%) due to the inherent randomness in machine learning.\\
-% Test Case Derivation: Ensures that identical user embeddings produce identical item rankings, as stated in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.\\
-% How the test will be performed: This test will be performed automatically using GitHub Actions. It will generate 100 lists of recommended items for a random user.\\
+Control: Automatic\\
+Initial State: System initialized with pre-computed item embeddings and trained ANN index.\\
+Input:  user embeddings\\
+Output: The ranking for the top 5 items should generally be the same for identical user embeddings. Non-consistent rankings are allowed (up to 5\%) due to the inherent randomness in machine learning.\\
+Test Case Derivation: Ensures that identical user embeddings produce identical item rankings, as stated in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.\\
+How the test will be performed: This test will be performed automatically using GitHub Actions. It will generate 100 lists of recommended items for a random user.\\
 
-% \end{enumerate}
+\end{enumerate}
 
 
 \subsection{Tests for Nonfunctional Requirements}
@@ -284,7 +286,10 @@ How test will be performed: Because there is no external data for updates, the s
 
 \subsection{Traceability Between Test Cases and Requirements}
 
-\begin{table}[h!]
+The table \ref{Table:S_trace}
+ shows the traceability between test cases and requirements
+
+\begin{table}[h!]\label{Table:S_trace}
   \centering
   \begin{tabular}{|c|c|c|c|c|c|c|}
   \hline
