@@ -240,6 +240,19 @@ How the test will be performed: This test will be performed automatically using 
 
 \end{enumerate}
 
+\subsubsection{Area of Testing 3: Model Storage}
+
+\begin{enumerate}
+  \item{test-id4:\\}
+  
+  Control: Automatic\\
+  Initial State: After model training is complete\\
+  Input: Trained model to be saved\\
+  Output: Model successfully stored and can be retrieved with identical parameters\\
+Test Case Derivation: Ensures R3 (model storage) is properly implemented
+How test will be performed: Automated test that saves the model, loads it back, and verifies parameter integrity
+\end{enumerate}
+
 
 \subsection{Tests for Nonfunctional Requirements}
 
@@ -252,7 +265,7 @@ functional requirements in section 4.1 and 5.2 .
 
 \begin{enumerate}
 
-\item{test-id2\\}
+\item{test-id5\\}
 
 Type: Manual
 					
@@ -270,7 +283,7 @@ How test will be performed: Potential users will install the project on their co
 
 \begin{enumerate}
 
-\item{test-id3\\}
+\item{test-id6\\}
 
 Type: Manual
 
@@ -292,16 +305,19 @@ The table \ref{Table:S_trace}
 
 \begin{table}[h!]\label{Table:S_trace}
   \centering
-  \begin{tabular}{|c|c|c|c|c|c|c|}
+  \begin{tabular}{|c|c|c|c|c|c|c|c|}
   \hline
-    & test-id1& test-id2& test-id3 \\
+    & test-id1& test-id2& test-id3&test-id4&test-id5&test-id6 \\
   \hline
-  R1        & X&   & \\ \hline
-  R2        & X& & \\ \hline
-  R3        & X& & X\\ \hline
-  NFR1      &     & & X\\ \hline
-  NFR2      &X    & & \\ \hline
-  NFR3      &     &X& \\ \hline
+  R1        & X&  & & & & \\ \hline
+  R2        & & X& & & & \\ \hline
+  R3        & & & &X& &\\ \hline
+  R4        & & & X& & &\\ \hline
+  R5        & &X & X& & &\\ \hline
+  R6        & &X & X& & &\\ \hline
+  NFR1      & & & & & &X\\ \hline
+  NFR2      &X & X& X& X& &\\ \hline
+  NFR3      & & & & &X&\\ \hline
   \end{tabular}
   \caption{Traceability Matrix Showing the Connections Between Test Cases and Requirements}
   \label{Table:A_trace}
