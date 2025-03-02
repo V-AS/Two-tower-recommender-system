@@ -128,7 +128,7 @@
 
 \begin{document}
 
-\title{Software Requirements Specification for \progname: A Two tower embeddings recommendation system} 
+\title{Software Requirements Specification for \progname: A Two Tower Embeddings Recommendation System} 
 \author{\authname}
 \date{\today}
 	
@@ -159,6 +159,10 @@ Feb 17 2025 & 1.1 & Addressed comments from Yuanqi\\
 \section{Reference Material}
 
 This section records information for easy reference.
+
+\subsection{Table of Units}
+
+Not Applicable
 
 \subsection{Abbreviations and Acronyms}
 
@@ -191,7 +195,7 @@ This section records information for easy reference.
   \toprule		
   \textbf{symbol} & \textbf{description}\\
   \midrule 
-  $\mathbb{R}$ & Real number\\
+  $\mathbb{R}$ & Set of real number\\
   $\theta$ & model parameter, a vector of real numbers\\
   $u(\cdot)$ & A function that map model parameter $\theta$ and features of user to the embedding space.\\
   $v(\cdot)$ & A function that map model parameter $\theta $ and features of item to the embedding space.\\
@@ -209,7 +213,7 @@ This section records information for easy reference.
 \section{Introduction}
 In the digital era, recommendation systems play a crucial role in enhancing user experiences by providing personalized content, products, and services. These systems are widely used in industries such as e-commerce, streaming platforms, and social media to help users discover relevant items from vast catalogs. Traditional recommendation approaches, including collaborative filtering and content-based methods, rely on explicit user-item interactions or manually engineered features. However, as datasets grow in complexity and size, these methods face challenges in scalability and efficiency.
 
-To overcome these limitations, modern recommendation systems leverage deep learning-based techniques, such as Two-Tower Embeddings (TTE). This project implements a recommendation system using a TTE model, where user and item features are mapped into a shared embedding space. To efficiently retrieve relevant items, Approximate Nearest Neighbors (ANN) search with FAISS is used for candidate selection, followed by dot product similarity for ranking.
+To overcome these limitations, modern recommendation systems leverage deep learning-based techniques, such as Two-Tower Embeddings (TTE). This project implements a recommendation system using a TTE model, where user and item features are mapped into a shared embedding space. To efficiently retrieve relevant items, the project will use FAISS as a tool to perform the Approximate Nearest Neighbor (ANN) search. FAISS is a vector similarity search library developed by Meta.
 
 The training dataset used for this project is from Kaggle: \url{https://www.kaggle.com/datasets/arashnic/book-recommendation-dataset}.
 
@@ -222,7 +226,7 @@ The purpose of this document is to define the software requirements for the reco
 This project assumes that users and items are fully represented by the features available in the dataset. External factors, such as social influences, or temporal patterns, are not considered. The recommendation model will rely solely on the provided user-item interaction data to generate recommendations.
 
 \subsection{Characteristics of Intended Reader} \label{sec_IntendedReader}
-Readers of this documentation are expected to have completed an introductory course on machine learning.
+Readers of this documentation are expected to have completed an introductory course on machine learning, including fundamental concepts in linear algebra, statistics and probability, and basic optimization techniques (e.g., gradient descent). Familiarity with neural networks and nearest neighbor search methods is also recommended.
 
 \subsection{Organization of Document}
 
@@ -299,7 +303,7 @@ The end user are not required to have any technical knowledge. The only responsi
 
 \subsection{System Constraints}
 
-There is no system constrains for this software.
+There is no system constrain for this software.
 
 \section{Specific System Description}
 
@@ -330,7 +334,6 @@ easier to correctly understand the requirements:
 \end{itemize}
 
 \subsubsection{Goal Statements}
-
 
 \begin{itemize}
 
@@ -367,17 +370,11 @@ The dot product between user and item embeddings is a valid measure of user inte
 
 \item[A\refstepcounter{assumpnum}\theassumpnum \label{A_DataQuality}:]
 User-item interactions in the training data reflect true user preferences and are free from systemic bias. [IM1][IM2][IM3]
-
 \end{itemize}
 
-
 \subsubsection{Theoretical Models}\label{sec_theoretical}
-
 This section focuses on the general equations and laws that \progname{} is based
 on. 
-
-~\newline
-
 \deftheory
 {TM:Mean Squared Error}
 {Regularized Mean Squared Error (MSE) Loss}
