@@ -467,7 +467,7 @@ The goals \gsref{GS1} and \gsref{GS2} are addressed by the following mathematica
       \hline
       Sources& \cite{douze2024faisslibrary}\\
       \hline
-      Ref.\ By & \rref{R_VerifyOutput}, \rref{R_Output}, \gsref{GS2}\\
+      Ref.\ By & \rref{R_ModelTraining}, \rref{R_ConsistentRanking}, \rref{R_Recommendations}, \gsref{GS2}\\
       \hline
     \end{tabular}
     \end{minipage}
@@ -499,7 +499,7 @@ The goals \gsref{GS1} and \gsref{GS2} are addressed by the following mathematica
         \hline
         Sources& \cite{wiki:Dot_product}\\
         \hline
-        Ref.\ By & \rref{R_VerifyOutput}, \rref{R_Output}, \gsref{GS2}\\
+        Ref.\ By & \rref{R_ModelTraining}, \rref{R_ConsistentRanking}, \gsref{GS2}\\
         \hline
       \end{tabular}
       \end{minipage}
@@ -575,12 +575,19 @@ qualities that the software is expected to exhibit.
 
 \noindent \begin{itemize}
 
-\item[R\refstepcounter{reqnum}\thereqnum \label{R_Inputs}:] The system shall accept user features, item features, and training data with observed rewards.
+\item[R\refstepcounter{reqnum}\thereqnum \label{R_TrainingInputs}:] The system shall accept user features, item features, and training data with observed rewards.
 
-\item[R\refstepcounter{reqnum}\thereqnum \label{R_VerifyOutput}:]
+\item[R\refstepcounter{reqnum}\thereqnum \label{R_ModelTraining}:] The system shall train embedding functions that map user and item features to a shared embedding space.
+  
+\item[R\refstepcounter{reqnum}\thereqnum \label{R_ModelStorage}:] The system shall store the trained embedding functions and precompute item embeddings for all available items.
+  
+\item[R\refstepcounter{reqnum}\thereqnum \label{R_UserEmbedding}:] The system shall generate embeddings for users based on their features.
+
+\item[R\refstepcounter{reqnum}\thereqnum \label{R_ConsistentRanking}:]
 Identical user/item embeddings shall produce identical rankings.
 
-\item[R\refstepcounter{reqnum}\thereqnum \label{R_Output}:]  The system shall return a ranked list of recommended items with similarity scores.
+\item[R\refstepcounter{reqnum}\thereqnum \label{R_Recommendations}:]  The system shall return a ranked list of recommended items with similarity scores.
+
 
 \end{itemize}
 
@@ -592,10 +599,10 @@ Identical user/item embeddings shall produce identical rankings.
   \textbf{Scalability} The system shall support incremental updates to trained models when new data becomes available, with updates completing within a time proportional to the dataset size.
 
 \item[NFR\refstepcounter{nfrnum}\thenfrnum \label{NFR_Reliability:}:]
-  \textbf{Reliability:} The reliability is measured and verified in the \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/VnVPlan/VnVPlan.pdf}{VnV Plan}
+  \textbf{Reliability:} The reliability is measured and verified in the \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/VnVPlan/VnVPlan.pdf}{VnV Plan}.
 
 \item[NFR\refstepcounter{nfrnum}\thenfrnum \label{NFR_Portability}:]
-  \textbf{Portability} \progname{} shall operate on Windows, Linux, and macOS environments
+  \textbf{Portability} \progname{} shall operate on Windows, Linux, and MacOS.
 
 \end{itemize}
 
@@ -640,7 +647,7 @@ the assumptions.
 \hline
 	& \aref{A_Embedding1}& \aref{A_Embedding2}& \aref{A_DotProduct}& \aref{A_DataQuality}  \\
 \hline
-\tref{TM:GD}          & X&X & & \\ \hline
+\tref{TM:OPT}          & X&X & & \\ \hline
 \tref{TM:Mean Squared Error}          & &  &X &X\\ \hline
 \iref{IM_CandidateGen}         & X& X & X&X \\ \hline
 \iref{IM_Ranking}         & X& X &X & X\\ \hline
@@ -658,7 +665,7 @@ the assumptions.
 \centering
 \begin{tabular}{|c|c|c|}
 \hline        
-	& \tref{TM:GD}& \tref{TM:Mean Squared Error} \\
+	& \tref{TM:OPT}& \tref{TM:Mean Squared Error} \\
 \hline
 \iref{IM_SGD}     & X& X   \\ \hline
 \iref{IM_Ranking}        & & X \\ \hline
@@ -670,21 +677,21 @@ the assumptions.
 \end{table}
 
 \begin{table}[h!]
-\centering
-\begin{tabular}{|c|c|c|c|}
-\hline
-	& \iref{IM_CandidateGen}& \iref{IM_Ranking}& \iref{IM_SGD}\\
-\hline
-\rref{R_Inputs}     & X& &     \\ \hline
-\rref{R_VerifyOutput}    & &  X &    \\ \hline
-\rref{R_Output}   & X& X& X    \\ \hline
-
-
-\end{tabular}
-\caption{Traceability Matrix Showing the Connections Between Requirements and Instance Models}
-\label{Table:R_trace}
-\end{table}
-
+  \centering
+  \begin{tabular}{|c|c|c|c|}
+  \hline
+    & \iref{IM_CandidateGen}& \iref{IM_Ranking}& \iref{IM_SGD}\\
+  \hline
+  \rref{R_TrainingInputs}     & & &     \\ \hline
+  \rref{R_ModelTraining}     & & & X    \\ \hline
+  \rref{R_ModelStorage}     & & &     \\ \hline
+  \rref{R_UserEmbedding}     & X& &     \\ \hline
+  \rref{R_ConsistentRanking}    & X & X & X   \\ \hline
+  \rref{R_Recommendations}   & X& X&     \\ \hline
+  \end{tabular}
+  \caption{Traceability Matrix Showing the Connections Between Requirements and Instance Models}
+  \label{Table:R_trace}
+  \end{table}
 \bibliographystyle {plainnat}
 \bibliography {../../refs/References}
 
