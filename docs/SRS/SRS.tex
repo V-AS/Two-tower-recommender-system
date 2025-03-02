@@ -191,23 +191,24 @@ Not Applicable
 \subsection{Mathematical Notation}
 
 \renewcommand{\arraystretch}{1.2}
-\begin{tabular}{l l} 
-  \toprule		
-  \textbf{symbol} & \textbf{description}\\
-  \midrule 
-  $\mathbb{R}$ & Set of real number\\
-  $\theta$ & model parameter, a vector of real numbers\\
-  $u(\cdot)$ & A function that map model parameter $\theta$ and features of user to the embedding space.\\
-  $v(\cdot)$ & A function that map model parameter $\theta $ and features of item to the embedding space.\\
-  $x_i$ & user feature\\
-  $y_i$ & item feature\\
-  $r_i$ & the associated reward for each user and item pair\\ 
-  $J(\cdot)$ & regularization function to prevent overfitting\\
-  $\mathcal{L}(\theta)$ & Loss function\\
-  $\eta $ & Learning rate\\
-  $B $ & Randomly selected subset of the training data used in one iteration of model training.\\
-  $\gamma$ & Hyperparameter to control the regularization term. \\
-    \bottomrule
+\begin{tabular}{l l}
+\toprule
+\textbf{symbol} & \textbf{description}\\
+\midrule
+$\mathbb{R}$ & Set of real numbers\\
+$\theta$ & Model parameter, a vector of real numbers\\
+$u(\cdot)$ & A function that maps model parameter $\theta$ and features of a user to the embedding space\\
+$v(\cdot)$ & A function that maps model parameter $\theta$ and features of an item to the embedding space\\
+$x_i$ & User feature\\
+$y_i$ & Item feature\\
+$k$ & Dimension of embedding space\\
+$r_i$ & The associated reward for each user and item pair\\
+$J(\cdot)$ & Regularization function to prevent overfitting\\
+$\mathcal{L}(\theta)$ & Loss function\\
+$\eta $ & Learning rate\\
+$B $ & Randomly selected subset of the training data used in one iteration of model training\\
+$\gamma$ & Hyperparameter to control the regularization term\\
+\bottomrule
 \end{tabular}\\
 
 \section{Introduction}
@@ -375,6 +376,7 @@ User-item interactions in the training data reflect true user preferences and ar
 \subsubsection{Theoretical Models}\label{sec_theoretical}
 This section focuses on the general equations and laws that \progname{} is based
 on. 
+
 \deftheory
 {TM:Mean Squared Error}
 {Regularized Mean Squared Error (MSE) Loss}
@@ -451,6 +453,7 @@ The goals \gsref{GS1} and \gsref{GS2} are addressed by the following mathematica
       \begin{itemize}
         \item User embedding $u(x_i;\theta) \in \mathbb{R}^k$ (from user tower).
         \item Precomputed item embeddings $\{v(y_i;\theta)\}_{i=1}^N \in \mathbb{R}^k$ (from item tower).
+        \item K: Number of candidates to return.
       \end{itemize}\\
       \hline
       Output& Top-$K$ candidate indices $I \subset \{1, \dots, N\}$\\
@@ -458,7 +461,7 @@ The goals \gsref{GS1} and \gsref{GS2} are addressed by the following mathematica
       Description& 
       \begin{itemize}
         \item Builds an ANN index (e.g., FAISS-IVFPQ) over $\{v(y_i;\theta)\}_{i=1}^N$.
-        \item Queries the index with $\mathbf{u}_\theta$ to retrieve candidates: 
+        \item Queries the index with $u(x_i;\theta)$ to retrieve candidates: 
           $I = \text{ANN-Search}\left(v(y_i;\theta), \{v(y_i;\theta)\}_{i=1}^N, K\right)$
       \end{itemize}\\
       \hline
@@ -482,6 +485,7 @@ The goals \gsref{GS1} and \gsref{GS2} are addressed by the following mathematica
         \begin{itemize}
           \item User embedding $u(x_i;\theta)$.
           \item Candidate item embeddings $\{v(y_i;\theta)\}_{i \in I}$.
+          \item N: Number of items to return.
         \end{itemize}\\
         \hline
         Output& Ranked list $I_{\text{ranked}}$ sorted by $s(x_i,y_i) = \langle u(x_i;\theta),v(y_i;\theta) \rangle $.\\
