@@ -205,7 +205,7 @@ Not Applicable
   $J(\cdot)$ & regularization function to prevent overfitting\\
   $\mathcal{L}(\theta)$ & Loss function\\
   $\eta $ & Learning rate\\
-  $B $ & Mini-batch\\
+  $B $ & Randomly selected subset of the training data used in one iteration of model training.\\
   $\gamma$ & Hyperparameter to control the regularization term. \\
     \bottomrule
 \end{tabular}\\
@@ -401,18 +401,18 @@ on.
 {}
 
 \deftheory
-{TM:GD}
-{Gradient Descent}
+{TM:OPT}
+{Mathematical Optimization}
 {
-  $\displaystyle \theta_{t+1} = \theta_t - \eta \nabla_\theta \mathcal{L}(\theta_t)$
+$\displaystyle \theta^* = \arg\min_{\theta \in \Theta} \mathcal{L}(\theta)$ 
 }
 {
-  Iterative optimization algorithm for minimizing a loss function $\mathcal{L}(\theta)$ by updating parameters $\theta$ in the direction of steepest descent.
+  The general problem of finding parameter values $\theta^*$ within a feasible set $\Theta$ that minimize a loss function $\mathcal{L}(\theta)$.
 }
 {
-  $\eta$: Learning rate (step size)\\
-  Requires differentiable loss function\\
-  Converges to local minimum
+$\Theta$: Parameter space\\
+$\mathcal{L}$: Real-valued functions to be minimized\\
+Solution existence and uniqueness dependent on properties of the functions and parameter space
 }
 {
   \cite{wiki:Gradient_descent}
@@ -421,7 +421,7 @@ on.
   \iref{IM_SGD}
 }
 {
-  $\mathcal{L}(\theta)$ must be differentiable
+  No specific requirements on the functions or parameters, though solvability depends on their properties
 }
 {}
 
