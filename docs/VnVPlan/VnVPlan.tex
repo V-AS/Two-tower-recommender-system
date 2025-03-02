@@ -325,75 +325,70 @@ The table \ref{Table:S_trace}
 
 \section{Unit Test Description}\label{UnitTest}
 
-\wss{This section should not be filled in until after the MIS (detailed design
-  document) has been completed.}
+The unit tests for this system will follow a hierarchical approach based on the module decomposition in the Module Guide. The testing philosophy focuses on:
 
-\wss{Reference your MIS (detailed design document) and explain your overall
-philosophy for test case selection.}  
-
-\wss{To save space and time, it may be an option to provide less detail in this section.  
-For the unit tests you can potentially layout your testing strategy here.  That is, you 
-can explain how tests will be selected for each module.  For instance, your test building 
-approach could be test cases for each access program, including one test for normal behaviour 
-and as many tests as needed for edge cases.  Rather than create the details of the input 
-and output here, you could point to the unit testing code.  For this to work, you code 
-needs to be well-documented, with meaningful names for all of the tests.}
+1. Black-box testing of module interfaces according to their specifications
+2. White-box testing for complex algorithms and edge cases
+3. Mock objects for isolating modules from their dependencies
 
 \subsection{Unit Testing Scope}
-
-\wss{What modules are outside of the scope.  If there are modules that are
-  developed by someone else, then you would say here if you aren't planning on
-  verifying them.  There may also be modules that are part of your software, but
-  have a lower priority for verification than others.  If this is the case,
-  explain your rationale for the ranking of module importance.}
+All modules developed for this project will be tested. External libraries (PyTorch, FAISS) are considered outside the scope of unit testing.
 
 \subsection{Tests for Functional Requirements}
 
-\wss{Most of the verification will be through automated unit testing.  If
-  appropriate specific modules can be verified by a non-testing based
-  technique.  That can also be documented in this section.}
-
-\subsubsection{Module 1}
-
-\wss{Include a blurb here to explain why the subsections below cover the module.
-  References to the MIS would be good.  You will want tests from a black box
-  perspective and from a white box perspective.  Explain to the reader how the
-  tests were selected.}
+\subsubsection{System Interface Module (M1)}
 
 \begin{enumerate}
 
-\item{test-id1\\}
-
-Type: \wss{Functional, Dynamic, Manual, Automatic, Static etc. Most will
-  be automatic}
-					
-Initial State: 
-					
-Input: 
-					
-Output: \wss{The expected result for the given inputs}
-
-Test Case Derivation: \wss{Justify the expected value given in the Output field}
-
-How test will be performed: 
-					
-\item{test-id2\\}
-
-Type: \wss{Functional, Dynamic, Manual, Automatic, Static etc. Most will
-  be automatic}
-					
-Initial State: 
-					
-Input: 
-					
-Output: \wss{The expected result for the given inputs}
-
-Test Case Derivation: \wss{Justify the expected value given in the Output field}
-
-How test will be performed: 
-
-\item{...\\}
-    
+  \item{test-M1-1\\}
+  Type: Automatic, Functional
+            
+  Initial State: Empty file system storage location
+  
+  Input: A trained model object with known parameters
+            
+  Output: Boolean value 'True' indicating successful save operation, and file exists at the specified location with correct format
+  
+  Test Case Derivation: R3 requires the system to store trained embedding functions. This test verifies the save model functionality works correctly by checking both the return value and the actual file creation.
+  
+  How test will be performed: Create a small test model, save it to a temporary location, verify the return value is True, and check that the file exists and has non-zero size.
+  
+  \item{test-M1-2\\}
+  Type: Automatic, Functional
+            
+  Initial State: File system with a previously saved model
+            
+  Output: A model object with identical parameters to the one that was saved
+  
+  Test Case Derivation: R3 requires stored models to be retrievable. This test verifies that a model can be loaded without corruption by comparing parameters before and after the save-load cycle.
+  
+  How test will be performed: Save a model with known architecture and parameter values, load it back, and verify the architecture and parameters match the original.
+  
+  \item{test-M1-3\\}
+  Type: Automatic, Functional, Exception Handling
+            
+  Initial State: File system with no access permissions
+            
+  Input: A model to be saved to a protected location
+            
+  Output: IOError exception with appropriate error message
+  
+  Test Case Derivation: The system should handle file system errors gracefully. This test verifies that the appropriate exception is raised when file operations fail.
+  
+  How test will be performed: Attempt to save a model to a location without write permissions and verify the correct exception is raised.
+  
+  \item{test-M1-4\\}
+  Type: Automatic, Functional
+            
+  Initial State: File system with a previously saved batch of item embeddings
+            
+  Input: Path to the saved embeddings
+            
+  Output: Array of embeddings identical to the ones that were saved
+  
+  Test Case Derivation: R3 requires precomputed item embeddings to be stored and retrieved. This test verifies that embeddings can be loaded correctly.
+  
+  How test will be performed: Save a batch of embeddings with known values, load them back, and verify the values match the original.
 \end{enumerate}
 
 \subsubsection{Module 2}

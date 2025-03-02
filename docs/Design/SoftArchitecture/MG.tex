@@ -46,8 +46,7 @@
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
-Date 1 & 1.0 & Notes\\
-Date 2 & 1.1 & Notes\\
+Mar 2 2025 & 1.0 & First Draft\\
 \bottomrule
 \end{tabularx}
 
@@ -161,12 +160,13 @@ change.
   hardware on which the software is running.
 \item[\refstepcounter{acnum} \actheacnum \label{acInput}:] The format of the
   initial input data.
-\item ...
+\item[\refstepcounter{acnum} \actheacnum \label{acUserNN}:] The neural network architecture for the user tower.
+\item[\refstepcounter{acnum} \actheacnum \label{acItemNN}:] The neural network architecture for the item tower.
+\item[\refstepcounter{acnum} \actheacnum \label{acANN}:] The algorithm used for Approximate Nearest Neighbor (ANN) search.
+\item[\refstepcounter{acnum} \actheacnum \label{acLoss}:] The loss function and regularization techniques used for training.
+\item[\refstepcounter{acnum} \actheacnum \label{acSimilarity}:] The similarity function used for ranking items.
+\item[\refstepcounter{acnum} \actheacnum \label{acOutputFormat}:] The format of the output recommendations.
 \end{description}
-
-\wss{Anticipated changes relate to changes that would be made in requirements,
-design or implementation choices.  They are not related to changes that are made
-at run-time, like the values of parameters.}
 
 \subsection{Unlikely Changes} \label{SecUchange}
 
@@ -178,9 +178,9 @@ will potentially need to be modified. Hence, it is not intended that these
 decisions will be changed.
 
 \begin{description}
-\item[\refstepcounter{ucnum} \uctheucnum \label{ucIO}:] Input/Output devices
-  (Input: File and/or Keyboard, Output: File, Memory, and/or Screen).
-\item ...
+\item[\refstepcounter{ucnum} \uctheucnum \label{ucImplementation}:] The use of Python as the implementation language.
+\item[\refstepcounter{ucnum} \uctheucnum \label{ucDeepLearning}:] The use of deep learning for embedding generation.
+\item[\refstepcounter{ucnum} \uctheucnum \label{ucTTE}:] The two-tower architecture for the recommendation system.
 \end{description}
 
 \section{Module Hierarchy} \label{SecMH}
@@ -192,7 +192,13 @@ actually be implemented.
 
 \begin{description}
 \item [\refstepcounter{mnum} \mthemnum \label{mHH}:] Hardware-Hiding Module
-\item ...
+\item [\refstepcounter{mnum} \mthemnum \label{mDP}:] Data Processing Module
+\item [\refstepcounter{mnum} \mthemnum \label{mMT}:] Model Training Module
+\item [\refstepcounter{mnum} \mthemnum \label{mEG}:] Embedding Generation Module
+\item [\refstepcounter{mnum} \mthemnum \label{mRe}:] Recommendation Module
+\item [\refstepcounter{mnum} \mthemnum \label{mNN}:] Neural Network Architecture Module
+\item [\refstepcounter{mnum} \mthemnum \label{mANN}:] ANN Search Module
+\item [\refstepcounter{mnum} \mthemnum \label{mVO}:] Vector Operations Module
 \end{description}
 
 
@@ -206,19 +212,15 @@ actually be implemented.
 {Hardware-Hiding Module} & ~ \\
 \midrule
 
-\multirow{7}{0.3\textwidth}{Behaviour-Hiding Module} & ?\\
-& ?\\
-& ?\\
-& ?\\
-& ?\\
-& ?\\
-& ?\\ 
-& ?\\
+\multirow{7}{0.3\textwidth}{Behaviour-Hiding Module} & Data Processing Module\\
+& Model Training Module\\
+& Embedding Generation Module\\
+& Recommendation Module\\
 \midrule
 
-\multirow{3}{0.3\textwidth}{Software Decision Module} & {?}\\
-& ?\\
-& ?\\
+\multirow{3}{0.3\textwidth}{Software Decision Module} & {Neural Network Architecture Module}\\
+& ANN Search Module\\
+& Vector Operations Module\\
 \bottomrule
 
 \end{tabular}
@@ -231,13 +233,6 @@ actually be implemented.
 The design of the system is intended to satisfy the requirements developed in
 the SRS. In this stage, the system is decomposed into modules. The connection
 between requirements and modules is listed in Table~\ref{TblRT}.
-
-\wss{The intention of this section is to document decisions that are made
-  ``between'' the requirements and the design.  To satisfy some requirements,
-  design decisions need to be made.  Rather than make these decisions implicit,
-  they are explicitly recorded here.  For instance, if a program has security
-  requirements, a specific design decision may be made to satisfy those
-  requirements with a password.}
 
 \section{Module Decomposition} \label{SecMD}
 
@@ -278,18 +273,41 @@ to be implemented.
 \item[Implemented By:] --
 \end{description}
 
-\subsubsection{Input Format Module (\mref{mInput})}
+\subsubsection{Data Processing Module (\mref{mDP})}
 
 \begin{description}
 \item[Secrets:]The format and structure of the input data.
-\item[Services:]Converts the input data into the data structure used by the
-  input parameters module.
-\item[Implemented By:] [Your Program Name Here]
-\item[Type of Module:] [Record, Library, Abstract Object, or Abstract Data Type]
-  [Information to include for leaf modules in the decomposition by secrets tree.]
+\item[Services:]Loads, validates, and preprocesses user and item data for training and inference.
+\item[Implemented By:] \progname
+\item[Type of Module:] Library
 \end{description}
 
-\subsubsection{Etc.}
+\subsubsection{Model Training Module (\mref{mMT})}
+
+\begin{description}
+\item[Secrets:]The training process, including loss function and optimization technique.
+\item[Services:]Trains the embedding functions using the provided data.
+\item[Implemented By:] \progname
+\item[Type of Module:] Abstract Object
+\end{description}
+
+\subsubsection{Embedding Generation Module (\mref{mEG})}
+
+\begin{description}
+\item[Secrets:]How embeddings are created from user and item features.
+\item[Services:]Generates embeddings for users and items using the trained models.
+\item[Implemented By:] \progname
+\item[Type of Module:] Library
+\end{description}
+
+\subsubsection{Recommendation Module (\mref{mRe})}
+
+\begin{description}
+\item[Secrets:]How recommendations are generated and ranked.
+\item[Services:]Retrieves and ranks items for a given user based on embedding similarity.
+\item[Implemented By:] \progname
+\item[Type of Module:] Library
+\end{description}
 
 
 \subsection{Software Decision Module}
@@ -305,7 +323,32 @@ to be implemented.
 \item[Implemented By:] --
 \end{description}
 
-\subsubsection{Etc.}
+\subsubsection{Neural Network Architecture Module (\mref{mNN})}
+
+\begin{description}
+\item[Secrets:]The structure and parameters of the neural networks used for embedding.
+\item[Services:]Defines the architecture of the user and item towers.
+\item[Implemented By:] \progname
+\item[Type of Module:] Abstract Object
+\end{description}
+
+\subsubsection{ANN Search Module (\mref{mANN})}
+
+\begin{description}
+\item[Secrets:]The algorithm used for approximate nearest neighbor search.
+\item[Services:]Efficiently retrieves nearest neighbors in the embedding space.
+\item[Implemented By:] \progname (using FAISS library)
+\item[Type of Module:] Abstract Object
+\end{description}
+
+\subsubsection{Vector Operations Module (\mref{mVO})}
+
+\begin{description}
+\item[Secrets:]The implementation of vector operations such as dot product and normalization.
+\item[Services:]Provides efficient vector operations for embeddings.
+\item[Implemented By:] \progname
+\item[Type of Module:] Library
+\end{description}
 
 \section{Traceability Matrix} \label{SecTM}
 
@@ -320,17 +363,12 @@ requirements and between the modules and the anticipated changes.
 \toprule
 \textbf{Req.} & \textbf{Modules}\\
 \midrule
-R1 & \mref{mHH}, \mref{mInput}, \mref{mParams}, \mref{mControl}\\
-R2 & \mref{mInput}, \mref{mParams}\\
-R3 & \mref{mVerify}\\
-R4 & \mref{mOutput}, \mref{mControl}\\
-R5 & \mref{mOutput}, \mref{mODEs}, \mref{mControl}, \mref{mSeqDS}, \mref{mSolver}, \mref{mPlot}\\
-R6 & \mref{mOutput}, \mref{mODEs}, \mref{mControl}, \mref{mSeqDS}, \mref{mSolver}, \mref{mPlot}\\
-R7 & \mref{mOutput}, \mref{mEnergy}, \mref{mControl}, \mref{mSeqDS}, \mref{mPlot}\\
-R8 & \mref{mOutput}, \mref{mEnergy}, \mref{mControl}, \mref{mSeqDS}, \mref{mPlot}\\
-R9 & \mref{mVerifyOut}\\
-R10 & \mref{mOutput}, \mref{mODEs}, \mref{mControl}\\
-R11 & \mref{mOutput}, \mref{mODEs}, \mref{mEnergy}, \mref{mControl}\\
+R1 & \mref{mDP}\\
+R2 & \mref{mMT}, \mref{mNN}\\
+R3 & \mref{mHH}, \mref{mMT}\\
+R4 & \mref{mEG}, \mref{mNN}\\
+R5 & \mref{mRe}, \mref{mVO}\\
+R6 & \mref{mRe}, \mref{mANN}\\
 \bottomrule
 \end{tabular}
 \caption{Trace Between Requirements and Modules}
@@ -344,17 +382,13 @@ R11 & \mref{mOutput}, \mref{mODEs}, \mref{mEnergy}, \mref{mControl}\\
 \textbf{AC} & \textbf{Modules}\\
 \midrule
 \acref{acHardware} & \mref{mHH}\\
-\acref{acInput} & \mref{mInput}\\
-\acref{acParams} & \mref{mParams}\\
-\acref{acVerify} & \mref{mVerify}\\
-\acref{acOutput} & \mref{mOutput}\\
-\acref{acVerifyOut} & \mref{mVerifyOut}\\
-\acref{acODEs} & \mref{mODEs}\\
-\acref{acEnergy} & \mref{mEnergy}\\
-\acref{acControl} & \mref{mControl}\\
-\acref{acSeqDS} & \mref{mSeqDS}\\
-\acref{acSolver} & \mref{mSolver}\\
-\acref{acPlot} & \mref{mPlot}\\
+\acref{acInput} & \mref{mDP}\\
+\acref{acUserNN} & \mref{mNN}\\
+\acref{acItemNN} & \mref{mNN}\\
+\acref{acANN} & \mref{mANN}\\
+\acref{acLoss} & \mref{mMT}\\
+\acref{acSimilarity} & \mref{mVO}\\
+\acref{acOutputFormat} & \mref{mRe}\\
 \bottomrule
 \end{tabular}
 \caption{Trace Between Anticipated Changes and Modules}
@@ -374,18 +408,9 @@ the modules. It can be seen that the graph is a directed acyclic graph
 system, and modules in the higher level of the hierarchy are essentially simpler
 because they use modules from the lower levels.
 
-\wss{The uses relation is not a data flow diagram.  In the code there will often
-be an import statement in module A when it directly uses module B.  Module B
-provides the services that module A needs.  The code for module A needs to be
-able to see these services (hence the import statement).  Since the uses
-relation is transitive, there is a use relation without an import, but the
-arrows in the diagram typically correspond to the presence of import statement.}
-
-\wss{If module A uses module B, the arrow is directed from A to B.}
-
 \begin{figure}[H]
 \centering
-%\includegraphics[width=0.7\textwidth]{UsesHierarchy.png}
+\includegraphics[width=0.7\textwidth]{UsesHierarchy.png}
 \caption{Use hierarchy among modules}
 \label{FigUH}
 \end{figure}
@@ -393,19 +418,15 @@ arrows in the diagram typically correspond to the presence of import statement.}
 %\section*{References}
 
 \section{User Interfaces}
-
-\wss{Design of user interface for software and hardware.  Attach an appendix if
-needed. Drawings, Sketches, Figma}
+The user interface for the \progname will be a simple terminal-based application that collects user information, processes it through the recommendation model, and displays a ranked list of recommended items.
 
 \section{Design of Communication Protocols}
 
-\wss{If appropriate}
+Not Applicable
 
 \section{Timeline}
 
-\wss{Schedule of tasks and who is responsible}
-
-\wss{You can point to GitHub if this information is included there}
+Please refer to the \hyperref{https://github.com/V-AS/Two-tower-recommender-system/tree/main}{}{}{Github}.
 
 \bibliographystyle {plainnat}
 \bibliography{../../../refs/References}
