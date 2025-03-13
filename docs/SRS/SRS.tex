@@ -583,16 +583,16 @@ qualities that the software is expected to exhibit.
 
 \item[R\refstepcounter{reqnum}\thereqnum \label{R_TrainingInputs}:] The system shall accept user features, item features, and training data with observed rewards.
 
-\item[R\refstepcounter{reqnum}\thereqnum \label{R_ModelTraining}:] The system shall train embedding functions that map user and item features to a shared embedding space.
+\item[R\refstepcounter{reqnum}\thereqnum \label{R_ModelTraining}:] The system shall train embedding functions that map user and item features to a shared embedding space. [IM3]
   
 \item[R\refstepcounter{reqnum}\thereqnum \label{R_ModelStorage}:] The system shall store the trained embedding functions and precompute item embeddings for all available items.
   
-\item[R\refstepcounter{reqnum}\thereqnum \label{R_UserEmbedding}:] The system shall generate embeddings for users based on their features.
+\item[R\refstepcounter{reqnum}\thereqnum \label{R_UserEmbedding}:] The system shall generate embeddings for users based on their features. [IM1]
 
 \item[R\refstepcounter{reqnum}\thereqnum \label{R_ConsistentRanking}:]
-Identical user/item embeddings shall produce identical rankings.
+Identical user/item embeddings shall produce identical rankings. [IM1][IM2][IM3]
 
-\item[R\refstepcounter{reqnum}\thereqnum \label{R_Recommendations}:]  The system shall return a ranked list of recommended items with similarity scores.
+\item[R\refstepcounter{reqnum}\thereqnum \label{R_Recommendations}:]  The system shall return a ranked list of recommended items with similarity scores. [IM1][IM2]
 
 
 \end{itemize}
@@ -602,7 +602,7 @@ Identical user/item embeddings shall produce identical rankings.
 \noindent \begin{itemize}
 
 \item[NFR\refstepcounter{nfrnum}\thenfrnum \label{NFR_Scalability}:]
-  \textbf{Scalability} The system shall support incremental updates to trained models when new data becomes available, with updates completing within a time proportional to the dataset size.
+  \textbf{Scalability} The system shall support incremental updates to trained models when new data becomes available.
 
 \item[NFR\refstepcounter{nfrnum}\thenfrnum \label{NFR_Reliability:}:]
   \textbf{Reliability:} The reliability is measured and verified in the \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/VnVPlan/VnVPlan.pdf}{VnV Plan}.
