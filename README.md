@@ -8,14 +8,12 @@ This project is to fulfill the CAS 741 project.
 
 The folders and files for this project are as follows:
 
-docs - Documentation for the project
+- docs - Documentation for the project
 
-refs - Reference material used for the project, including papers
+- refs - Reference material used for the project, including papers
 
-src - Source code
+- src - Source code
 
-data - Folder for datasets
+- data - Folder for datasets
 
-test - Test cases
-
-etc.
+- test - Test cases
