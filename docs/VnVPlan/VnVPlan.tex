@@ -341,149 +341,218 @@ All modules developed for this project will be tested. External libraries (PyTor
 \begin{enumerate}
 
   \item{test-M1-1\\}
-  Type: Automatic, Functional
-            
-  Initial State: Empty file system storage location
-  
-  Input: A trained model object with known parameters
-            
-  Output: Boolean value 'True' indicating successful save operation, and file exists at the specified location with correct format
-  
-  Test Case Derivation: R3 requires the system to store trained embedding functions. This test verifies the save model functionality works correctly by checking both the return value and the actual file creation.
-  
-  How test will be performed: Create a small test model, save it to a temporary location, verify the return value is True, and check that the file exists and has non-zero size.
-  
-  \item{test-M1-2\\}
-  Type: Automatic, Functional
-            
-  Initial State: File system with a previously saved model
-            
-  Output: A model object with identical parameters to the one that was saved
-  
-  Test Case Derivation: R3 requires stored models to be retrievable. This test verifies that a model can be loaded without corruption by comparing parameters before and after the save-load cycle.
-  
-  How test will be performed: Save a model with known architecture and parameter values, load it back, and verify the architecture and parameters match the original.
-  
-  \item{test-M1-3\\}
-  Type: Automatic, Functional, Exception Handling
-            
-  Initial State: File system with no access permissions
-            
-  Input: A model to be saved to a protected location
-            
-  Output: IOError exception with appropriate error message
-  
-  Test Case Derivation: The system should handle file system errors gracefully. This test verifies that the appropriate exception is raised when file operations fail.
-  
-  How test will be performed: Attempt to save a model to a location without write permissions and verify the correct exception is raised.
-  
-  \item{test-M1-4\\}
-  Type: Automatic, Functional
-            
-  Initial State: File system with a previously saved batch of item embeddings
-            
-  Input: Path to the saved embeddings
-            
-  Output: Array of embeddings identical to the ones that were saved
-  
-  Test Case Derivation: R3 requires precomputed item embeddings to be stored and retrieved. This test verifies that embeddings can be loaded correctly.
-  
-  How test will be performed: Save a batch of embeddings with known values, load them back, and verify the values match the original.
+Type: Automatic, Functional
+					
+Initial State: File system with sufficient storage space
+
+Input: Trained model object
+					
+Output: Boolean value 'True' indicating successful save and load operation
+
+Test Case Derivation: R3 requires the system to store and retrieve trained embedding functions.
+
+How test will be performed: Use the fully trained production model, save it to disk, load it back, and verify the model parameters are preserved.
+
+
 \end{enumerate}
 
-\subsubsection{Module 2}
+\subsubsection{Data Processing Module (M2)}
 
-...
+\begin{enumerate}
+  \item{test-M2-1\\}
+  Type: Automatic, Functional
+            
+  Initial State: None
+            
+  Input: Path to the production dataset file
+            
+  Output: Boolean value 'True' indicating the dataset has no missing values and meets all validation criteria
+  
+  Test Case Derivation: R1 requires the system to accept valid input data.
+  
+  How test will be performed: Load the production dataset using the module and run validation to verify it meets all requirements.
+  
+\end{enumerate}
+
+\subsubsection{Model Training Module (M3)}
+
+\begin{enumerate}
+
+\item{test-M3-1\\}
+Type: Automatic, Functional
+					
+Initial State: Uninitialized ModelTrainer
+					
+Input: Valid training configuration
+					
+Output: ModelTrainer with initialized state (IsInitialized=True)
+
+Test Case Derivation: R2 requires the system to train embedding functions.
+
+How test will be performed: Initialize the ModelTrainer with the configuration and verify the state variables are set correctly.
+
+\end{enumerate}
+\subsubsection{Embedding Generation Module (M4)}
+\begin{enumerate}
+
+  \item{test-M4-1\\}
+  Type: Automatic, Functional
+            
+  Initial State: Initialized EmbeddingGenerator
+            
+  Input: A random user data from the dataset
+            
+  Output: User embedding vector of the expected dimension.
+  
+  Test Case Derivation: R4 requires the system to generate embeddings based on user features.
+  
+  How test will be performed: Generate an embedding for an user from the dataset and verify its dimension matches the expected value.
+  
+  \end{enumerate}
+
+\subsubsection{Recommendation Module (M5)}
+
+\begin{enumerate}
+
+\item{test-M5-1\\}
+Type: Automatic, Functional
+					
+Initial State: Initialized Recommender
+					
+Input: Processed user data and number of results (10)
+					
+Output: Array of recommendation objects with length 10, each containing an item ID and similarity score
+
+Test Case Derivation: R6 requires the system to return ranked recommendations with similarity scores.
+
+How test will be performed: Generate recommendations for an user from the dataset and verify the output has the correct format and length.
+
+\end{enumerate}
+
+\subsubsection{Neural Network Architecture Module (M6)}
+
+\begin{enumerate}
+
+\item{test-M6-1\\}
+Type: Automatic, Functional
+					
+Initial State: None
+					
+Input: Configuration parameters for input dimension, hidden layers, and embedding dimension
+					
+Output: Neural network model with the specified architecture
+
+Test Case Derivation: R2 requires the system to create models for embedding generation.
+
+How test will be performed: Create a model with the architecture and verify the layer structure matches the specification.
+
+\end{enumerate}
+\subsubsection{ANN Search Module (M7)}
+
+\begin{enumerate}
+
+\item{test-M7-1\\}
+Type: Automatic, Functional
+					
+Initial State: None
+					
+Input: Array of item embeddings from the production model and a query embedding
+					
+Output: Array of (item\_id, similarity\_score) tuples with the expected length
+
+Test Case Derivation: R6 requires efficient retrieval of nearest items.
+
+How test will be performed: Build an index with item embeddings, search with an user embedding, and verify the results structure. The correctness will not be verified, as the external library (FAISS) is assumed to be correct.
+
+\end{enumerate}
+
+\subsubsection{Vector Operations Module (M8)}
+
+\begin{enumerate}
+
+\item{test-M8-1\\}
+Type: Automatic, Functional
+					
+Initial State: None
+					
+Input: Two embedding vectors of the same dimension
+					
+Output: Scalar dot product value
+
+Test Case Derivation: The system relies on dot product for similarity calculation.
+
+How test will be performed: Calculate the dot product of two actual embedding vectors from the model and verify the result is a scalar value.
+
+\end{enumerate}
 
 \subsection{Tests for Nonfunctional Requirements}
 
-\wss{If there is a module that needs to be independently assessed for
-  performance, those test cases can go here.  In some projects, planning for
-  nonfunctional tests of units will not be that relevant.}
 
-\wss{These tests may involve collecting performance data from previously
-  mentioned functional tests.}
+\subsubsection{Scalability Test}
 
-\subsubsection{Module ?}
-		
 \begin{enumerate}
 
-\item{test-id1\\}
+\item{test-NFR1-1\\}
+Type: Automatic, Performance
+					
+Initial State: Trained model
+					
+Input: New data
+					
+Output: An updated model
 
-Type: \wss{Functional, Dynamic, Manual, Automatic, Static etc. Most will
-  be automatic}
-					
-Initial State: 
-					
-Input/Condition: 
-					
-Output/Result: 
-					
-How test will be performed: 
-					
-\item{test-id2\\}
+Test Case Derivation: NFR1 requires incremental updates when new data becomes available.
 
-Type: Functional, Dynamic, Manual, Static etc.
+How test will be performed: Add new data to the existing model and verify the model parameters have been updated correctly.
+\end{enumerate}
+
+\subsubsection{Portability Test}
+
+\begin{enumerate}
+
+\item{test-NFR3-1\\}
+Type: Manual, Compatibility
 					
-Initial State: 
+Initial State: Complete system package
 					
-Input: 
+Input: Installation commands on different platforms
 					
-Output: 
-					
-How test will be performed: 
+Output: System runs successfully on Windows, Linux, and macOS
+
+Test Case Derivation: NFR3 requires operation on multiple platforms.
+
+How test will be performed: Install and run the system on each platform, performing a standard recommendation operation.
 
 \end{enumerate}
 
-\subsubsection{Module ?}
-
-...
-
 \subsection{Traceability Between Test Cases and Modules}
+The table \ref{Table:Unit} shows the traceability between test cases and modules.
 
-\wss{Provide evidence that all of the modules have been considered.}
+
+\begin{table}[h!]\label{Table:Unit}
+  \centering
+  \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+  \hline
+  \textbf{Test ID} & \textbf{M1} & \textbf{M2} & \textbf{M3} & \textbf{M4} & \textbf{M5} & \textbf{M6} & \textbf{M7} & \textbf{M8} \\
+  \hline
+  test-M1-1 & X &   &   &   &   &   &   &   \\
+  test-M2-1 &   & X &   &   &   &   &   &   \\
+  test-M3-1 &   &   & X &   &   &   &   &   \\
+  test-M4-1 &   &   &   & X &   &   &   &   \\
+  test-M5-1 &   &   &   &   & X &   &   &   \\
+  test-M6-1 &   &   &   &   &   & X &   &   \\
+  test-M7-1 &   &   &   &   &   &  &  X &   \\
+  test-M8-1 &   &   &   &   &   &   &   & X \\
+  \hline
+  test-NFR1-1 &   &   & X &   &   &   &   &   \\
+  test-NFR3-1 & X & X & X & X & X & X & X & X \\
+  \hline
+  \end{tabular}
+  \caption{Traceability Matrix Between Test Cases and Modules}
+  \end{table}
 				
 \bibliographystyle{plainnat}
 
 \bibliography{../../refs/References}
-
-\newpage
-
-\section{Appendix}
-
-This is where you can place additional information.
-
-\subsection{Symbolic Parameters}
-
-The definition of the test cases will call for SYMBOLIC\_CONSTANTS.
-Their values are defined in this section for easy maintenance.
-
-\subsection{Usability Survey Questions?}
-
-\wss{This is a section that would be appropriate for some projects.}
-
-\newpage{}
-\section*{Appendix --- Reflection}
-
-\wss{This section is not required for CAS 741}
-
-The information in this section will be used to evaluate the team members on the
-graduate attribute of Lifelong Learning.
-
-
-\begin{enumerate}
-  \item What went well while writing this deliverable? 
-  \item What pain points did you experience during this deliverable, and how
-    did you resolve them?
-  \item What knowledge and skills will the team collectively need to acquire to
-  successfully complete the verification and validation of your project?
-  Examples of possible knowledge and skills include dynamic testing knowledge,
-  static testing knowledge, specific tool usage, Valgrind etc.  You should look to
-  identify at least one item for each team member.
-  \item For each of the knowledge areas and skills identified in the previous
-  question, what are at least two approaches to acquiring the knowledge or
-  mastering the skill?  Of the identified approaches, which will each team
-  member pursue, and why did they make this choice?
-\end{enumerate}
 
 \end{document}
