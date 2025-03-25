@@ -1,7 +1,7 @@
 # Project Name Source Code
 
 The folders and files for this project are as follows:
-
+```
 src/
 ├── hardware/
 │   └── system_interface.py        # Hardware-hiding module
@@ -19,3 +19,4 @@ src/
 ├── main.py                        # Main execution script
 ├── user_interface.py
 └── requirements.txt               # Dependencies
+```
