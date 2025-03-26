@@ -70,7 +70,6 @@ def parse_args():
 def main():
     """Main execution function."""
     args = parse_args()
-
     # Create output directory if it doesn't exist
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
@@ -104,23 +103,19 @@ def main():
         # Create neural network architectures
         print("Creating neural network architectures...")
 
-        # Determine input dimensions
-        user_input_dim = 0
-        for key in train_data["users"].columns:
-            if key.startswith("Location_") or key == "Age-Normalized":
-                user_input_dim += 1
+        # Create a sample feature vector to get the correct dimension
+        trainer = ModelTrainer()
 
-        item_input_dim = 0
-        for key in train_data["books"].columns:
-            if key == "Year-Normalized" or key == "Author-Popularity":
-                item_input_dim += 1
+        sample_user_features = trainer._prepare_user_features(train_data["users"])
+        sample_key = list(sample_user_features.keys())[0]
+        user_input_dim = len(sample_user_features[sample_key])
 
-        # Ensure at least one dimension
-        user_input_dim = max(1, user_input_dim)
-        item_input_dim = max(1, item_input_dim)
+        sample_item_features = trainer._prepare_item_features(train_data["books"])
+        sample_key = list(sample_item_features.keys())[0]
+        item_input_dim = len(sample_item_features[sample_key])
 
-        print(f"User input dimension: {user_input_dim}")
-        print(f"Item input dimension: {item_input_dim}")
+        print(f"Actual user feature dimension: {user_input_dim}")
+        print(f"Actual item feature dimension: {item_input_dim}")
 
         user_tower = create_user_tower(
             input_dim=user_input_dim,
@@ -169,7 +164,6 @@ def main():
         embedding_generator.initialize(model["user_model"], model["item_model"])
 
         # Prepare item features for embedding generation
-        from modules.model_training import ModelTrainer
 
         item_features = []
         item_ids = []
@@ -268,8 +262,6 @@ def main():
             return
 
         # Get user features
-        from modules.model_training import ModelTrainer
-
         trainer = ModelTrainer()
         user_features = trainer._prepare_user_features(users_df)
         user_id_encoded = user_row["User-ID-Encoded"].values[0]
