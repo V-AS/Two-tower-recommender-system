@@ -17,3 +17,16 @@ The folders and files for this project are as follows:
 - data - Folder for datasets
 
 - test - Test cases
+
+## Running the Project
+
+Create a virtual environment and install the dependencies:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+Train the model:
+```bash
+python src/main.py --mode train --epochs 10 --data_dir data/processed --output_dir output
+```

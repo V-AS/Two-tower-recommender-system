@@ -107,7 +107,7 @@ def main():
         # Determine input dimensions
         user_input_dim = 0
         for key in train_data["users"].columns:
-            if key.startswith("country_") or key == "Age-Normalized":
+            if key.startswith("Location_") or key == "Age-Normalized":
                 user_input_dim += 1
 
         item_input_dim = 0
