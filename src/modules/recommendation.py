@@ -64,7 +64,7 @@ class Recommender:
         # Query ANN index
         from modules.ann_search import ANNSearch
         ann_search = ANNSearch()
-        results = ann_search.search(self.ann_index, user_embedding, k=num_results)
+        results = ann_search.two_stage_search(self.ann_index, user_embedding, final_k=num_results)
         
         # Enhance results with book details if available
         recommendations = []

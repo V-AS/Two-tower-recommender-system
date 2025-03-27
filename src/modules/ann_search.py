@@ -8,8 +8,11 @@ import numpy as np
 import faiss
 import os
 
+import sys
+sys.settrace
+
 DEFAULT_SEARCH_NPROBE = 10
-DEFAULT_INDEX_TYPE = "IVF"
+DEFAULT_INDEX_TYPE = "Flat"
 
 class ANNSearch:
     def __init__(self):
@@ -31,83 +34,134 @@ class ANNSearch:
         Raises:
             ValueError: If parameters are invalid
         """
-        if len(embeddings) != len(item_ids):
-            raise ValueError("Number of embeddings and item IDs must match")
+        try:
+
+            # Existing validation
+            if len(embeddings) != len(item_ids):
+                raise ValueError("Number of embeddings and item IDs must match")
+            
+            if len(embeddings) == 0:
+                raise ValueError("Cannot build index with empty embeddings")
+            
+            # Force contiguous arrays and check for NaN/Inf values
+            embeddings = np.ascontiguousarray(embeddings).astype('float32')
+            
+            # Check for NaN or infinite values
+            if np.isnan(embeddings).any() or np.isinf(embeddings).any():
+                print("Warning: NaN or infinite values detected in embeddings")
+                # Replace NaN/Inf with zeros
+                embeddings = np.nan_to_num(embeddings)
+            
+            item_ids = np.array(item_ids)
         
-        if len(embeddings) == 0:
-            raise ValueError("Cannot build index with empty embeddings")
+           
+            # Convert to numpy arrays
+            embeddings = np.array(embeddings).astype('float32')
+            item_ids = np.array(item_ids)
+            
+            # Get dimension
+            d = embeddings.shape[1]
         
-        # Convert to numpy arrays
-        embeddings = np.array(embeddings).astype('float32')
-        item_ids = np.array(item_ids)
+            # Create appropriate index based on type and size
+            if index_type == "Flat":
+                index = faiss.IndexFlatIP(d)  # Exact inner product search
+            elif index_type == "IVF":
+                nlist = min(int(np.sqrt(len(embeddings) * 5)), len(embeddings))
+                quantizer = faiss.IndexFlatIP(d)
+                index = faiss.IndexIVFFlat(quantizer, d, nlist, faiss.METRIC_INNER_PRODUCT)
+                # Need to train IVF index
+                index.train(embeddings)
+            else:
+                raise ValueError(f"Unsupported index type: {index_type}")
+            
+            # Add embeddings to index
+            index.add(embeddings)
+            
+            # Set search parameters
+            if hasattr(index, 'nprobe'):
+                index.nprobe = DEFAULT_SEARCH_NPROBE
+            
+            # Create the ANN index object
+            ann_index = {
+                'index': index,
+                'item_ids': item_ids,
+                'index_type': index_type
+            }
+            
+            return ann_index
+                # Rest of your existing code...
+        except Exception as e:
+            print(f"Error during index building: {str(e)}")
+            raise
         
-        # Get dimension
-        d = embeddings.shape[1]
-        
-        # Create appropriate index based on type and size
-        if index_type == "Flat":
-            index = faiss.IndexFlatIP(d)  # Exact inner product search
-        elif index_type == "IVF":
-            nlist = min(int(np.sqrt(len(embeddings) * 5)), len(embeddings))
-            quantizer = faiss.IndexFlatIP(d)
-            index = faiss.IndexIVFFlat(quantizer, d, nlist, faiss.METRIC_INNER_PRODUCT)
-            # Need to train IVF index
-            index.train(embeddings)
-        else:
-            raise ValueError(f"Unsupported index type: {index_type}")
-        
-        # Add embeddings to index
-        index.add(embeddings)
-        
-        # Set search parameters
-        if hasattr(index, 'nprobe'):
-            index.nprobe = DEFAULT_SEARCH_NPROBE
-        
-        # Create the ANN index object
-        ann_index = {
-            'index': index,
-            'item_ids': item_ids,
-            'index_type': index_type
-        }
-        
-        return ann_index
-    
-    def search(self, index, query, k=10):
+    def two_stage_search(self, index, query, candidates=100, final_k=10):
         """
-        Search the ANN index for nearest neighbors.
+        Performs a two-stage search:
+        1. First stage: Use FAISS to get a larger set of candidate neighbors
+        2. Second stage: Calculate exact dot products and return top-k
         
         Args:
             index (dict): ANN index object
             query (array-like): Query embedding
-            k (int): Number of neighbors to retrieve
+            candidates (int): Number of candidates to retrieve in first stage
+            final_k (int): Number of final results to return after refinement
             
         Returns:
             list: List of (item_id, similarity_score) tuples
-            
-        Raises:
-            ValueError: If parameters are invalid
         """
         if not isinstance(index, dict) or 'index' not in index or 'item_ids' not in index:
             raise ValueError("Invalid ANN index")
-        
-        if k <= 0:
-            raise ValueError("k must be positive")
-        
+    
         # Convert query to numpy array
         query = np.array(query).astype('float32').reshape(1, -1)
+    
+        # Stage 1: Get candidate set using FAISS search
+        distances, indices = index['index'].search(query, candidates)
         
-        # Search the index
-        distances, indices = index['index'].search(query, k)
+        # Get the embeddings for these candidates
+        candidate_embeddings = []
+        candidate_ids = []
         
-        # Map indices to item IDs and create result tuples
-        results = []
         for i, idx in enumerate(indices[0]):
             if idx != -1:  # FAISS returns -1 for padded results
                 item_id = index['item_ids'][idx]
-                score = float(distances[0][i])
-                results.append((item_id, score))
+                candidate_ids.append(item_id)
+                # For a Flat index, we can reconstruct the embedding
+                if index['index_type'] == "Flat":
+                    embedding = index['index'].reconstruct(int(idx))
+                    candidate_embeddings.append(embedding)
         
-        return results
+        # If we couldn't get embeddings from the index (e.g., for non-Flat indices)
+        # we'd need to load them from a saved embeddings file
+        if not candidate_embeddings:
+            print("Warning: Could not get embeddings from index. Using initial scores.")
+            # Just use the initial distances
+            results = []
+            for i, idx in enumerate(indices[0]):
+                if idx != -1:
+                    item_id = index['item_ids'][idx]
+                    score = float(distances[0][i])
+                    results.append((item_id, score))
+            # Sort by score (highest first) and take top final_k
+            results = sorted(results, key=lambda x: x[1], reverse=True)[:final_k]
+            return results
+        
+        # Stage 2: Calculate exact dot products with candidate embeddings
+        from modules.vector_operations import dot_product
+        
+        refined_results = []
+        query_vector = query[0]  # Remove the batch dimension
+        
+        for i, emb in enumerate(candidate_embeddings):
+            item_id = candidate_ids[i]
+            # Calculate exact dot product
+            exact_score = dot_product(query_vector, emb)
+            refined_results.append((item_id, float(exact_score)))
+            print(f"Item ID: {item_id}, Score: {exact_score}")
+        # Sort by score (highest first) and take top final_k
+        refined_results = sorted(refined_results, key=lambda x: x[1], reverse=True)[:final_k]
+        
+        return refined_results
     
     def save_index(self, index, path):
         """
