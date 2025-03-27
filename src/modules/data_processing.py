@@ -1,21 +1,16 @@
 """
-Simplified Data Processing Module for loading and preprocessing data.
-Handles dataset validation and splitting.
+Enhanced Data Processing Module with better feature engineering.
 """
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 class DataProcessor:
     def __init__(self):
         """Initialize the DataProcessor."""
-        self.user_encoder = LabelEncoder()
-        self.book_title_encoder = LabelEncoder()
-        self.author_encoder = LabelEncoder()
-        self.publisher_encoder = LabelEncoder()
-        self.state_encoder = LabelEncoder()
-        self.country_encoder = LabelEncoder()
+        self.categorical_encoders = {}
+        self.scalers = {}
         
     def load_data(self, data_path):
         """
@@ -33,10 +28,6 @@ class DataProcessor:
         try:
             df = pd.read_csv(data_path)
             return df
-        except pd.errors.EmptyDataError:
-            raise ValueError("The CSV file is empty")
-        except pd.errors.ParserError:
-            raise ValueError("Error parsing CSV format")
         except Exception as e:
             raise IOError(f"Failed to load data: {str(e)}")
     
@@ -53,7 +44,7 @@ class DataProcessor:
         try:
             # Check for required columns
             required_cols = ['User-ID', 'Book-Rating', 'Book-Title', 'Book-Author', 
-                             'Year-Of-Publication', 'Publisher', 'Age']
+                            'Year-Of-Publication', 'Publisher', 'Age']
             
             if not all(col in df.columns for col in required_cols):
                 return False
@@ -64,7 +55,7 @@ class DataProcessor:
     
     def preprocess_data(self, df):
         """
-        Preprocess the loaded data.
+        Enhanced preprocessing with better feature engineering.
         
         Args:
             df (DataFrame): The dataset to preprocess
@@ -78,35 +69,62 @@ class DataProcessor:
         # Fill missing values with appropriate defaults
         data['State'] = data['State'].fillna('Unknown')
         data['Country'] = data['Country'].fillna('Unknown')
+        data['Age'] = data['Age'].fillna(data['Age'].median())
         
-        # Convert Year-Of-Publication to numeric if possible
+        # Handle Year-Of-Publication - convert to numeric and fill missing
         data['Year-Of-Publication'] = pd.to_numeric(data['Year-Of-Publication'], errors='coerce')
         data['Year-Of-Publication'] = data['Year-Of-Publication'].fillna(data['Year-Of-Publication'].median())
         
+        # Create categorical features - using frequency encoding for high cardinality categories
+        # Author popularity (frequency encoding)
+        author_counts = data['Book-Author'].value_counts()
+        data['Author-Frequency'] = data['Book-Author'].map(author_counts) / len(data)
+        
+        # Publisher popularity (frequency encoding)
+        publisher_counts = data['Publisher'].value_counts()
+        data['Publisher-Frequency'] = data['Publisher'].map(publisher_counts) / len(data)
+        
+        # Country popularity (frequency encoding)
+        country_counts = data['Country'].value_counts()
+        data['Country-Frequency'] = data['Country'].map(country_counts) / len(data)
+        
+        # State/Province popularity (frequency encoding)
+        state_counts = data['State'].value_counts()
+        data['State-Frequency'] = data['State'].map(state_counts) / len(data)
+        
+        # Age buckets (create age groups for better generalization)
+        bins = [0, 18, 25, 35, 50, 100]
+        labels = [0, 1, 2, 3, 4]
+        data['Age-Group'] = pd.cut(data['Age'], bins=bins, labels=labels)
+        
+        # Create decade groups for books
+        data['Decade'] = (data['Year-Of-Publication'] // 10) * 10
+        
+        # Create normalized features
+        scaler = StandardScaler()
+        
         # Normalize Age
-        data['Age-Normalized'] = (data['Age'] - data['Age'].min()) / (data['Age'].max() - data['Age'].min())
+        data['Age-Normalized'] = (data['Age'] - data['Age'].min()) / (data['Age'].max() - data['Age'].min() + 1e-6)
         
         # Normalize Book-Rating to [0, 1] range
         data['Normalized-Rating'] = data['Book-Rating'] / 10.0
         
-        # Encode categorical variables
-        data['User-ID-Encoded'] = self.user_encoder.fit_transform(data['User-ID'])
-        data['Book-Title-Encoded'] = self.book_title_encoder.fit_transform(data['Book-Title'])
-        data['Author-Encoded'] = self.author_encoder.fit_transform(data['Book-Author'])
-        data['Publisher-Encoded'] = self.publisher_encoder.fit_transform(data['Publisher'])
-        data['State-Encoded'] = self.state_encoder.fit_transform(data['State'])
-        data['Country-Encoded'] = self.country_encoder.fit_transform(data['Country'])
-        
-        # Create author and publisher popularity features
-        author_counts = data['Book-Author'].value_counts()
-        publisher_counts = data['Publisher'].value_counts()
-        
-        data['Author-Popularity'] = data['Book-Author'].map(author_counts) / author_counts.max()
-        data['Publisher-Popularity'] = data['Publisher'].map(publisher_counts) / publisher_counts.max()
-        
-        # Normalize Year-Of-Publication to [0, 1] range
+        # Normalize Year-Of-Publication
         data['Year-Normalized'] = (data['Year-Of-Publication'] - data['Year-Of-Publication'].min()) / \
-                                  (data['Year-Of-Publication'].max() - data['Year-Of-Publication'].min() + 1e-10)
+                               (data['Year-Of-Publication'].max() - data['Year-Of-Publication'].min() + 1e-6)
+        
+        # One-hot encode low-cardinality categoricals
+        # For users - keep the original fields but also add encoded versions
+        data['User-ID-Encoded'] = data['User-ID']
+        data['Book-Title-Encoded'] = pd.factorize(data['Book-Title'])[0]
+        
+        # Create book ratios - what percentage of all books by this author has the user read?
+        author_book_counts = data.groupby('Book-Author')['Book-Title'].transform('nunique')
+        data['Author-Book-Ratio'] = 1 / author_book_counts
+        
+        # Generate interaction features (combinations of important features)
+        data['Age-Country-Interaction'] = data['Age-Normalized'] * data['Country-Frequency']
+        data['Year-Publisher-Interaction'] = data['Year-Normalized'] * data['Publisher-Frequency']
         
         return data
     
@@ -120,14 +138,7 @@ class DataProcessor:
             
         Returns:
             train_data, test_data: The split datasets
-            
-        Raises:
-            ValueError: If train_ratio is not in (0, 1)
         """
-        if train_ratio <= 0 or train_ratio >= 1:
-            raise ValueError("train_ratio must be in (0, 1)")
-        
-        # Split the data
         train_data, test_data = train_test_split(
             data, train_size=train_ratio, random_state=42
         )
@@ -136,29 +147,29 @@ class DataProcessor:
     
     def create_training_data(self, data):
         """
-        Create training data from preprocessed DataFrame.
+        Create enhanced training data from preprocessed DataFrame.
         
         Args:
-            data (DataFrame): Preprocessed DataFrame with all encoded features
+            data (DataFrame): Preprocessed DataFrame with all features
                 
         Returns:
             dict: Training dataset
         """
-        # Extract user features
-        user_features = data[[
-            'Age-Normalized', 
-            'State-Encoded', 
-            'Country-Encoded'
-        ]].values
+        # Extract user features - focus on the most informative features
+        user_features = np.column_stack((
+            data['Age-Normalized'].values,
+            data['Age-Group'].values,
+            data['State-Frequency'].values,
+            data['Country-Frequency'].values
+        ))
         
-        # Extract item features
-        item_features = data[[
-            'Year-Normalized',
-            'Author-Popularity',
-            'Publisher-Popularity',
-            'Author-Encoded',
-            'Publisher-Encoded'
-        ]].values
+        # Extract item features - focus on the most informative features
+        item_features = np.column_stack((
+            data['Year-Normalized'].values,
+            data['Author-Frequency'].values,
+            data['Publisher-Frequency'].values,
+            data['Decade'].values
+        ))
         
         # Create the training dataset dictionary
         dataset = {

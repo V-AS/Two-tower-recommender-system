@@ -1,17 +1,17 @@
 """
-Modified Model Training Module.
-Handles training and evaluation of the two-tower model.
+Simplified Model Training Module.
+Focuses on ensuring embedding diversity.
 """
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
-from sklearn.model_selection import KFold
 from tqdm import tqdm
 
-DEFAULT_LEARNING_RATE = 0.01
-DEFAULT_BATCH_SIZE = 128
-DEFAULT_REGULARIZATION = 0.01
+# Default parameters
+DEFAULT_LEARNING_RATE = 0.001
+DEFAULT_BATCH_SIZE = 64
+DEFAULT_REGULARIZATION = 0.0001
 
 class ModelTrainer:
     def __init__(self):
@@ -40,17 +40,24 @@ class ModelTrainer:
         self.user_model = config['user_architecture'].to(self.device)
         self.item_model = config['item_architecture'].to(self.device)
         
-        # Configure optimizer
-        params = list(self.user_model.parameters()) + list(self.item_model.parameters())
+        # Configure optimizer with separate parameter groups and learning rates
+        user_params = list(self.user_model.parameters())
+        item_params = list(self.item_model.parameters())
+        
+        # Use Adam with reduced weight decay
         lr = config.get('learning_rate', DEFAULT_LEARNING_RATE)
         weight_decay = config.get('regularization', DEFAULT_REGULARIZATION)
         
-        self.optimizer = optim.Adam(params, lr=lr, weight_decay=weight_decay)
+        self.optimizer = optim.Adam([
+            {'params': user_params, 'lr': lr},
+            {'params': item_params, 'lr': lr}
+        ], weight_decay=weight_decay)
+        
         self.is_initialized = True
     
     def train(self, dataset, epochs=10):
         """
-        Train the two-tower model with contrastive loss to better separate user preferences.
+        Train the two-tower model with simplified approach.
         
         Args:
             dataset: Training dataset
@@ -64,17 +71,14 @@ class ModelTrainer:
         
         batch_size = self.config.get('batch_size', DEFAULT_BATCH_SIZE)
         
-        # Primary loss function for rating prediction
+        # Rating prediction loss
         rating_criterion = nn.MSELoss()
         
-        # Contrastive loss margin
-        margin = 0.5
-    
         # Training history
         history = {
             'loss': [],
             'rating_loss': [],
-            'contrastive_loss': [],
+            'diversity_loss': [],
             'val_loss': []
         }
         
@@ -86,7 +90,7 @@ class ModelTrainer:
             
             epoch_losses = []
             rating_losses = []
-            contrastive_losses = []
+            diversity_losses = []
             
             # Training in mini-batches
             self.user_model.train()
@@ -108,50 +112,43 @@ class ModelTrainer:
                 predicted_ratings = torch.sum(user_embeddings * item_embeddings, dim=1)
                 rating_loss = rating_criterion(predicted_ratings, rating_batch)
                 
-                # 2. Contrastive loss to increase separation
-                contrastive_loss = torch.tensor(0.0).to(self.device)
+                # 2. Diversity loss - explicitly enforce variance in embeddings
+                # Calculate cosine similarity matrix for embeddings
+                user_sim = torch.mm(user_embeddings, user_embeddings.t())
+                item_sim = torch.mm(item_embeddings, item_embeddings.t())
                 
-                # Create negatives by shuffling item embeddings
-                shuffle_idx = torch.randperm(item_embeddings.size(0))
-                negative_items = item_embeddings[shuffle_idx]
-                negative_scores = torch.sum(user_embeddings * negative_items, dim=1)
+                # Create identity matrix for comparison (diagonal should be 1, off-diagonal should be lower)
+                identity = torch.eye(len(batch_indices)).to(self.device)
                 
-                # Contrastive loss: push positives high and negatives low
-                # For positives (real item for user), we want higher score for higher rating
-                # For negatives (random item for user), we want lower score
-                pos_weight = rating_batch  # Higher weight for higher ratings
+                # Calculate diversity loss (penalize high similarity between different embeddings)
+                # We mask out the diagonal elements (self-similarity) with the identity matrix
+                diversity_loss = torch.mean(torch.pow(user_sim * (1 - identity), 2)) + \
+                                torch.mean(torch.pow(item_sim * (1 - identity), 2))
                 
-                # Compute the contrastive loss term
-                # We want predicted_ratings to be high and negative_scores to be low
-                # with a margin between them proportional to the true rating
-                for j in range(len(batch_indices)):
-                    if rating_batch[j] >= 0.7:  # Only apply to items with high ratings (7+ out of 10)
-                        # Calculate contrastive loss
-                        contrastive_loss += max(0, margin - (predicted_ratings[j] - negative_scores[j]))
-                
-                # Normalize
-                if len(batch_indices) > 0:
-                    contrastive_loss = contrastive_loss / len(batch_indices)
-                
-                # Total loss
-                loss = rating_loss + contrastive_loss
+                # Total loss with diversity component
+                loss = rating_loss + 0.1 * diversity_loss
                 
                 # Backward pass and optimize
                 self.optimizer.zero_grad()
                 loss.backward()
+                
+                # Gradient clipping
+                torch.nn.utils.clip_grad_norm_(self.user_model.parameters(), 1.0)
+                torch.nn.utils.clip_grad_norm_(self.item_model.parameters(), 1.0)
+                
                 self.optimizer.step()
                 
                 epoch_losses.append(loss.item())
                 rating_losses.append(rating_loss.item())
-                contrastive_losses.append(contrastive_loss.item())
+                diversity_losses.append(diversity_loss.item() * 0.1)
             
             # Validation
             with torch.no_grad():
                 self.user_model.eval()
                 self.item_model.eval()
                 
-                # Subsample validation data to keep it fast
-                val_indices = np.random.choice(indices, min(5000, len(indices)), replace=False)
+                # Sample validation data
+                val_indices = np.random.choice(indices, min(1000, len(indices)), replace=False)
                 
                 val_user = torch.tensor(dataset['user_features'][val_indices], dtype=torch.float32).to(self.device)
                 val_item = torch.tensor(dataset['item_features'][val_indices], dtype=torch.float32).to(self.device)
@@ -160,8 +157,9 @@ class ModelTrainer:
                 val_user_embeddings = self.user_model(val_user)
                 val_item_embeddings = self.item_model(val_item)
                 
-                # Check variation in user embeddings (diagnostic)
-                user_emb_var = torch.std(val_user_embeddings, dim=0).mean().item()
+                # Check variation in embeddings (critical for debugging)
+                user_emb_var = torch.var(val_user_embeddings).item()
+                item_emb_var = torch.var(val_item_embeddings).item()
                 
                 # Compute validation loss
                 val_pred_ratings = torch.sum(val_user_embeddings * val_item_embeddings, dim=1)
@@ -170,14 +168,19 @@ class ModelTrainer:
             # Record history
             avg_loss = np.mean(epoch_losses)
             avg_rating_loss = np.mean(rating_losses)
-            avg_contrastive_loss = np.mean(contrastive_losses)
+            avg_diversity_loss = np.mean(diversity_losses)
             history['loss'].append(avg_loss)
             history['rating_loss'].append(avg_rating_loss)
-            history['contrastive_loss'].append(avg_contrastive_loss)
+            history['diversity_loss'].append(avg_diversity_loss)
             history['val_loss'].append(val_loss)
             
-            print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.4f} (Rating: {avg_rating_loss:.4f}, Contrastive: {avg_contrastive_loss:.4f})")
-            print(f"Val Loss: {val_loss:.4f}, User Embedding Variation: {user_emb_var:.6f}")
+            print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.4f} (Rating: {avg_rating_loss:.4f}, Diversity: {avg_diversity_loss:.4f})")
+            print(f"Val Loss: {val_loss:.4f}, User Emb Var: {user_emb_var:.6f}, Item Emb Var: {item_emb_var:.6f}")
+            
+            # Early stopping if embeddings have good variance
+            if user_emb_var > 0.1 and item_emb_var > 0.1 and epoch > 5:
+                print("Embeddings have sufficient variance - early stopping")
+                break
         
         # Return trained model and history
         model = {
@@ -219,6 +222,11 @@ class ModelTrainer:
             user_embeddings = self.user_model(user_test)
             item_embeddings = self.item_model(item_test)
             
+            # Calculate embedding stats
+            user_emb_var = torch.var(user_embeddings).item()
+            item_emb_var = torch.var(item_embeddings).item()
+            print(f"Test User Emb Var: {user_emb_var:.6f}, Item Emb Var: {item_emb_var:.6f}")
+            
             predicted_ratings = torch.sum(user_embeddings * item_embeddings, dim=1)
             
             mse = criterion(predicted_ratings, rating_test).item()
@@ -232,13 +240,15 @@ class ModelTrainer:
             mae = np.mean(np.abs(predictions - targets))
             
             # Determine accuracy (% of predictions within 10% of true value)
-            accuracy = np.mean(np.abs(predictions - targets) <= 0.5)
+            accuracy = np.mean(np.abs(predictions - targets) <= 0.1)
             
         metrics = {
             'mse': mse,
             'rmse': rmse,
             'mae': mae,
-            'accuracy': accuracy
+            'accuracy': accuracy,
+            'user_embedding_variance': user_emb_var,
+            'item_embedding_variance': item_emb_var
         }
         
         return metrics

@@ -54,7 +54,7 @@ def parse_args():
         "--batch_size", type=int, default=128, help="Training batch size"
     )
     parser.add_argument(
-        "--embedding_dim", type=int, default=128, help="Embedding dimension"
+        "--embedding_dim", type=int, default=32, help="Embedding dimension"
     )
     parser.add_argument("--user_id", type=str, help="User ID for recommendation mode")
     parser.add_argument(

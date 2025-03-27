@@ -1,92 +1,89 @@
 """
 Neural Network Architecture Module.
-Defines the architecture of user and item towers.
 """
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
-DEFAULT_HIDDEN_LAYERS = [256, 128]
-DEFAULT_ACTIVATION = "relu"
 
 class TowerNetwork(nn.Module):
-    """Base tower network for embedding generation."""
-    
-    def __init__(self, input_dim, hidden_layers, embedding_dim, activation="relu"):
+    """tower network for embedding generation."""
+
+    def __init__(self, input_dim, embedding_dim=64):
         """
-        Initialize a tower network.
-        
+        Initialize a minimal tower network.
+
         Args:
             input_dim (int): Dimension of input features
-            hidden_layers (list): List of hidden layer dimensions
             embedding_dim (int): Dimension of the output embedding
-            activation (str): Activation function to use
         """
         super(TowerNetwork, self).__init__()
-        
+
         self.input_dim = input_dim
-        self.hidden_layers = hidden_layers
         self.embedding_dim = embedding_dim
-        
-        # Create layers
-        layers = []
-        prev_dim = input_dim
-        
-        for dim in hidden_layers:
-            layers.append(nn.Linear(prev_dim, dim))
-            if activation == "relu":
-                layers.append(nn.ReLU())
-            elif activation == "tanh":
-                layers.append(nn.Tanh())
-            elif activation == "sigmoid":
-                layers.append(nn.Sigmoid())
-            prev_dim = dim
-        
-        # Output layer
-        layers.append(nn.Linear(prev_dim, embedding_dim))
-        layers.append(nn.Tanh())
-        
-        self.model = nn.Sequential(*layers)
-    
+
+        # Use a single hidden layer with minimal complexity
+        self.model = nn.Sequential(
+            nn.Linear(input_dim, embedding_dim * 2),
+            nn.ReLU(),
+            nn.Linear(embedding_dim * 2, embedding_dim),
+        )
+
+        # Initialize weights with more variance to encourage diversity
+        self._init_weights()
+
+    def _init_weights(self):
+        """Custom initialization to prevent embedding collapse."""
+        for m in self.model:
+            if isinstance(m, nn.Linear):
+                # Use Kaiming initialization with higher gain
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
+                if m.bias is not None:
+                    # Add some randomness to biases
+                    nn.init.uniform_(m.bias, -0.1, 0.1)
+
     def forward(self, x):
         """Forward pass through the network."""
+        # Apply a small amount of noise to prevent identical outputs
+        if self.training:
+            noise = torch.randn_like(x) * 0.01
+            x = x + noise
+
         embeddings = self.model(x)
+
+        # L2 normalize the embeddings for cosine similarity
         normalized_embeddings = F.normalize(embeddings, p=2, dim=1)
-        
+
         return normalized_embeddings
 
 
-def create_user_tower(input_dim, hidden_layers=None, embedding_dim=128):
+def create_user_tower(input_dim, hidden_layers=None, embedding_dim=64):
     """
-    Create a user tower network.
-    
+    Create a simplified user tower network.
+
     Args:
         input_dim (int): Dimension of user features
-        hidden_layers (list): List of hidden layer dimensions
+        hidden_layers (list): Ignored
         embedding_dim (int): Dimension of the output embedding
-        
+
     Returns:
         TowerNetwork: The user tower
     """
-    if hidden_layers is None:
-        hidden_layers = DEFAULT_HIDDEN_LAYERS
-    
-    return TowerNetwork(input_dim, hidden_layers, embedding_dim)
+    return TowerNetwork(input_dim, embedding_dim)
 
 
-def create_item_tower(input_dim, hidden_layers=None, embedding_dim=128):
+def create_item_tower(input_dim, hidden_layers=None, embedding_dim=64):
     """
-    Create an item tower network.
-    
+    Create a simplified item tower network.
+
     Args:
         input_dim (int): Dimension of item features
-        hidden_layers (list): List of hidden layer dimensions
+        hidden_layers (list): Ignored
         embedding_dim (int): Dimension of the output embedding
-        
+
     Returns:
         TowerNetwork: The item tower
     """
-    if hidden_layers is None:
-        hidden_layers = DEFAULT_HIDDEN_LAYERS
-    
-    return TowerNetwork(input_dim, hidden_layers, embedding_dim)
+    return TowerNetwork(input_dim, embedding_dim)

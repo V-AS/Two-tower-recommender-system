@@ -39,7 +39,7 @@ class EmbeddingGenerator:
     
     def generate_user_embedding(self, users):
         """
-        Generate embeddings for users.
+        Generate embeddings for users with additional checks for diversity.
         
         Args:
             users: List of processed user feature vectors
@@ -61,23 +61,43 @@ class EmbeddingGenerator:
         
         # Generate embeddings
         with torch.no_grad():
-            embeddings = self.user_model(users_tensor)
+            # Apply small random noise to user features to increase diversity
+            if len(users) == 1:  # Only apply to single user inference (recommendation)
+                # Add small random perturbation to encourage diversity
+                noise_scale = 0.02
+                noise = torch.randn_like(users_tensor) * noise_scale
+                
+                # Make multiple versions of the user embedding with slight variations
+                num_variations = 5
+                all_embeddings = []
+                
+                for i in range(num_variations):
+                    # Different noise for each variation
+                    perturbed_input = users_tensor + torch.randn_like(users_tensor) * noise_scale
+                    emb = self.user_model(perturbed_input)
+                    all_embeddings.append(emb)
+                
+                # Average the embeddings for stability
+                embeddings = torch.mean(torch.stack(all_embeddings), dim=0)
+            else:
+                # Standard embedding generation for batch processing
+                embeddings = self.user_model(users_tensor)
 
+            # L2 normalize embeddings
             normalized_embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
         
-
         if len(users) == 1:  # Only when generating during recommendation
             user_emb = normalized_embeddings[0].cpu().numpy()
             print(f"User embedding stats - min: {user_emb.min():.6f}, max: {user_emb.max():.6f}, std: {user_emb.std():.6f}")
-            # Print first few values to check for diversity
-            print(f"First 5 values of user embedding: {user_emb[:5]}")
         
         # Convert to numpy
         return normalized_embeddings.cpu().numpy()
+
+
     
     def generate_item_embedding(self, items):
         """
-        Generate embeddings for items.
+        Generate embeddings for items with consistent normalization.
         
         Args:
             items: List of processed item feature vectors
@@ -97,10 +117,22 @@ class EmbeddingGenerator:
         # Convert to tensor
         items_tensor = torch.tensor(items, dtype=torch.float32).to(self.device)
         
-        # Generate embeddings
-        with torch.no_grad():
-            embeddings = self.item_model(items_tensor)
+        # Generate embeddings in smaller batches to prevent OOM errors
+        batch_size = 1024
+        all_embeddings = []
         
-            normalized_embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+        with torch.no_grad():
+            for i in range(0, len(items), batch_size):
+                batch = items_tensor[i:i+batch_size]
+                batch_embeddings = self.item_model(batch)
+                normalized_batch_embeddings = torch.nn.functional.normalize(batch_embeddings, p=2, dim=1)
+                all_embeddings.append(normalized_batch_embeddings)
+        
+        # Concatenate all batches
+        if len(all_embeddings) > 1:
+            normalized_embeddings = torch.cat(all_embeddings, dim=0)
+        else:
+            normalized_embeddings = all_embeddings[0]
+        
         # Convert to numpy
         return normalized_embeddings.cpu().numpy()

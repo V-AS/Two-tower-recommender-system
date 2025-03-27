@@ -21,7 +21,7 @@ class ANNSearch:
     
     def build_index(self, embeddings, item_ids, index_type=DEFAULT_INDEX_TYPE):
         """
-        Build an ANN index from embeddings.
+        Build an improved ANN index from embeddings with better configuration.
         
         Args:
             embeddings (array-like): Item embeddings
@@ -35,7 +35,6 @@ class ANNSearch:
             ValueError: If parameters are invalid
         """
         try:
-
             # Existing validation
             if len(embeddings) != len(item_ids):
                 raise ValueError("Number of embeddings and item IDs must match")
@@ -54,32 +53,42 @@ class ANNSearch:
             
             item_ids = np.array(item_ids)
         
-           
-            # Convert to numpy arrays
-            embeddings = np.array(embeddings).astype('float32')
-            item_ids = np.array(item_ids)
-            
             # Get dimension
             d = embeddings.shape[1]
         
+            # Print statistics about the embeddings for diagnostic purposes
+            print(f"Building index with {len(embeddings)} embeddings of dimension {d}")
+            print(f"Embedding stats - min: {embeddings.min():.6f}, max: {embeddings.max():.6f}")
+            print(f"Embedding std: {embeddings.std():.6f}, mean: {embeddings.mean():.6f}")
+            
+            # Normalize embeddings again to ensure they're ready for inner product search
+            norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+            embeddings = embeddings / norms
+            
             # Create appropriate index based on type and size
             if index_type == "Flat":
-                index = faiss.IndexFlatIP(d)  # Exact inner product search
+                # Use IndexFlatIP for exact inner product search (cosine similarity on normalized vectors)
+                index = faiss.IndexFlatIP(d)  
+                index.add(embeddings)
             elif index_type == "IVF":
-                nlist = min(int(np.sqrt(len(embeddings) * 5)), len(embeddings))
+                # Improved IVF configuration
+                # More clusters for better granularity - sqrt(n) is a common heuristic
+                nlist = min(int(np.sqrt(len(embeddings)) * 4), len(embeddings) // 10 or 1)
+                nlist = max(nlist, 8)  # Ensure at least 8 clusters
+                
                 quantizer = faiss.IndexFlatIP(d)
                 index = faiss.IndexIVFFlat(quantizer, d, nlist, faiss.METRIC_INNER_PRODUCT)
+                print(f"Training IVF index with {nlist} clusters...")
+                
                 # Need to train IVF index
                 index.train(embeddings)
+                index.add(embeddings)
+                
+                # Set nprobe higher for better recall
+                index.nprobe = min(nlist // 4 + 1, 16)  # Higher nprobe for better accuracy
+                print(f"Set nprobe to {index.nprobe}")
             else:
                 raise ValueError(f"Unsupported index type: {index_type}")
-            
-            # Add embeddings to index
-            index.add(embeddings)
-            
-            # Set search parameters
-            if hasattr(index, 'nprobe'):
-                index.nprobe = DEFAULT_SEARCH_NPROBE
             
             # Create the ANN index object
             ann_index = {
@@ -89,7 +98,6 @@ class ANNSearch:
             }
             
             return ann_index
-                # Rest of your existing code...
         except Exception as e:
             print(f"Error during index building: {str(e)}")
             raise
@@ -111,10 +119,10 @@ class ANNSearch:
         """
         if not isinstance(index, dict) or 'index' not in index or 'item_ids' not in index:
             raise ValueError("Invalid ANN index")
-    
+
         # Convert query to numpy array
         query = np.array(query).astype('float32').reshape(1, -1)
-    
+
         # Stage 1: Get candidate set using FAISS search
         distances, indices = index['index'].search(query, candidates)
         
@@ -134,7 +142,6 @@ class ANNSearch:
         # If we couldn't get embeddings from the index (e.g., for non-Flat indices)
         # we'd need to load them from a saved embeddings file
         if not candidate_embeddings:
-            print("Warning: Could not get embeddings from index. Using initial scores.")
             # Just use the initial distances
             results = []
             for i, idx in enumerate(indices[0]):
@@ -157,7 +164,8 @@ class ANNSearch:
             # Calculate exact dot product
             exact_score = dot_product(query_vector, emb)
             refined_results.append((item_id, float(exact_score)))
-            print(f"Item ID: {item_id}, Score: {exact_score}")
+            # Removed the debug print statement that was here
+        
         # Sort by score (highest first) and take top final_k
         refined_results = sorted(refined_results, key=lambda x: x[1], reverse=True)[:final_k]
         
