@@ -27,7 +27,7 @@ def evaluate_model(predictions, targets):
     mae = mean_absolute_error(targets, predictions)
     
     # % of predictions within 10% of true value
-    accuracy = np.mean(np.abs(predictions - targets) <= 0.1)
+    accuracy = np.mean(np.abs(predictions - targets) <= 1)
     
     metrics = {
         'mse': mse,

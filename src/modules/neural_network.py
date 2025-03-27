@@ -63,13 +63,7 @@ def create_user_tower(input_dim, hidden_layers=None, embedding_dim=128):
         
     Returns:
         TowerNetwork: The user tower
-        
-    Raises:
-        ValueError: If dimensions are invalid
     """
-    if input_dim <= 0 or embedding_dim <= 0:
-        raise ValueError("Dimensions must be positive")
-    
     if hidden_layers is None:
         hidden_layers = DEFAULT_HIDDEN_LAYERS
     
@@ -87,39 +81,8 @@ def create_item_tower(input_dim, hidden_layers=None, embedding_dim=128):
         
     Returns:
         TowerNetwork: The item tower
-        
-    Raises:
-        ValueError: If dimensions are invalid
     """
-    if input_dim <= 0 or embedding_dim <= 0:
-        raise ValueError("Dimensions must be positive")
-    
     if hidden_layers is None:
         hidden_layers = DEFAULT_HIDDEN_LAYERS
     
     return TowerNetwork(input_dim, hidden_layers, embedding_dim)
-
-
-def get_layer_config(model):
-    """
-    Get the configuration of layers in a model.
-    
-    Args:
-        model: The model to inspect
-        
-    Returns:
-        dict: Configuration of the model's layers
-        
-    Raises:
-        ValueError: If model is invalid
-    """
-    if not isinstance(model, TowerNetwork):
-        raise ValueError("Model must be a TowerNetwork")
-    
-    config = {
-        'input_dim': model.input_dim,
-        'hidden_layers': model.hidden_layers,
-        'embedding_dim': model.embedding_dim
-    }
-    
-    return config

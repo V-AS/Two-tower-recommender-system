@@ -1,11 +1,9 @@
 """
-Embedding Generation Module.
+Modified Embedding Generation Module.
 Generates embeddings for users and items using trained models.
 """
 import torch
 import numpy as np
-
-EMBEDDING_DIMENSION = 128  # Default embedding dimension
 
 class EmbeddingGenerator:
     def __init__(self):
@@ -27,15 +25,18 @@ class EmbeddingGenerator:
             ValueError: If models are incompatible
         """
         # Verify models are compatible
-        user_out = user_model(torch.randn(1, user_model.input_dim).to(self.device))
-        item_out = item_model(torch.randn(1, item_model.input_dim).to(self.device))
-        
-        if user_out.shape[1] != item_out.shape[1]:
-            raise ValueError("User and item models must produce embeddings of the same dimension")
-        
-        self.user_model = user_model.to(self.device)
-        self.item_model = item_model.to(self.device)
-        self.is_initialized = True
+        try:
+            user_out = user_model(torch.randn(1, user_model.input_dim).to(self.device))
+            item_out = item_model(torch.randn(1, item_model.input_dim).to(self.device))
+            
+            if user_out.shape[1] != item_out.shape[1]:
+                raise ValueError("User and item models must produce embeddings of the same dimension")
+            
+            self.user_model = user_model.to(self.device)
+            self.item_model = item_model.to(self.device)
+            self.is_initialized = True
+        except Exception as e:
+            raise ValueError(f"Failed to initialize embedding generator: {str(e)}")
     
     def generate_user_embedding(self, users):
         """

@@ -29,10 +29,10 @@ def parse_args():
         description="Two-Tower Embedding Recommendation System"
     )
     parser.add_argument(
-        "--data_dir",
+        "--data_path",
         type=str,
-        default="data/processed",
-        help="Directory containing data files",
+        default="data/processed/recommender_data.csv",
+        help="Path to the processed data CSV file",
     )
     parser.add_argument(
         "--output_dir",
@@ -74,48 +74,39 @@ def main():
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
 
-    # Load and process data
+    # Initialize data processor
     data_processor = DataProcessor()
 
-    users_path = os.path.join(args.data_dir, "Users.csv")
-    books_path = os.path.join(args.data_dir, "Books.csv")
-    ratings_path = os.path.join(args.data_dir, "Ratings.csv")
-
     print("Loading data...")
-    dataset = data_processor.load_data(users_path, books_path, ratings_path)
+    data = data_processor.load_data(args.data_path)
 
     # Validate data
-    is_valid = data_processor.validate_data(dataset)
+    is_valid = data_processor.validate_data(data)
     if not is_valid:
-        print("Invalid dataset format. Please check your data files.")
+        print("Invalid dataset format. Please check your data file.")
         return
 
     print("Preprocessing data...")
-    processed_dataset = data_processor.preprocess_data(dataset)
+    processed_data = data_processor.preprocess_data(data)
 
     if args.mode == "train":
         # Split data
         print("Splitting data into training and testing sets...")
-        train_data, test_data = data_processor.split_data(
-            processed_dataset, train_ratio=0.8
-        )
+        train_data, test_data = data_processor.split_data(processed_data, train_ratio=0.8)
 
+        # Prepare training dataset
+        print("Preparing training dataset...")
+        training_dataset = data_processor.create_training_data(train_data)
+        
         # Create neural network architectures
         print("Creating neural network architectures...")
-
-        # Create a sample feature vector to get the correct dimension
-        trainer = ModelTrainer()
-
-        sample_user_features = trainer._prepare_user_features(train_data["users"])
-        sample_key = list(sample_user_features.keys())[0]
-        user_input_dim = len(sample_user_features[sample_key])
-
-        sample_item_features = trainer._prepare_item_features(train_data["books"])
-        sample_key = list(sample_item_features.keys())[0]
-        item_input_dim = len(sample_item_features[sample_key])
-
-        print(f"Actual user feature dimension: {user_input_dim}")
-        print(f"Actual item feature dimension: {item_input_dim}")
+        
+        # Get input dimensions from the feature arrays
+        user_input_dim = training_dataset['user_features'].shape[1]
+        item_input_dim = training_dataset['item_features'].shape[1]
+        
+        print(f"User feature dimension: {user_input_dim}")
+        print(f"Item feature dimension: {item_input_dim}")
 
         user_tower = create_user_tower(
             input_dim=user_input_dim,
@@ -144,11 +135,14 @@ def main():
 
         # Train model
         print(f"Training model for {args.epochs} epochs...")
-        model = trainer.train(train_data, epochs=args.epochs)
+        model = trainer.train(training_dataset, epochs=args.epochs)
 
+        # Prepare test dataset for evaluation
+        testing_dataset = data_processor.create_training_data(test_data)
+        
         # Evaluate model
         print("Evaluating model...")
-        metrics = trainer.evaluate(test_data)
+        metrics = trainer.evaluate(testing_dataset)
         print("Evaluation metrics:")
         for metric, value in metrics.items():
             print(f"  {metric}: {value:.4f}")
@@ -162,20 +156,23 @@ def main():
         print("Generating embeddings...")
         embedding_generator = EmbeddingGenerator()
         embedding_generator.initialize(model["user_model"], model["item_model"])
-
-        # Prepare item features for embedding generation
-
-        item_features = []
-        item_ids = []
-
-        item_feature_dict = trainer._prepare_item_features(processed_dataset["books"])
-        for item_id, features in item_feature_dict.items():
-            item_features.append(features)
-            item_ids.append(item_id)
-
-        item_embeddings = embedding_generator.generate_item_embedding(
-            np.array(item_features)
-        )
+        
+        # Get unique books for embedding generation
+        unique_books = processed_data.drop_duplicates('Book-Title-Encoded')
+        
+        # Extract item features for all unique books
+        item_features = unique_books[[
+            'Year-Normalized',
+            'Author-Popularity',
+            'Publisher-Popularity',
+            'Author-Encoded',
+            'Publisher-Encoded'
+        ]].values
+        
+        item_ids = unique_books['Book-Title-Encoded'].values
+        
+        # Generate embeddings
+        item_embeddings = embedding_generator.generate_item_embedding(item_features)
 
         # Save item embeddings
         print("Saving item embeddings...")
@@ -183,6 +180,10 @@ def main():
             item_embeddings, os.path.join(args.output_dir, "item_embeddings.npy")
         )
         np.save(os.path.join(args.output_dir, "item_ids.npy"), np.array(item_ids))
+        
+        # Save book mapping for recommendation lookups
+        book_mapping = data_processor.get_book_mapping(processed_data)
+        np.save(os.path.join(args.output_dir, "book_mapping.npy"), book_mapping)
 
         # Build and save ANN index
         print("Building ANN index...")
@@ -199,30 +200,29 @@ def main():
         print("Loading models...")
         user_model = load_model(os.path.join(args.output_dir, "user_model.pth"))
         item_model = load_model(os.path.join(args.output_dir, "item_model.pth"))
-
-        # Load ANN index
-        print("Loading ANN index...")
-        ann_search = ANNSearch()
-        ann_index = ann_search.load_index(os.path.join(args.output_dir, "ann_index"))
-
-        # Initialize embedding generator
-        embedding_generator = EmbeddingGenerator()
-        embedding_generator.initialize(user_model, item_model)
-
-        # Initialize recommender
-        recommender = Recommender()
-        recommender.initialize(
-            ann_index, embedding_generator, processed_dataset["books"]
+        
+        # Split data for evaluation
+        _, test_data = data_processor.split_data(processed_data, train_ratio=0.8)
+        
+        # Prepare test dataset
+        testing_dataset = data_processor.create_training_data(test_data)
+        
+        # Initialize trainer for evaluation
+        trainer = ModelTrainer()
+        trainer.initialize(
+            {
+                "user_architecture": user_model,
+                "item_architecture": item_model,
+                "learning_rate": 0.001,
+                "batch_size": args.batch_size,
+                "regularization": 0.01,
+            }
         )
-
-        # Evaluate recommendations
-        print("Evaluating recommendations...")
-        train_data, test_data = data_processor.split_data(
-            processed_dataset, train_ratio=0.8
-        )
-        metrics = recommender.evaluate_recommendations(test_data)
-
-        print("Recommendation metrics:")
+        
+        # Evaluate model
+        print("Evaluating model...")
+        metrics = trainer.evaluate(testing_dataset)
+        print("Evaluation metrics:")
         for metric, value in metrics.items():
             print(f"  {metric}: {value:.4f}")
 
@@ -241,52 +241,54 @@ def main():
         print("Loading ANN index...")
         ann_search = ANNSearch()
         ann_index = ann_search.load_index(os.path.join(args.output_dir, "ann_index"))
+        
+        # Load book mapping
+        book_mapping = np.load(os.path.join(args.output_dir, "book_mapping.npy"), allow_pickle=True).item()
 
         # Initialize embedding generator
         embedding_generator = EmbeddingGenerator()
         embedding_generator.initialize(user_model, item_model)
 
-        # Initialize recommender
-        recommender = Recommender()
-        recommender.initialize(
-            ann_index, embedding_generator, processed_dataset["books"]
-        )
-
-        # Get user
-        users_df = processed_dataset["users"]
-
         # Find user by ID
-        user_row = users_df[users_df["User-ID"] == args.user_id]
+        user_row = processed_data[processed_data['User-ID'] == int(args.user_id)]
         if len(user_row) == 0:
             print(f"User with ID {args.user_id} not found")
             return
 
         # Get user features
-        trainer = ModelTrainer()
-        user_features = trainer._prepare_user_features(users_df)
-        user_id_encoded = user_row["User-ID-Encoded"].values[0]
-        user_feature = user_features[user_id_encoded]
+        user_features = user_row[[
+            'Age-Normalized', 
+            'State-Encoded', 
+            'Country-Encoded'
+        ]].values[0]
+        
+        # Initialize recommender
+        recommender = Recommender()
+        recommender.initialize(ann_index, embedding_generator, book_mapping)
 
         # Generate recommendations
-        print(
-            f"Generating {args.num_recommendations} recommendations for user {args.user_id}..."
-        )
+        print(f"Generating {args.num_recommendations} recommendations for user {args.user_id}...")
         recommendations = recommender.get_recommendations(
-            user_feature, num_results=args.num_recommendations
+            user_features, num_results=args.num_recommendations
         )
 
         # Display recommendations
         print("\nRecommendations:")
         for i, rec in enumerate(recommendations, 1):
-            print(
-                f"{i}. {rec.get('title', 'Unknown')} by {rec.get('author', 'Unknown')} (Score: {rec['score']:.4f})"
-            )
+            print(f"{i}. {rec.get('title', 'Unknown')} by {rec.get('author', 'Unknown')} (Score: {rec['score']:.4f})")
 
     elif args.mode == "update":
         # Load models
         print("Loading models...")
         user_model = load_model(os.path.join(args.output_dir, "user_model.pth"))
         item_model = load_model(os.path.join(args.output_dir, "item_model.pth"))
+
+        # Split data for incremental update (simulating new data)
+        print("Preparing data for incremental update...")
+        _, new_data = data_processor.split_data(processed_data, train_ratio=0.7)
+        
+        # Create training dataset
+        training_dataset = data_processor.create_training_data(new_data)
 
         # Initialize trainer
         print("Initializing model trainer...")
@@ -301,15 +303,9 @@ def main():
             }
         )
 
-        # Split data for incremental update (simulating new data)
-        print("Preparing data for incremental update...")
-        initial_data, new_data = data_processor.split_data(
-            processed_dataset, train_ratio=0.7
-        )
-
         # Update model with new data
         print("Updating model with new data...")
-        updated_model = trainer.update_model(new_data)
+        updated_model = trainer.update_model(training_dataset, epochs=5)
 
         # Save updated models
         print("Saving updated models...")
