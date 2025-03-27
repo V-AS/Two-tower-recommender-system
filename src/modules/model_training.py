@@ -50,98 +50,134 @@ class ModelTrainer:
     
     def train(self, dataset, epochs=10):
         """
-        Train the two-tower model.
+        Train the two-tower model with contrastive loss to better separate user preferences.
         
         Args:
-            dataset: Training dataset with user_features, item_features, and ratings
+            dataset: Training dataset
             epochs (int): Number of training epochs
             
         Returns:
             dict: Training history
-            
-        Raises:
-            RuntimeError: If not initialized
         """
         if not self.is_initialized:
             raise RuntimeError("ModelTrainer not initialized")
         
         batch_size = self.config.get('batch_size', DEFAULT_BATCH_SIZE)
         
-        # Setup loss function
-        criterion = nn.MSELoss()
+        # Primary loss function for rating prediction
+        rating_criterion = nn.MSELoss()
         
+        # Contrastive loss margin
+        margin = 0.5
+    
         # Training history
         history = {
             'loss': [],
+            'rating_loss': [],
+            'contrastive_loss': [],
             'val_loss': []
         }
         
-        # Train with k-fold cross-validation
-        k_folds = 5
-        kf = KFold(n_splits=k_folds, shuffle=True, random_state=42)
-        
-        # Split dataset indices
-
         indices = np.arange(len(dataset['user_ids']))
         
         for epoch in range(epochs):
-            epoch_losses = []
-            val_losses = []
+            # Shuffle data for this epoch
+            np.random.shuffle(indices)
             
-            for fold, (train_idx, val_idx) in enumerate(kf.split(indices)):
-                # Training
-                self.user_model.train()
-                self.item_model.train()
+            epoch_losses = []
+            rating_losses = []
+            contrastive_losses = []
+            
+            # Training in mini-batches
+            self.user_model.train()
+            self.item_model.train()
+            
+            for i in range(0, len(indices), batch_size):
+                batch_indices = indices[i:i+batch_size]
                 
-                # Mini-batch training
-                for i in range(0, len(train_idx), batch_size):
-                    batch_indices = train_idx[i:i+batch_size]
-                    
-                    # Get batch data
-                    user_batch = torch.tensor(dataset['user_features'][batch_indices], dtype=torch.float32).to(self.device)
-                    item_batch = torch.tensor(dataset['item_features'][batch_indices], dtype=torch.float32).to(self.device)
-                    rating_batch = torch.tensor(dataset['ratings'][batch_indices], dtype=torch.float32).to(self.device)
-                    
-                    # Forward pass
-                    user_embeddings = self.user_model(user_batch)
-                    item_embeddings = self.item_model(item_batch)
-                    
-                    # Compute predicted ratings (dot product)
-                    predicted_ratings = torch.sum(user_embeddings * item_embeddings, dim=1)
-                    
-                    # Compute loss
-                    loss = criterion(predicted_ratings, rating_batch)
-                    
-                    # Backward pass and optimize
-                    self.optimizer.zero_grad()
-                    loss.backward()
-                    self.optimizer.step()
-                    
-                    epoch_losses.append(loss.item())
+                # Get batch data
+                user_batch = torch.tensor(dataset['user_features'][batch_indices], dtype=torch.float32).to(self.device)
+                item_batch = torch.tensor(dataset['item_features'][batch_indices], dtype=torch.float32).to(self.device)
+                rating_batch = torch.tensor(dataset['ratings'][batch_indices], dtype=torch.float32).to(self.device)
                 
-                # Validation
+                # Forward pass
+                user_embeddings = self.user_model(user_batch)
+                item_embeddings = self.item_model(item_batch)
+                
+                # 1. Rating prediction loss (dot product)
+                predicted_ratings = torch.sum(user_embeddings * item_embeddings, dim=1)
+                rating_loss = rating_criterion(predicted_ratings, rating_batch)
+                
+                # 2. Contrastive loss to increase separation
+                contrastive_loss = torch.tensor(0.0).to(self.device)
+                
+                # Create negatives by shuffling item embeddings
+                shuffle_idx = torch.randperm(item_embeddings.size(0))
+                negative_items = item_embeddings[shuffle_idx]
+                negative_scores = torch.sum(user_embeddings * negative_items, dim=1)
+                
+                # Contrastive loss: push positives high and negatives low
+                # For positives (real item for user), we want higher score for higher rating
+                # For negatives (random item for user), we want lower score
+                pos_weight = rating_batch  # Higher weight for higher ratings
+                
+                # Compute the contrastive loss term
+                # We want predicted_ratings to be high and negative_scores to be low
+                # with a margin between them proportional to the true rating
+                for j in range(len(batch_indices)):
+                    if rating_batch[j] >= 0.7:  # Only apply to items with high ratings (7+ out of 10)
+                        # Calculate contrastive loss
+                        contrastive_loss += max(0, margin - (predicted_ratings[j] - negative_scores[j]))
+                
+                # Normalize
+                if len(batch_indices) > 0:
+                    contrastive_loss = contrastive_loss / len(batch_indices)
+                
+                # Total loss
+                loss = rating_loss + contrastive_loss
+                
+                # Backward pass and optimize
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+                
+                epoch_losses.append(loss.item())
+                rating_losses.append(rating_loss.item())
+                contrastive_losses.append(contrastive_loss.item())
+            
+            # Validation
+            with torch.no_grad():
                 self.user_model.eval()
                 self.item_model.eval()
                 
-                with torch.no_grad():
-                    user_val = torch.tensor(dataset['user_features'][val_idx], dtype=torch.float32).to(self.device)
-                    item_val = torch.tensor(dataset['item_features'][val_idx], dtype=torch.float32).to(self.device)
-                    rating_val = torch.tensor(dataset['ratings'][val_idx], dtype=torch.float32).to(self.device)
-                    
-                    user_embeddings = self.user_model(user_val)
-                    item_embeddings = self.item_model(item_val)
-                    
-                    predicted_ratings = torch.sum(user_embeddings * item_embeddings, dim=1)
-                    val_loss = criterion(predicted_ratings, rating_val).item()
-                    val_losses.append(val_loss)
+                # Subsample validation data to keep it fast
+                val_indices = np.random.choice(indices, min(5000, len(indices)), replace=False)
+                
+                val_user = torch.tensor(dataset['user_features'][val_indices], dtype=torch.float32).to(self.device)
+                val_item = torch.tensor(dataset['item_features'][val_indices], dtype=torch.float32).to(self.device)
+                val_rating = torch.tensor(dataset['ratings'][val_indices], dtype=torch.float32).to(self.device)
+                
+                val_user_embeddings = self.user_model(val_user)
+                val_item_embeddings = self.item_model(val_item)
+                
+                # Check variation in user embeddings (diagnostic)
+                user_emb_var = torch.std(val_user_embeddings, dim=0).mean().item()
+                
+                # Compute validation loss
+                val_pred_ratings = torch.sum(val_user_embeddings * val_item_embeddings, dim=1)
+                val_loss = rating_criterion(val_pred_ratings, val_rating).item()
             
             # Record history
             avg_loss = np.mean(epoch_losses)
-            avg_val_loss = np.mean(val_losses)
+            avg_rating_loss = np.mean(rating_losses)
+            avg_contrastive_loss = np.mean(contrastive_losses)
             history['loss'].append(avg_loss)
-            history['val_loss'].append(avg_val_loss)
+            history['rating_loss'].append(avg_rating_loss)
+            history['contrastive_loss'].append(avg_contrastive_loss)
+            history['val_loss'].append(val_loss)
             
-            print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.4f} - Val Loss: {avg_val_loss:.4f}")
+            print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.4f} (Rating: {avg_rating_loss:.4f}, Contrastive: {avg_contrastive_loss:.4f})")
+            print(f"Val Loss: {val_loss:.4f}, User Embedding Variation: {user_emb_var:.6f}")
         
         # Return trained model and history
         model = {

@@ -44,12 +44,16 @@ class TowerNetwork(nn.Module):
         
         # Output layer
         layers.append(nn.Linear(prev_dim, embedding_dim))
+        layers.append(nn.Tanh())
         
         self.model = nn.Sequential(*layers)
     
     def forward(self, x):
         """Forward pass through the network."""
-        return self.model(x)
+        embeddings = self.model(x)
+        normalized_embeddings = F.normalize(embeddings, p=2, dim=1)
+        
+        return normalized_embeddings
 
 
 def create_user_tower(input_dim, hidden_layers=None, embedding_dim=128):

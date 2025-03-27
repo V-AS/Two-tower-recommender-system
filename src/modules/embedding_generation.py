@@ -1,5 +1,4 @@
 """
-Modified Embedding Generation Module.
 Generates embeddings for users and items using trained models.
 """
 import torch
@@ -63,9 +62,18 @@ class EmbeddingGenerator:
         # Generate embeddings
         with torch.no_grad():
             embeddings = self.user_model(users_tensor)
+
+            normalized_embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+        
+
+        if len(users) == 1:  # Only when generating during recommendation
+            user_emb = normalized_embeddings[0].cpu().numpy()
+            print(f"User embedding stats - min: {user_emb.min():.6f}, max: {user_emb.max():.6f}, std: {user_emb.std():.6f}")
+            # Print first few values to check for diversity
+            print(f"First 5 values of user embedding: {user_emb[:5]}")
         
         # Convert to numpy
-        return embeddings.cpu().numpy()
+        return normalized_embeddings.cpu().numpy()
     
     def generate_item_embedding(self, items):
         """
@@ -93,5 +101,6 @@ class EmbeddingGenerator:
         with torch.no_grad():
             embeddings = self.item_model(items_tensor)
         
+            normalized_embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
         # Convert to numpy
-        return embeddings.cpu().numpy()
+        return normalized_embeddings.cpu().numpy()
