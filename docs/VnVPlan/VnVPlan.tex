@@ -179,7 +179,7 @@ The functional requirements are tested in the following areas: input validation,
 \end{enumerate}
 
 
-\subsubsection{Test for Model Training Convergence}
+\subsubsection{Area of Testing 2: Model Training Convergence}
 
 \begin{enumerate}
   \item{test-id2\\}
@@ -196,7 +196,7 @@ The functional requirements are tested in the following areas: input validation,
 \subsubsection{Area of Testing 3: Model Storage}
 
 \begin{enumerate}
-  \item{test-id4:\\}
+  \item{test-id3:\\}
   
   Control: Automatic\\
   Initial State: After model training is complete\\
@@ -218,35 +218,35 @@ functional requirements in section 4.1 and 5.2 .
 
 \begin{enumerate}
 
-\item{test-id5\\}
+\item{test-id4\\}
 
-Type: Manual
+Type: Automatic and manual
 					
 Initial State: None
 					
 Input/Condition: None
 					
-Output/Result: The project should pass all the tests for functional requirements and run without any errors.
+Output/Result: The results of all automatic tests and feedback from users.
 
-How test will be performed: Potential users will install the project on their computers (Windows, macOS, or Linux) and execute a sample workflow. 
+How test will be performed: All automatic tests will be conducted during the continuous integration workflow. Potential users will install the project on their computers (Windows, macOS, or Linux) and follow the instructions in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/README.md}{README.md} to run the software. 
 \end{enumerate}
 
 
-\subsubsection{Scalability}
+\subsubsection{Usability}
 
 \begin{enumerate}
 
-\item{test-id6\\}
+\item{test-id5\\}
 
 Type: Manual
 
-Initial State: System initialized with a model trained on 70\% of the dataset.
+Initial State: The software is setup and ready to use.
 
-Input/Condition: Remaining 30\% of the dataset added as new data.
+Input/Condition: None
 
-Output/Result: Model updates complete within 1 minute.
+Output/Result: Survey result from the user
 
-How test will be performed: Because there is no external data for updates, the system will first train the model on 70\% of the training set. After training is done and all the functional requirements have passed, the remaining 30\% will be added as new data to simulate incremental updates.
+How test will be performed: The user will be ask to filfiled the servey after using this software. The survey can be find at appendix \ref{US}.
 
 
 \end{enumerate}
@@ -258,19 +258,19 @@ The table \ref{Table:S_trace}
 
 \begin{table}[h!]\label{Table:S_trace}
   \centering
-  \begin{tabular}{|c|c|c|c|c|c|c|c|}
+  \begin{tabular}{|c|c|c|c|c|c|c|}
   \hline
-    & test-id1& test-id2& test-id3&test-id4&test-id5&test-id6 \\
+    & test-id1& test-id2& test-id3&test-id4&test-id5 \\
   \hline
-  R1        & X&  & & & & \\ \hline
-  R2        & & X& & & & \\ \hline
-  R3        & & & &X& &\\ \hline
-  R4        & & & X& & &\\ \hline
-  R5        & &X & X& & &\\ \hline
-  R6        & &X & X& & &\\ \hline
-  NFR1      & & & & & &X\\ \hline
-  NFR2      &X & X& X& X& &\\ \hline
-  NFR3      & & & & &X&\\ \hline
+  R1        & X&  & & &  \\ \hline
+  R2        & & X& & &  \\ \hline
+  R3        & & & X& & \\ \hline
+  R4        & & X& & & \\ \hline
+  R5        & &X & & & \\ \hline
+  R6        & &X & & & X\\ \hline
+  NFR1      & & & & &  X\\ \hline
+  NFR2      &X & X& X& & \\ \hline
+  NFR3      & & & &X & \\ \hline
   \end{tabular}
   \caption{Traceability Matrix Showing the Connections Between Test Cases and Requirements}
   \label{Table:A_trace}
@@ -506,4 +506,17 @@ The table \ref{Table:Unit} shows the traceability between test cases and modules
 
   \bibliographystyle {plainnat}
   \bibliography {../../refs/References}
+
+\newpage
+\section{Appendix}
+
+
+\subsection{Usability Survey}\label{US}
+\begin{itemize}
+\item On a scale from 1 to 5, with 5 being the most satisfied, how would you rate your overall experience using the software?
+\item Were the installation and setup process straightforward? If not, what difficulties did you encounter?
+\item Did you find the user interface intuitive and easy to navigate? If not, what improvements would you suggest?
+\item Did the software meet your expectations? If not, what features or improvements would you like to see?
+\end{itemize}
+
 \end{document}

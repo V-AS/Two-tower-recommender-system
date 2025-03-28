@@ -212,7 +212,7 @@ $\gamma$ & Hyperparameter to control the regularization term\\
 \end{tabular}\\
 
 \section{Introduction}
-In the digital era, recommendation systems play a crucial role in enhancing user experiences by providing personalized content, products, and services. These systems are widely used in industries such as e-commerce, streaming platforms, and social media to help users discover relevant items from vast catalogs. Traditional recommendation approaches, including collaborative filtering and content-based methods, rely on explicit user-item interactions or manually engineered features. However, as datasets grow in complexity and size, these methods face challenges in scalability and efficiency.
+In the digital era, recommendation systems play a crucial role in enhancing user experiences by providing personalized content, products, and services. These systems are widely used in industries such as e-commerce, streaming platforms, and social media to help users discover relevant items from vast catalogs. Traditional recommendation approaches, including collaborative filtering and content-based methods, rely on explicit user-item interactions or manually engineered features. However, as datasets grow in complexity and size, these methods face challenges in efficiency.
 
 To overcome these limitations, modern recommendation systems leverage deep learning-based techniques, such as Two-Tower Embeddings (TTE). This project implements a recommendation system using a TTE model, where user and item features are mapped into a shared embedding space. To efficiently retrieve relevant items, the project will use FAISS as a tool to perform the Approximate Nearest Neighbor (ANN) search. FAISS is a vector similarity search library developed by Meta.
 
@@ -581,7 +581,7 @@ qualities that the software is expected to exhibit.
 
 \noindent \begin{itemize}
 
-\item[R\refstepcounter{reqnum}\thereqnum \label{R_TrainingInputs}:] The system shall accept user features, item features, and training data with observed rewards.
+\item[R\refstepcounter{reqnum}\thereqnum \label{R_TrainingInputs}:] All user-item pairs in the training dataset should have an associated reward.
 
 \item[R\refstepcounter{reqnum}\thereqnum \label{R_ModelTraining}:] The system shall train embedding functions that map user and item features to a shared embedding space. [IM3]
   
@@ -601,8 +601,8 @@ Identical user/item embeddings shall produce identical rankings. [IM1][IM2][IM3]
 
 \noindent \begin{itemize}
 
-\item[NFR\refstepcounter{nfrnum}\thenfrnum \label{NFR_Scalability}:]
-  \textbf{Scalability} The system shall support incremental updates to trained models when new data becomes available.
+\item[NFR\refstepcounter{nfrnum}\thenfrnum \label{NFR_Usability}:]
+  \textbf{Usability} The software interface should be intuitive and easy to use.
 
 \item[NFR\refstepcounter{nfrnum}\thenfrnum \label{NFR_Reliability:}:]
   \textbf{Reliability:} The reliability is measured and verified in the \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/VnVPlan/VnVPlan.pdf}{VnV Plan}.
