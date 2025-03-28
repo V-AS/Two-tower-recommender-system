@@ -28,5 +28,5 @@ pip install -r requirements.txt
 ```
 Train the model:
 ```bash
-python src/main.py --mode train --epochs 10 --data_dir data/processed --output_dir output
+python src/main.py --mode train --epochs 3 --batch_size 10 --embedding_dim 32
 ```

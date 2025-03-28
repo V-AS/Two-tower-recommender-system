@@ -1,6 +1,5 @@
 """
-Terminal-based User Interface for Book Recommendation System
-Run this script to get book recommendations through the command line.
+Enhanced Terminal-based User Interface for Book Recommendation System
 """
 import os
 import sys
@@ -19,7 +18,7 @@ project_root = os.path.dirname(current_dir)
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-# Import modules from your existing system
+# Import modules from your system
 from modules.neural_network import create_user_tower
 from modules.embedding_generation import EmbeddingGenerator
 from modules.recommendation import Recommender
@@ -39,48 +38,67 @@ def initialize_system():
     # Load data processor
     data_processor = DataProcessor()
     
-    # Load models
-    user_model = load_model(os.path.join(OUTPUT_DIR, "user_model.pth"))
-    item_model = load_model(os.path.join(OUTPUT_DIR, "item_model.pth"))
-    
-    # Load ANN index
-    ann_search = ANNSearch()
-    ann_index = ann_search.load_index(os.path.join(OUTPUT_DIR, "ann_index"))
-    
-    # Load book mapping
-    book_mapping = np.load(os.path.join(OUTPUT_DIR, "book_mapping.npy"), allow_pickle=True).item()
-    
-    # Initialize embedding generator
-    embedding_generator = EmbeddingGenerator()
-    embedding_generator.initialize(user_model, item_model)
-    
-    # Initialize recommender
-    recommender = Recommender()
-    recommender.initialize(ann_index, embedding_generator, book_mapping)
-    
-    # Load data for preprocessing
+    # Load the actual dataset to get state/country statistics
     try:
         data = pd.read_csv(DATA_PATH)
+        print(f"Loaded dataset with {len(data)} records")
         
-        # Get state and country mappings from data
-        unique_states = data['State'].dropna().unique()
-        state_map = {state: idx for idx, state in enumerate(unique_states)}
+        # Check available columns
+        print(f"Available columns: {data.columns.tolist()}")
         
-        unique_countries = data['Country'].dropna().unique()
-        country_map = {country: idx for idx, country in enumerate(unique_countries)}
+        # Process data to get frequencies
+        processed_data = data_processor.preprocess_data(data)
+        
+        # Get state and country frequencies
+        state_counts = processed_data['State'].value_counts()
+        country_counts = processed_data['Country'].value_counts()
+        
+        # Create frequency mappings
+        state_freq = {state.strip().lower(): count/len(processed_data) for state, count in state_counts.items()}
+        country_freq = {country.strip().lower(): count/len(processed_data) for country, count in country_counts.items()}
         
         # Get age range for normalization
-        min_age = data['Age'].min()
-        max_age = data['Age'].max()
+        min_age = processed_data['Age'].min()
+        max_age = processed_data['Age'].max()
         
-        print(f"Loaded {len(state_map)} states and {len(country_map)} countries")
+        # Define age groups
+        age_bins = [0, 18, 25, 35, 50, 100]
+        
+        print(f"Loaded {len(state_counts)} states and {len(country_counts)} countries")
+        
     except Exception as e:
         print(f"{Fore.RED}Error loading data for mappings: {e}{Style.RESET_ALL}")
         # Use fallback mappings
-        state_map = {"Unknown": 0}
-        country_map = {"Unknown": 0}
+        state_freq = {"Unknown": 0.5}
+        country_freq = {"Unknown": 0.5}
+        state_counts = pd.Series([100], index=["Unknown"])
+        country_counts = pd.Series([100], index=["Unknown"])
         min_age = 0
         max_age = 100
+        age_bins = [0, 18, 25, 35, 50, 100]
+    
+    # Load models
+    try:
+        user_model = load_model(os.path.join(OUTPUT_DIR, "user_model.pth"))
+        item_model = load_model(os.path.join(OUTPUT_DIR, "item_model.pth"))
+        
+        # Load ANN index
+        ann_search = ANNSearch()
+        ann_index = ann_search.load_index(os.path.join(OUTPUT_DIR, "ann_index"))
+        
+        # Load book mapping
+        book_mapping = np.load(os.path.join(OUTPUT_DIR, "book_mapping.npy"), allow_pickle=True).item()
+        
+        # Initialize embedding generator
+        embedding_generator = EmbeddingGenerator()
+        embedding_generator.initialize(user_model, item_model)
+        
+        # Initialize recommender
+        recommender = Recommender()
+        recommender.initialize(ann_index, embedding_generator, book_mapping)
+    except Exception as e:
+        print(f"{Fore.RED}Error loading models: {e}{Style.RESET_ALL}")
+        raise
     
     print(f"{Fore.GREEN}System initialized successfully{Style.RESET_ALL}")
     
@@ -89,35 +107,83 @@ def initialize_system():
         'item_model': item_model, 
         'recommender': recommender,
         'embedding_generator': embedding_generator,
-        'state_map': state_map,
-        'country_map': country_map,
+        'state_freq': state_freq,
+        'country_freq': country_freq,
+        'state_counts': state_counts,
+        'country_counts': country_counts,
         'min_age': min_age,
-        'max_age': max_age
+        'max_age': max_age,
+        'age_bins': age_bins
     }
 
-def create_user_features(age, state, country, state_map, country_map, min_age, max_age):
+def create_user_features(age, state, country, system):
     """
-    Create user feature vector from input.
+    Create user feature vector matching our model expectations.
     
     Args:
         age (float): User age
         state (str): User state
         country (str): User country
+        system (dict): System information including mappings
         
     Returns:
         numpy.ndarray: User feature vector
     """
-    # Normalize age to [0, 1] range
+    # Get required information from system
+    state_freq = system['state_freq']
+    country_freq = system['country_freq']
+    min_age = system['min_age']
+    max_age = system['max_age']
+    age_bins = system['age_bins']
+    
+    # 1. Normalize age to [0, 1] range
     age_normalized = (age - min_age) / (max_age - min_age) if max_age > min_age else 0.5
     
-    # Encode state and country
-    state_encoded = state_map.get(state, 0)
-    country_encoded = country_map.get(country, 0)
+    # 2. Create age group (0-4)
+    age_group = 0
+    for i in range(len(age_bins)-1):
+        if age_bins[i] <= age < age_bins[i+1]:
+            age_group = i
+            break
     
-    # Create feature vector
-    user_features = np.array([age_normalized, state_encoded, country_encoded])
+    # 3. Get state and country frequencies
+    state_frequency = state_freq.get(state.lower(), 0.0)
+    country_frequency = country_freq.get(country.lower(), 0.0)
+    
+    # Create feature vector - matches our data processor output
+    user_features = np.array([
+        age_normalized,    # Age-Normalized
+        float(age_group),  # Age-Group
+        state_frequency,   # State-Frequency
+        country_frequency  # Country-Frequency
+    ])
+    
+    # Debug output
+    print(f"Created user features: {user_features}")
     
     return user_features
+
+def display_top_regions(state_counts, country_counts, top_n=10):
+    """Display the top states and countries in the dataset."""
+    print("\n" + "=" * 80)
+    print(f"{Fore.CYAN}TOP {top_n} STATES/PROVINCES IN THE DATASET{Style.RESET_ALL}")
+    print("-" * 80)
+    
+    # Display top states
+    for i, (state, count) in enumerate(state_counts.head(top_n).items(), 1):
+        percent = count / state_counts.sum() * 100
+        print(f"{i}. {Fore.GREEN}{state}{Style.RESET_ALL}: {count} users ({percent:.1f}%)")
+    
+    print("\n" + "=" * 80)
+    print(f"{Fore.CYAN}TOP {top_n} COUNTRIES IN THE DATASET{Style.RESET_ALL}")
+    print("-" * 80)
+    
+    # Display top countries
+    for i, (country, count) in enumerate(country_counts.head(top_n).items(), 1):
+        percent = count / country_counts.sum() * 100
+        print(f"{i}. {Fore.GREEN}{country}{Style.RESET_ALL}: {count} users ({percent:.1f}%)")
+    
+    print("=" * 80)
 
 def display_recommendations(recommendations):
     """Format and display recommendations in the terminal."""
@@ -130,22 +196,25 @@ def display_recommendations(recommendations):
         author = rec.get('author', 'Unknown Author')
         year = rec.get('year', 'Unknown Year')
         publisher = rec.get('publisher', 'Unknown Publisher')
-        score = rec.get('score', 0) * 100
+        score = rec.get('score', 0)
         
         print(f"\n{Fore.GREEN}#{i}: {Fore.YELLOW}{title}{Style.RESET_ALL}")
         print(f"   Author: {Fore.CYAN}{author}{Style.RESET_ALL}")
         print(f"   Published: {year} by {publisher}")
-        print(f"   {Fore.MAGENTA}Match Score: {score:.1f}%{Style.RESET_ALL}")
+        print(f"   {Fore.MAGENTA}Estimated Rating: {(score+1)*5:.1f}%{Style.RESET_ALL}")
     
     print("\n" + "=" * 80)
 
 def interactive_mode(system):
     """Run the recommendation system in interactive mode."""
     recommender = system['recommender']
-    state_map = system['state_map']
-    country_map = system['country_map']
+    state_counts = system['state_counts']
+    country_counts = system['country_counts']
     min_age = system['min_age']
     max_age = system['max_age']
+    
+    # Display top regions first
+    display_top_regions(state_counts, country_counts)
     
     print("\n" + "=" * 80)
     print(f"{Fore.CYAN}BOOK RECOMMENDATION SYSTEM{Style.RESET_ALL}")
@@ -165,61 +234,37 @@ def interactive_mode(system):
             except ValueError:
                 print(f"{Fore.RED}Please enter a valid number for age.{Style.RESET_ALL}")
         
-
-        states_list = sorted(state_map.keys())
-        # for i in range(0, len(states_list), 5):
-        #     chunk = states_list[i:i+5]
-        #     print("  " + ", ".join(chunk))
-        
-        # Get state input
-        state = input("\nYour state/province (press Enter for Unknown): ").strip()
+        # Get state input - show top options
+        top_states = state_counts.head(10).index.tolist()
+        print(f"\nTop 10 states/provinces (for reference): {', '.join(top_states)}")
+        state = input("Your state/province (press Enter for Unknown): ").strip()
         if not state:
             state = "Unknown"
-        elif state not in state_map:
-            closest = [s for s in states_list if state.lower() in s.lower()]
-            if closest:
-                print(f"{Fore.YELLOW}State not found. Did you mean one of these? {', '.join(closest[:3])}{Style.RESET_ALL}")
-                state = input("Your state/province (press Enter for Unknown): ").strip()
-                if not state:
-                    state = "Unknown"
-            else:
-                print(f"{Fore.YELLOW}State not found. Using 'Unknown'.{Style.RESET_ALL}")
-                state = "Unknown"
         
-        countries_list = sorted(country_map.keys())
-        # for i in range(0, len(countries_list), 5):
-        #     chunk = countries_list[i:i+5]
-        #     print("  " + ", ".join(chunk))
-        
-        # Get country input
-        country = input("\nYour country (press Enter for Unknown): ").strip()
+        # Get country input - show top options
+        top_countries = country_counts.head(10).index.tolist()
+        print(f"\nTop 10 countries (for reference): {', '.join(top_countries)}")
+        country = input("Your country (press Enter for Unknown): ").strip()
         if not country:
             country = "Unknown"
-        elif country not in country_map:
-            closest = [c for c in countries_list if country.lower() in c.lower()]
-            if closest:
-                print(f"{Fore.YELLOW}Country not found. Did you mean one of these? {', '.join(closest[:3])}{Style.RESET_ALL}")
-                country = input("Your country (press Enter for Unknown): ").strip()
-                if not country:
-                    country = "Unknown"
-            else:
-                print(f"{Fore.YELLOW}Country not found. Using 'Unknown'.{Style.RESET_ALL}")
-                country = "Unknown"
         
         # Create user features
         print(f"\n{Fore.BLUE}Generating recommendations for: Age {age}, {state}, {country}{Style.RESET_ALL}")
         print("Please wait...")
         
-        user_features = create_user_features(age, state, country, state_map, country_map, min_age, max_age)
+        user_features = create_user_features(age, state, country, system)
         
         # Generate recommendations
-        recommendations = recommender.get_recommendations(
-            user_features, 
-            num_results=NUM_RECOMMENDATIONS
-        )
-        
-        # Display recommendations
-        display_recommendations(recommendations)
+        try:
+            recommendations = recommender.get_recommendations(
+                user_features, 
+                num_results=NUM_RECOMMENDATIONS
+            )
+            
+            # Display recommendations
+            display_recommendations(recommendations)
+        except Exception as e:
+            print(f"{Fore.RED}Error generating recommendations: {e}{Style.RESET_ALL}")
         
         # Ask if user wants to continue
         continue_response = input("\nWould you like to get more recommendations? (y/n): ").strip().lower()
@@ -250,23 +295,24 @@ def main():
         state = args.state if args.state is not None else "Unknown"
         country = args.country if args.country is not None else "Unknown"
         
+        # Display top regions
+        display_top_regions(system['state_counts'], system['country_counts'])
+        
         # Create user features
-        user_features = create_user_features(
-            age, state, country, 
-            system['state_map'], system['country_map'], 
-            system['min_age'], system['max_age']
-        )
+        user_features = create_user_features(age, state, country, system)
         
         # Generate recommendations
         print(f"{Fore.BLUE}Generating recommendations for: Age {age}, {state}, {country}{Style.RESET_ALL}")
-        recommendations = system['recommender'].get_recommendations(
-            user_features, 
-            num_results=NUM_RECOMMENDATIONS,
-            diversity_weight=0.2
-        )
-        
-        # Display recommendations
-        display_recommendations(recommendations)
+        try:
+            recommendations = system['recommender'].get_recommendations(
+                user_features, 
+                num_results=NUM_RECOMMENDATIONS
+            )
+            
+            # Display recommendations
+            display_recommendations(recommendations)
+        except Exception as e:
+            print(f"{Fore.RED}Error generating recommendations: {e}{Style.RESET_ALL}")
 
 if __name__ == "__main__":
     main()

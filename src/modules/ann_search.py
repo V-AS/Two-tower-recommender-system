@@ -8,8 +8,7 @@ import numpy as np
 import faiss
 import os
 
-import sys
-sys.settrace
+from modules.vector_operations import dot_product
 
 DEFAULT_SEARCH_NPROBE = 10
 DEFAULT_INDEX_TYPE = "Flat"
@@ -139,22 +138,7 @@ class ANNSearch:
                     embedding = index['index'].reconstruct(int(idx))
                     candidate_embeddings.append(embedding)
         
-        # If we couldn't get embeddings from the index (e.g., for non-Flat indices)
-        # we'd need to load them from a saved embeddings file
-        if not candidate_embeddings:
-            # Just use the initial distances
-            results = []
-            for i, idx in enumerate(indices[0]):
-                if idx != -1:
-                    item_id = index['item_ids'][idx]
-                    score = float(distances[0][i])
-                    results.append((item_id, score))
-            # Sort by score (highest first) and take top final_k
-            results = sorted(results, key=lambda x: x[1], reverse=True)[:final_k]
-            return results
-        
         # Stage 2: Calculate exact dot products with candidate embeddings
-        from modules.vector_operations import dot_product
         
         refined_results = []
         query_vector = query[0]  # Remove the batch dimension
@@ -163,7 +147,8 @@ class ANNSearch:
             item_id = candidate_ids[i]
             # Calculate exact dot product
             exact_score = dot_product(query_vector, emb)
-            refined_results.append((item_id, float(exact_score)))
+            estimated_rating = (float(exact_score) + 1) * 5
+            refined_results.append((item_id, estimated_rating))
             # Removed the debug print statement that was here
         
         # Sort by score (highest first) and take top final_k

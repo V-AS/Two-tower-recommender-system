@@ -160,14 +160,14 @@ def main():
         # Get unique books for embedding generation
         unique_books = processed_data.drop_duplicates('Book-Title-Encoded')
         
+
         # Extract item features for all unique books
-        item_features = unique_books[[
-            'Year-Normalized',
-            'Author-Popularity',
-            'Publisher-Popularity',
-            'Author-Encoded',
-            'Publisher-Encoded'
-        ]].values
+        item_features = np.column_stack((
+            unique_books['Year-Normalized'].values,
+            unique_books['Author-Frequency'].values,
+            unique_books['Publisher-Frequency'].values,
+            unique_books['Decade'].values
+        ))
         
         item_ids = unique_books['Book-Title-Encoded'].values
         
@@ -256,11 +256,12 @@ def main():
             return
 
         # Get user features
-        user_features = user_row[[
-            'Age-Normalized', 
-            'State-Encoded', 
-            'Country-Encoded'
-        ]].values[0]
+        user_features = np.array([
+            user_row['Age-Normalized'].values[0],
+            user_row['Age-Group'].values[0],
+            user_row['State-Frequency'].values[0],
+            user_row['Country-Frequency'].values[0]
+        ])
         
         # Initialize recommender
         recommender = Recommender()
@@ -275,7 +276,7 @@ def main():
         # Display recommendations
         print("\nRecommendations:")
         for i, rec in enumerate(recommendations, 1):
-            print(f"{i}. {rec.get('title', 'Unknown')} by {rec.get('author', 'Unknown')} (Score: {rec['score']:.4f})")
+            print(f"{i}. {rec.get('title', 'Unknown')} by {rec.get('author', 'Unknown')} (Estimated Rating: {rec['score']:.4f})")
 
     elif args.mode == "update":
         # Load models

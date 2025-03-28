@@ -5,6 +5,7 @@ Focuses on ensuring embedding diversity.
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 import numpy as np
 from tqdm import tqdm
 
@@ -57,7 +58,7 @@ class ModelTrainer:
     
     def train(self, dataset, epochs=10):
         """
-        Train the two-tower model with simplified approach.
+        Train the two-tower model
         
         Args:
             dataset: Training dataset
@@ -112,7 +113,7 @@ class ModelTrainer:
                 predicted_ratings = torch.sum(user_embeddings * item_embeddings, dim=1)
                 rating_loss = rating_criterion(predicted_ratings, rating_batch)
                 
-                # 2. Diversity loss - explicitly enforce variance in embeddings
+                # 2. Diversity loss
                 # Calculate cosine similarity matrix for embeddings
                 user_sim = torch.mm(user_embeddings, user_embeddings.t())
                 item_sim = torch.mm(item_embeddings, item_embeddings.t())
@@ -126,7 +127,7 @@ class ModelTrainer:
                                 torch.mean(torch.pow(item_sim * (1 - identity), 2))
                 
                 # Total loss with diversity component
-                loss = rating_loss + 0.1 * diversity_loss
+                loss = rating_loss + 0.7 * diversity_loss
                 
                 # Backward pass and optimize
                 self.optimizer.zero_grad()
@@ -157,7 +158,7 @@ class ModelTrainer:
                 val_user_embeddings = self.user_model(val_user)
                 val_item_embeddings = self.item_model(val_item)
                 
-                # Check variation in embeddings (critical for debugging)
+                # Check variation in embeddings
                 user_emb_var = torch.var(val_user_embeddings).item()
                 item_emb_var = torch.var(val_item_embeddings).item()
                 
@@ -190,6 +191,7 @@ class ModelTrainer:
         }
         
         return model
+    
     
     def evaluate(self, dataset):
         """
