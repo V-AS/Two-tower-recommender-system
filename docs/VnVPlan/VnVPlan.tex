@@ -11,7 +11,7 @@
     linkcolor=red,
     urlcolor=blue
 }
-\usepackage[round]{natbib}
+% \usepackage[round]{natbib}
 
 \input{../Comments}
 \input{../Common}
@@ -27,7 +27,6 @@
 \pagenumbering{roman}
 
 \section*{Revision History}
-
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
@@ -61,7 +60,7 @@ Feb 25, 2025 & 1.1 & Minor update after VnV presentation\\
   ANN & Approximate Nearest Neighbor\\
   SRS & Software Requirements Specification\\
   FAISS & Facebook AI Similarity Search\\
-
+  DNN & Deep Neural Network\\
   \bottomrule
 \end{tabular}\\
 
@@ -150,20 +149,8 @@ The Verification and Validation (VnV) Plan will be reviewed by domain expert Yua
 The implementation will be verified by testing both the functional and non-functional requirements outlined in section \ref{SystemTest}. Unit tests, as described in section \ref{UnitTest}, will also be performed. Additionally, a code walkthrough will be conducted with the class during the final presentation.
 
 \subsection{Automated Testing and Verification Tools}
-The following tools will be used for automated testing and verification:
-\begin{itemize}
-\item \textbf{Unit Testing}:
-\begin{itemize}
-\item \textbf{Pytest}: For testing individual components (e.g., embedding functions, ANN search, ranking logic).
-\end{itemize}
-\item \textbf{Continuous Integration (CI)}:
-\begin{itemize}
-\item \textbf{GitHub Actions}: Automates all unit tests, some system tests, and deployment workflows.
-\item \textbf{CML (Continuous Machine Learning)}: Automatically generates performance reports and emails metrics when changes are pushed to GitHub.
-\item The CI workflow will run all unit tests.
-\end{itemize}
-\end{itemize}
-
+All system tests and unit tests will be performed using Python scripts.  
+GitHub Actions is used for continuous integration, and the workflow will run all unit tests.
 \subsection{Software Validation Plan}
 
 The software validation plan is beyond the scope of \progname, as it requires additional time and data that are not available within the scope of the project.
@@ -182,36 +169,27 @@ The functional requirements are tested in the following areas: input validation,
 
   \item{test-id1\\}
   Control: Automatic\\
-  Initial State: Before training the embedding functions.\\
+  Initial State: Before training the DNN.\\
   Input: Dataset\\
-  Output: A verified dataset where each user-item pair in the verified dataset has an associated reward and no missing values.\\
-  Test Case Derivation: Ensures that the system handles valid inputs as specified in the \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}, which also includes the training dataset used for this project.
+  Output: A verified training dataset where each user-item pair has an associated reward.\\
+  Test Case Derivation: Ensures that the system receives a valid dataset for training, as specified in the \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.
 
-  How test will be performed: Automated test using GitHub Actions.
+  How test will be performed: This test will be performed automatically using GitHub Actions every time before training the DNN.
 					
 \end{enumerate}
 
 
-\subsubsection{Test for performance}
+\subsubsection{Test for Model Training Convergence}
 
 \begin{enumerate}
   \item{test-id2\\}
 
   Control: Automatic\\
-  Initial State: After training of the embedding functions\\
-  Input: The testing dataset and embedding functions\\
-  Output: The performance of the user embedding and item embedding functions is acceptable (accuracy $>$ 80\%)\\
+  Initial State: After training of the DNN\\
+  Input: The loss record during training\\
+  Output: A boolean value, ``True'' if the loss of the DNN decreases over iterations, and ``False'' otherwise.\\
   Test Case Derivation: Ensures the correctness of the output as specified in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.\\
-  How the test will be performed: This test will be performed automatically using GitHub Actions once the training is finished.
-
-\item{test-id3\\}
-
-Control: Automatic\\
-Initial State: System initialized with pre-computed item embeddings and trained ANN index.\\
-Input:  user embeddings\\
-Output: The ranking for the top 5 items should generally be the same for identical user embeddings. Non-consistent rankings are allowed (up to 5\%) due to the inherent randomness in machine learning.\\
-Test Case Derivation: Ensures that identical user embeddings produce identical item rankings, as stated in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{SRS}.\\
-How the test will be performed: This test will be performed automatically using GitHub Actions. It will generate 100 lists of recommended items for a random user.\\
+  How the test will be performed: This test will be performed automatically using GitHub Actions once training is complete.
 
 \end{enumerate}
 
@@ -222,10 +200,10 @@ How the test will be performed: This test will be performed automatically using 
   
   Control: Automatic\\
   Initial State: After model training is complete\\
-  Input: Trained model to be saved\\
-  Output: Model successfully stored and can be retrieved with identical parameters\\
-Test Case Derivation: Ensures R3 (model storage) is properly implemented
-How test will be performed: Automated test that saves the model, loads it back, and verifies parameter integrity
+  Input: Path to the model and pre-computed item embeddings\\
+  Output: bA boolean variable -- ``True'' iif the model and pre-computed item embeddings are stored in the specified location, and ``False'' otherwise\\
+  Test Case Derivation: Ensures R3 (model storage) is properly implemented\\
+  How test will be performed: The test will be performed automatically using GitHub Actions once model training convergence is complete.
 \end{enumerate}
 
 
@@ -525,9 +503,5 @@ The table \ref{Table:Unit} shows the traceability between test cases and modules
   \end{tabular}
   \caption{Traceability Matrix Between Test Cases and Modules}
   \end{table}
-				
-\bibliographystyle{plainnat}
-
-\bibliography{../../refs/References}
 
 \end{document}
