@@ -1,0 +1,60 @@
+# .github/workflows/auto_model_training.yml
+name: Auto Model Training on Dataset Changes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/processed/recommender_data.csv'  # Only trigger on dataset changes
+
+jobs:
+  check-and-train:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # Need history to check changes
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas torch faiss-cpu tqdm scikit-learn matplotlib
+      
+      - name: Run data validation (System Test 1)
+        run: python tests/system/test_data_validation.py data/processed/recommender_data.csv
+      
+      - name: Run model training
+        run: |
+          echo "Starting automatic model training due to dataset changes..."
+          python src/main.py \
+            --data_path data/processed/recommender_data.csv \
+            --output_dir output \
+            --mode train \
+            --epochs 5 \
+            --batch_size 20 \
+            --embedding_dim 32
+      
+      - name: Test model convergence (System Test 2)
+        run: python tests/system/test_model_convergence.py output
+      
+      - name: Test model storage (System Test 3)
+        run: python tests/system/test_model_storage.py output
+      
+      - name: Configure Git LFS
+        run: |
+          git lfs install
+      
+      - name: Commit updated models
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add output/user_model.pth output/item_model.pth output/item_embeddings.npy 
+          git add output/ann_index.faiss output/ann_index.meta.npy output/training_history.json
+          git commit -m "Update models based on dataset changes [skip ci]" || echo "No changes to commit"
+          git push
