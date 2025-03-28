@@ -201,7 +201,7 @@ def display_recommendations(recommendations):
         print(f"\n{Fore.GREEN}#{i}: {Fore.YELLOW}{title}{Style.RESET_ALL}")
         print(f"   Author: {Fore.CYAN}{author}{Style.RESET_ALL}")
         print(f"   Published: {year} by {publisher}")
-        print(f"   {Fore.MAGENTA}Estimated Rating: {(score+1)*5:.1f}%{Style.RESET_ALL}")
+        print(f"   {Fore.MAGENTA}Estimated Rating: {(score+1):.5f}{Style.RESET_ALL}")
     
     print("\n" + "=" * 80)
 

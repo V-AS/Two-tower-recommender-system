@@ -14,6 +14,8 @@ DEFAULT_LEARNING_RATE = 0.001
 DEFAULT_BATCH_SIZE = 64
 DEFAULT_REGULARIZATION = 0.0001
 
+random_seed = 5241323
+torch.manual_seed(random_seed)
 class ModelTrainer:
     def __init__(self):
         """Initialize the ModelTrainer."""
