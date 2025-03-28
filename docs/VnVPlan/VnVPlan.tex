@@ -11,7 +11,7 @@
     linkcolor=red,
     urlcolor=blue
 }
-% \usepackage[round]{natbib}
+\usepackage[round]{natbib}
 
 \input{../Comments}
 \input{../Common}
@@ -67,7 +67,7 @@ Feb 25, 2025 & 1.1 & Minor update after VnV presentation\\
 \newpage
 
 \pagenumbering{arabic}
-
+\nocite{*}
 This document outlines the verification and validation plan for the Two-Tower Embeddings Recommendation System (TTE RecSys) to ensure compliance with the requirements and objectives specified in the \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/SRS/SRS.pdf}{Software Requirements Specification (SRS)}. It is structured to first present general information and verification strategies, followed by detailed descriptions of system and unit testing for both functional and non-functional requirements.
 
 \section{General Information}
@@ -504,4 +504,6 @@ The table \ref{Table:Unit} shows the traceability between test cases and modules
   \caption{Traceability Matrix Between Test Cases and Modules}
   \end{table}
 
+  \bibliographystyle {plainnat}
+  \bibliography {../../refs/References}
 \end{document}
