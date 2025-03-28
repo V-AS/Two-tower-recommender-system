@@ -154,7 +154,7 @@ def main():
         save_model(model["item_model"], os.path.join(args.output_dir, "item_model.pth"))
         # Save training history
         save_training_history(
-            model["training_history"],
+            model["history"],
             os.path.join(args.output_dir, "training_history.json")
         )
         # Generate and save embeddings
