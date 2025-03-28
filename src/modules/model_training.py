@@ -9,10 +9,15 @@ import torch.nn.functional as F
 import numpy as np
 from tqdm import tqdm
 
+from hardware.system_interface import save_training_history
+
+
 # Default parameters
 DEFAULT_LEARNING_RATE = 0.001
 DEFAULT_BATCH_SIZE = 64
 DEFAULT_REGULARIZATION = 0.0001
+
+output_dir = "output"  # Directory to save training history
 
 random_seed = 5241323
 torch.manual_seed(random_seed)
@@ -177,8 +182,7 @@ class ModelTrainer:
             history['diversity_loss'].append(avg_diversity_loss)
             history['val_loss'].append(val_loss)
             
-            print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.4f} (Rating: {avg_rating_loss:.4f}, Diversity: {avg_diversity_loss:.4f})")
-            print(f"Val Loss: {val_loss:.4f}, User Emb Var: {user_emb_var:.6f}, Item Emb Var: {item_emb_var:.6f}")
+
             
             # Early stopping if embeddings have good variance
             if user_emb_var > 0.1 and item_emb_var > 0.1 and epoch > 5:

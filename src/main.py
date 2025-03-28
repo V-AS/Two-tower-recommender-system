@@ -19,6 +19,7 @@ from hardware.system_interface import (
     load_model,
     save_embeddings,
     load_embeddings,
+    save_training_history
 )
 from utils.evaluation import evaluate_model
 
@@ -151,7 +152,11 @@ def main():
         print("Saving models...")
         save_model(model["user_model"], os.path.join(args.output_dir, "user_model.pth"))
         save_model(model["item_model"], os.path.join(args.output_dir, "item_model.pth"))
-
+        # Save training history
+        save_training_history(
+            model["training_history"],
+            os.path.join(args.output_dir, "training_history.json")
+        )
         # Generate and save embeddings
         print("Generating embeddings...")
         embedding_generator = EmbeddingGenerator()

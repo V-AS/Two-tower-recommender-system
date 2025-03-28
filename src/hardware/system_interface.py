@@ -7,6 +7,70 @@ import json
 import numpy as np
 import torch
 
+def save_training_history(history, path):
+    """
+    Save training history to a JSON file.
+    
+    Args:
+        history (dict): Dictionary containing training metrics
+            (e.g., {'loss': [...], 'val_loss': [...], ...})
+        path (str): The file path to save to
+        
+    Returns:
+        bool: True if successful
+        
+    Raises:
+        IOError: If file cannot be written
+    """
+    try:
+        # Create directory if it doesn't exist
+        directory = os.path.dirname(path)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory)
+        
+        # Convert numpy arrays to lists for JSON serialization
+        serializable_history = {}
+        for key, value in history.items():
+            if isinstance(value, list) or isinstance(value, np.ndarray):
+                serializable_history[key] = [float(v) if isinstance(v, (np.number, float)) else v for v in value]
+            else:
+                serializable_history[key] = value
+        
+        # Save to JSON file
+        with open(path, 'w') as f:
+            json.dump(serializable_history, f, indent=2)
+        
+        return True
+    except Exception as e:
+        raise IOError(f"Failed to save training history: {str(e)}")
+    
+def load_training_history(path):
+    """
+    Load training history from a JSON file.
+    
+    Args:
+        path (str): The file path to load from
+        
+    Returns:
+        dict: The loaded training history
+        
+    Raises:
+        IOError: If file cannot be read
+        ValueError: If file format is invalid
+    """
+    try:
+        if not os.path.exists(path):
+            raise IOError(f"File not found: {path}")
+        
+        with open(path, 'r') as f:
+            history = json.load(f)
+        
+        return history
+    except json.JSONDecodeError:
+        raise ValueError(f"Invalid JSON format in history file: {path}")
+    except Exception as e:
+        raise IOError(f"Failed to load training history: {str(e)}")
+    
 def save_model(model, path):
     """
     Save a trained model to the specified path.
