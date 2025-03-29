@@ -5,85 +5,102 @@ Verifies that the model and pre-computed item embeddings are stored correctly.
 """
 import sys
 import os
-import numpy as np
 
 # Add project root to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(os.path.dirname(current_dir))
+sys.path.insert(0, project_root)
 
 from src.hardware.system_interface import load_model, load_embeddings
 
+
 def test_model_storage(output_dir):
     """Test that models and embeddings were saved correctly and can be loaded."""
-    print(f"Running Model Storage Test on output in {output_dir}")
-    
+    print(f"Running Model Storage Test on files in {output_dir}")
+
     # Define expected file paths
     user_model_path = os.path.join(output_dir, "user_model.pth")
     item_model_path = os.path.join(output_dir, "item_model.pth")
     item_embeddings_path = os.path.join(output_dir, "item_embeddings.npy")
     ann_index_path = os.path.join(output_dir, "ann_index")
-    
+
     # Check that all required files exist
     all_files_exist = True
-    
+
     if not os.path.exists(user_model_path):
         print(f"User model not found at {user_model_path}")
         all_files_exist = False
-    
+
     if not os.path.exists(item_model_path):
         print(f"Item model not found at {item_model_path}")
         all_files_exist = False
-    
+
     if not os.path.exists(item_embeddings_path):
         print(f"Item embeddings not found at {item_embeddings_path}")
         all_files_exist = False
-    
+
     if not os.path.exists(f"{ann_index_path}.faiss"):
         print(f"ANN index not found at {ann_index_path}.faiss")
         all_files_exist = False
-    
+
     if not all_files_exist:
         return False
-    
+
     # Try to load models and embeddings
     try:
-        # Load user model
+        # Load user model state dict
         print("Loading user model...")
-        user_model = load_model(user_model_path)
-        
-        # Load item model
+        user_model_state = load_model(user_model_path)
+
+        # Load item model state dict
         print("Loading item model...")
-        item_model = load_model(item_model_path)
-        
+        item_model_state = load_model(item_model_path)
+
         # Load item embeddings
         print("Loading item embeddings...")
         item_embeddings = load_embeddings(item_embeddings_path)
-        
-        # Check if models have the expected attributes
-        if not hasattr(user_model, 'input_dim'):
-            print("User model missing input_dim attribute")
+
+        # Validate model state dicts contain expected elements
+        if not isinstance(user_model_state, dict):
+            print("User model is not a state dictionary")
             return False
-        
-        if not hasattr(item_model, 'input_dim'):
-            print("Item model missing input_dim attribute")
+
+        if not isinstance(item_model_state, dict):
+            print("Item model is not a state dictionary")
             return False
-        
+
+        # Check if state dicts have expected layer parameters
+        if not any("weight" in key for key in user_model_state.keys()):
+            print("User model state dict missing expected weight parameters")
+            return False
+
+        if not any("weight" in key for key in item_model_state.keys()):
+            print("Item model state dict missing expected weight parameters")
+            return False
+
         # Check if embeddings have the expected shape
         if len(item_embeddings.shape) != 2:
             print(f"Item embeddings have unexpected shape: {item_embeddings.shape}")
             return False
-        
+
+        # Print some stats about the loaded files for verification
+        print(f"User model state dict contains {len(user_model_state)} parameters")
+        print(f"Item model state dict contains {len(item_model_state)} parameters")
+        print(f"Item embeddings shape: {item_embeddings.shape}")
+
         print("Model storage test passed!")
         return True
-    
+
     except Exception as e:
         print(f"Error loading models or embeddings: {e}")
         return False
 
+
 if __name__ == "__main__":
     # Get output directory from command line or use default
     output_dir = sys.argv[1] if len(sys.argv) > 1 else "output"
-    
+
     result = test_model_storage(output_dir)
-    
+
     # Exit with appropriate code for CI
     sys.exit(0 if result else 1)
