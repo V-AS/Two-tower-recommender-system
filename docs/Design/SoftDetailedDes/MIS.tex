@@ -75,7 +75,7 @@ See SRS Documentation at \url{https://github.com/V-AS/Two-tower-recommender-syst
 \section{Introduction}
 
 The following document details the Module Interface Specifications for
-\progname
+\progname, a two-tower recommendation system. The system leverages deep learning to create both the user tower and item tower, mapping inputs to a shared embedding space. Then, an effective algorithm is used to select a large number of candidate items. Finally, the dot product is applied for a refined ranking of the candidate items, returning the final recommendations accordingly.
 
 Complementary documents include the System Requirement Specifications
 and Module Guide.  The full documentation and implementation can be
@@ -96,12 +96,16 @@ The following table summarizes the primitive data types used by \progname.
 \toprule 
 \textbf{Data Type} & \textbf{Notation} & \textbf{Description}\\ 
 \midrule
-character & char & A sequence of characters\\
+character & char & A single character\\
+String & string & A sequence of characters representing text\\
 Array & $[T]$ & A sequence of elements of type $T$\\
+Dictionary/Map & dict & A collection of key-value pairs\\
+Vector & $\mathbb{R}^n$ & An ordered collection of n real numbers\\
 Matrix &$[T]^{m\times n}$ & A 2D array of type T with m rows and n columns\\
 Boolean & $\mathbb{B}$ & True or False value\\
 Integer & $\mathbb{Z}$ & A number without a fractional component in (-$\infty$, $\infty$) \\
 real & $\mathbb{R}$ & Any number in (-$\infty$, $\infty$)\\
+Tuple & $(T_1, T_2, ...)$ & An ordered collection of elements with possibly different types\\
 \bottomrule
 \end{tabular} 
 \end{center}
@@ -117,8 +121,13 @@ The specification also uses derived data types:
   \item Tensors: Multi-dimensional arrays
   \item User: A type representing user features
   \item Item: A type representing item features
+  \item DataSet: A collection of data records containing user, item, and interaction information
+  \item Model: A neural network model
+  \item ANNIndex: An index structure for approximate nearest neighbor search
+  \item TrainingConfig: A dictionary containing configuration parameters for model training (learning rate, batch size, etc.)
+  \item LayerConfig: A dictionary describing the configuration of neural network layers
+  \item EvaluationMetrics: A dictionary of evaluation metric names and values
 \end{itemize}
-
 
 \section{Module Decomposition}
 

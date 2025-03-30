@@ -5,11 +5,7 @@ Focuses on ensuring embedding diversity.
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
 import numpy as np
-from tqdm import tqdm
-
-from hardware.system_interface import save_training_history
 
 
 # Default parameters

@@ -323,29 +323,29 @@ to be implemented.
 \item[Implemented By:] --
 \end{description}
 
-\subsubsection{Neural Network Architecture Module (\mref{mNN})}
+\subsection{Neural Network Architecture Module (\mref{mNN})}
 
 \begin{description}
 \item[Secrets:]The structure and parameters of the neural networks used for embedding.
-\item[Services:]Defines the architecture of the user and item towers.
+\item[Services:]Defines the architecture of the user and item towers and implements the forward pass for embedding generation.
 \item[Implemented By:] \progname
 \item[Type of Module:] Abstract Object
 \end{description}
 
-\subsubsection{ANN Search Module (\mref{mANN})}
+\subsection{ANN Search Module (\mref{mANN})}
 
 \begin{description}
 \item[Secrets:]The algorithm used for approximate nearest neighbor search.
-\item[Services:]Efficiently retrieves nearest neighbors in the embedding space.
+\item[Services:]Efficiently retrieves nearest neighbors in the embedding space using FAISS library implementation.
 \item[Implemented By:] \progname (using FAISS library)
 \item[Type of Module:] Abstract Object
 \end{description}
 
-\subsubsection{Vector Operations Module (\mref{mVO})}
+\subsection{Vector Operations Module (\mref{mVO})}
 
 \begin{description}
 \item[Secrets:]The implementation of vector operations such as dot product and normalization.
-\item[Services:]Provides efficient vector operations for embeddings.
+\item[Services:]Provides efficient vector operations for embeddings, including dot product and normalization.
 \item[Implemented By:] \progname
 \item[Type of Module:] Library
 \end{description}
