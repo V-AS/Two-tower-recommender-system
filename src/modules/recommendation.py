@@ -68,7 +68,7 @@ class Recommender:
         candidate_embeddings, candidate_ids = ann_search.ann_search(self.ann_index, user_embedding)
         
         refined_results = []
-        query_vector = user_embedding[0]  # Remove the batch dimension
+        query_vector = user_embedding  # Remove the batch dimension
         
         for i, emb in enumerate(candidate_embeddings):
             item_id = candidate_ids[i]

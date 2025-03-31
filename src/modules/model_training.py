@@ -10,7 +10,7 @@ import numpy as np
 
 # Default parameters
 DEFAULT_LEARNING_RATE = 0.001
-DEFAULT_BATCH_SIZE = 64
+DEFAULT_BATCH_SIZE = 32
 DEFAULT_REGULARIZATION = 0.0001
 
 output_dir = "output"  # Directory to save training history

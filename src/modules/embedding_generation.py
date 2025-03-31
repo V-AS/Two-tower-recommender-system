@@ -57,7 +57,8 @@ class EmbeddingGenerator:
         self.user_model.eval()
         
         # Convert to tensor
-        users_tensor = torch.tensor(users, dtype=torch.float32).to(self.device)
+        user_array = np.array(users)
+        users_tensor = torch.tensor(user_array, dtype=torch.float32).to(self.device)
         
         # Generate embeddings
         with torch.no_grad():
@@ -87,7 +88,8 @@ class EmbeddingGenerator:
         
         if len(users) == 1:  # Only when generating during recommendation
             user_emb = normalized_embeddings[0].cpu().numpy()
-            print(f"User embedding stats - min: {user_emb.min():.6f}, max: {user_emb.max():.6f}, std: {user_emb.std():.6f}")
+            
+            # print(f"User embedding stats - min: {user_emb.min():.6f}, max: {user_emb.max():.6f}, std: {user_emb.std():.6f}")
         
         # Convert to numpy
         return normalized_embeddings.cpu().numpy()
