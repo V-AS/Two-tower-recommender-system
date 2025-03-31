@@ -3,6 +3,7 @@ Modified Recommendation Module.
 Generates recommendations based on user embeddings and ANN search.
 """
 import numpy as np
+from modules.vector_operations import dot_product
 
 DEFAULT_NUM_RECOMMENDATIONS = 10
 SIMILARITY_THRESHOLD = 0.5
@@ -64,11 +65,25 @@ class Recommender:
         # Query ANN index
         from modules.ann_search import ANNSearch
         ann_search = ANNSearch()
-        results = ann_search.two_stage_search(self.ann_index, user_embedding, final_k=num_results)
+        candidate_embeddings, candidate_ids = ann_search.ann_search(self.ann_index, user_embedding)
+        
+        refined_results = []
+        query_vector = user_embedding[0]  # Remove the batch dimension
+        
+        for i, emb in enumerate(candidate_embeddings):
+            item_id = candidate_ids[i]
+            # Calculate exact dot product
+            exact_score = dot_product(query_vector, emb)
+            estimated_rating = (float(exact_score) + 1) * 5
+            refined_results.append((item_id, estimated_rating))
+            # Removed the debug print statement that was here
+        
+        # Sort by score (highest first) and take top final_k
+        refined_results = sorted(refined_results, key=lambda x: x[1], reverse=True)[:num_results]
         
         # Enhance results with book details if available
         recommendations = []
-        for item_id, score in results:
+        for item_id, score in refined_results:
             rec = {
                 'item_id': item_id,
                 'score': score
@@ -82,82 +97,3 @@ class Recommender:
         
         return recommendations
     
-    def evaluate_recommendations(self, test_data, k_values=[5, 10]):
-        """
-        Evaluate recommendations on test data.
-        
-        Args:
-            test_data: Test dataset
-            k_values: List of k values for evaluation metrics
-            
-        Returns:
-            dict: Evaluation metrics
-            
-        Raises:
-            RuntimeError: If not initialized
-        """
-        if not self.is_initialized:
-            raise RuntimeError("Recommender not initialized")
-        
-        if self.embedding_generator is None:
-            raise RuntimeError("Embedding generator required for evaluation")
-        
-        # Calculate metrics for precision, recall, and NDCG at different k values
-        metrics = {}
-        precision_sum = {k: 0 for k in k_values}
-        recall_sum = {k: 0 for k in k_values}
-        ndcg_sum = {k: 0 for k in k_values}
-        user_count = 0
-        
-        # Group test data by user
-        user_groups = {}
-        for user_id in test_data['user_ids']:
-            if user_id not in user_groups:
-                user_groups[user_id] = []
-            user_groups[user_id].append(user_id)
-        
-        # For each user in test set
-        for user_id, indices in user_groups.items():
-            # Get user features
-            user_feature = test_data['user_features'][indices[0]]
-            
-            # Get relevant items (items the user actually liked with rating >= 0.7)
-            relevant_items = set()
-            for idx in indices:
-                if test_data['ratings'][idx] >= 0.7:  # 7/10 rating or higher
-                    relevant_items.add(test_data['item_ids'][idx])
-            
-            if not relevant_items:
-                continue
-            
-            # Get recommendations
-            recommendations = self.get_recommendations(user_feature, num_results=max(k_values))
-            rec_item_ids = [rec['item_id'] for rec in recommendations]
-            
-            # Calculate metrics for each k
-            for k in k_values:
-                # Precision@k
-                hits = sum(1 for item_id in rec_item_ids[:k] if item_id in relevant_items)
-                precision = hits / k if k > 0 else 0
-                precision_sum[k] += precision
-                
-                # Recall@k
-                recall = hits / len(relevant_items) if relevant_items else 0
-                recall_sum[k] += recall
-                
-                # NDCG@k
-                idcg = sum(1.0 / np.log2(i + 2) for i in range(min(len(relevant_items), k)))
-                dcg = sum(1.0 / np.log2(i + 2) for i, item_id in enumerate(rec_item_ids[:k]) if item_id in relevant_items)
-                ndcg = dcg / idcg if idcg > 0 else 0
-                ndcg_sum[k] += ndcg
-            
-            user_count += 1
-        
-        # Calculate average metrics
-        if user_count > 0:
-            for k in k_values:
-                metrics[f'precision@{k}'] = precision_sum[k] / user_count
-                metrics[f'recall@{k}'] = recall_sum[k] / user_count
-                metrics[f'ndcg@{k}'] = ndcg_sum[k] / user_count
-        
-        return metrics

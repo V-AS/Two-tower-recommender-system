@@ -65,7 +65,6 @@ class EmbeddingGenerator:
             if len(users) == 1:  # Only apply to single user inference (recommendation)
                 # Add small random perturbation to encourage diversity
                 noise_scale = 0.02
-                noise = torch.randn_like(users_tensor) * noise_scale
                 
                 # Make multiple versions of the user embedding with slight variations
                 num_variations = 5

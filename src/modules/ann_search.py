@@ -101,17 +101,15 @@ class ANNSearch:
             print(f"Error during index building: {str(e)}")
             raise
         
-    def two_stage_search(self, index, query, candidates=100, final_k=10):
+    def ann_search(self, index, query, candidates=100):
         """
-        Performs a two-stage search:
-        1. First stage: Use FAISS to get a larger set of candidate neighbors
-        2. Second stage: Calculate exact dot products and return top-k
+
+        Use FAISS to get a larger set of candidate neighbors
         
         Args:
             index (dict): ANN index object
             query (array-like): Query embedding
             candidates (int): Number of candidates to retrieve in first stage
-            final_k (int): Number of final results to return after refinement
             
         Returns:
             list: List of (item_id, similarity_score) tuples
@@ -138,23 +136,8 @@ class ANNSearch:
                     embedding = index['index'].reconstruct(int(idx))
                     candidate_embeddings.append(embedding)
         
-        # Stage 2: Calculate exact dot products with candidate embeddings
+        return candidate_embeddings, candidate_ids
         
-        refined_results = []
-        query_vector = query[0]  # Remove the batch dimension
-        
-        for i, emb in enumerate(candidate_embeddings):
-            item_id = candidate_ids[i]
-            # Calculate exact dot product
-            exact_score = dot_product(query_vector, emb)
-            estimated_rating = (float(exact_score) + 1) * 5
-            refined_results.append((item_id, estimated_rating))
-            # Removed the debug print statement that was here
-        
-        # Sort by score (highest first) and take top final_k
-        refined_results = sorted(refined_results, key=lambda x: x[1], reverse=True)[:final_k]
-        
-        return refined_results
     
     def save_index(self, index, path):
         """
