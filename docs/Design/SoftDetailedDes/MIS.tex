@@ -161,7 +161,7 @@ The following table is taken directly from the Module Guide document for this pr
 
 
 \newpage
-~\newpage
+
 
 \section{MIS of Hardware-Hiding Module} \label{ModuleHH}
 
@@ -179,7 +179,7 @@ None
 \subsubsection{Exported Access Programs}
 
 \begin{center}
-\begin{tabular}{p{2cm} p{4cm} p{4cm} p{2cm}}
+\begin{tabular}{p{4cm} p{4cm} p{4cm} p{2cm}}
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
@@ -194,6 +194,14 @@ save\_emds & embeddings: [Embedding],
 path: String & success: $\mathbb{B}$ & IOError \\
 \hline
 load\_emds & path: String & embeddings: [Embedding] & IOError \\
+\hline
+
+
+save\_training\_history & history: dict, path: String & success: $\mathbb{B}$ & IOError \\
+\hline
+load\_training\_history & path: String & history: dict & IOError, 
+
+FormatError \\
 \hline
 \end{tabular}
 \end{center}
@@ -234,12 +242,23 @@ FileSystem: The file system where models and embeddings are stored
 \item exception: IOError if file cannot be written
 \end{itemize}
 
-\noindent oad\_embeddings(path):
+\noindent load\_embeddings(path):
 \begin{itemize}
 \item output: embeddings
 \item exception: IOError if file cannot be read, FormatError if file format is invalid
 \end{itemize}
 
+\noindent save\_training\_history(history, path):
+\begin{itemize}
+\item output: success = true if operation succeeds
+\item exception: IOError if file cannot be written
+\end{itemize}
+
+\noindent load\_training\_history(path):
+\begin{itemize}
+\item output: history = training metrics dictionary
+\item exception: IOError if file cannot be read, FormatError if file format is invalid
+\end{itemize}
 
 \section{MIS of Data Processing Module} \label{ModuleDP}
 
@@ -257,26 +276,31 @@ None
 \subsubsection{Exported Access Programs}
 
 \begin{center}
-\begin{tabular}{p{2cm} p{4cm} p{4cm} p{2cm}}
-\hline
-\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
-\hline
-load\_data & path: String & data: DataSet & IOError,
+  \begin{tabular}{p{4cm} p{4cm} p{4cm} p{2cm}}
+  \hline
+  \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+  \hline
+  load\_data & path: String & data: DataSet & IOError,
+  
+  FormatError\\
+  \hline
+  validate\_data & data: DataSet & is\_valid: $\mathbb{B}$ & -\\
+  \hline
+  prep\_data & data: DataSet & processed\_dataset: DataSet & - \\
+  \hline
+  split\_data & data: DataSet,
+  
+  train\_ratio: $\mathbb{R}$ & train\_data: DataSet,
+  
+  test\_data: DataSet & ValueError \\
+  \hline
+  create\_training\_data & data: DataSet & dataset: dict & ValueError \\
+  \hline
+  get\_book\_mapping & data: DataSet & mapping: dict & - \\
+  \hline
+  \end{tabular}
+  \end{center}
 
-FormatError\\
-\hline
-validate\_data & data: DataSet & is\_valid: $\mathbb{B}$ & -\\
-\hline
-prep\_data & data: DataSet & processed\_dataset & - \\
-\hline
-split\_data & data: DataSet,
-
-train\_ratio: $\mathbb{R}$ & train\_data: DataSet,
-
-test\_data: DataSet & IOError \\
-\hline
-\end{tabular}
-\end{center}
 
 \subsection{Semantics}
 
@@ -297,7 +321,7 @@ None
 
 \noindent load\_data(path):
 \begin{itemize}
-\item data = parsed data from file at path
+\item output: data = data from file at path
 \item exception: IOError if file cannot be read, FormatError if file format is invalid
 \end{itemize}
 
@@ -308,7 +332,7 @@ None
 
 \noindent preprocess\_data(data):
 \begin{itemize}
-\item output: processed\_data = dataset after applying preprocessing transformations
+\item output: processed\_data = dataset after applying feature engineering transformations, including normalization, frequency encoding, and derived feature creation.
 \end{itemize}
 
 \noindent split\_data(data, train\_ratio):
@@ -320,6 +344,18 @@ None
 \end{itemize}
 \item exception: ValueError if train\_ratio is not in $(0,1)$
 \end{itemize}
+
+\noindent create\_training\_data(data):
+\begin{itemize}
+\item output: dataset = dictionary containing user\_ids, item\_ids, ratings, user\_features, and item\_features
+\item exception: ValueError if features are missing
+\end{itemize}
+
+\noindent get\_book\_mapping(data):
+\begin{itemize}
+\item output: mapping = dictionary mapping encoded book IDs to book details (title, author, year, publisher)
+\end{itemize}
+
 
 \section{MIS of Model Training Module} \label{ModuleMT}
 
@@ -333,40 +369,38 @@ DataProcessor, NeuralNetworkArchitecture, VectorOperations
 \subsection{Syntax}
 
 \subsubsection{Exported Constants}
-DEFAULT\_LEARNING\_RATE = 0.01\\
-DEFAULT\_BATCH\_SIZE = 128\\
-DEFAULT\_REGULARIZATION = 0.01
+DEFAULT\_LEARNING\_RATE = 0.001\\
+DEFAULT\_BATCH\_SIZE = 64\\
+DEFAULT\_REGULARIZATION = 0.0001
 \subsubsection{Exported Access Programs}
 
 \begin{center}
-\begin{tabular}{p{3cm} p{4cm} p{4cm} p{2cm}}
-\hline
-\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
-\hline
-initialize & config: TrainingConfig & - & ValueError \\
-\hline
-train & train\_data: DataSet,
-
-epochs: $\mathbb{Z}$
-
-& model: Model & IOError,
-
-FormatError \\
-\hline
-evaluate & test\_data: DataSet,
-
-& metrics: EvaluationMetrics & - \\
-\hline
-get\_user\_model & 
-
-- & user\_model: Model & NotInitializedError \\
-\hline
-get\_item\_model & 
-
-- & item\_model: Model & NotInitializedError \\
-\hline
-\end{tabular}
-\end{center}
+  \begin{tabular}{p{3cm} p{4cm} p{4cm} p{2cm}}
+  \hline
+  \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+  \hline
+  initialize & config: TrainingConfig & - & ValueError \\
+  \hline
+  train & train\_data: DataSet,
+  
+  epochs: $\mathbb{Z}$
+  
+  & model: dict & RuntimeError \\
+  \hline
+  evaluate & test\_data: DataSet,
+  
+  & metrics: EvaluationMetrics & RuntimeError \\
+  \hline
+  get\_user\_model & 
+  
+  - & user\_model: Model & RuntimeError \\
+  \hline
+  get\_item\_model & 
+  
+  - & item\_model: Model & RuntimeError \\
+  \hline
+  \end{tabular}
+  \end{center}
 
 \subsection{Semantics}
 
@@ -375,6 +409,9 @@ get\_item\_model &
   \item UserModel: The neural network model for the user tower
   \item ItemModel: The neural network model for the item tower
   \item IsInitialized: Boolean indicating if the module has been initialized
+  \item Config: Training configuration parameters
+  \item Optimizer: Optimization algorithm
+  \item Device: Computation device (CPU/GPU)
 \end{itemize}
 
 \subsubsection{Environment Variables}
@@ -394,12 +431,15 @@ None
 \begin{itemize}
 \item transition:
 \begin{itemize}
-  \item UserModel = create\_user\_model(config.user\_architecture)
-  \item ItemModel = create\_item\_model(config.item\_architecture)
+  \item UserModel = config[`user\_architecture']
+  \item ItemModel = config[`item\_architecture']
+  \item Config = config
+  \item Optimizer = initialize optimization algorithm
   \item IsInitialized = true
 \end{itemize}
 \item exception: ValueError if config contains invalid parameters
 \end{itemize}
+
 
 \noindent train(train\_data, epochs):
 \begin{itemize}
@@ -407,31 +447,31 @@ None
   \begin{itemize}
     \item Update UserModel and ItemModel parameters through training
   \end{itemize}
-\item output: history = record of loss values and metrics during training
-\item exception: NotInitializedError if IsInitialized is false
+\item output: model = dictionary containing user\_model, item\_model, and training history
+\item exception: RuntimeError if IsInitialized is false
 \end{itemize}
-
 \noindent evaluate(test\_data):
 \begin{itemize}
 \item output: metrics = evaluation metrics on test data
-\item exception: NotInitializedError if IsInitialized is false
+\item exception: RuntimeError if IsInitialized is false
 \end{itemize}
 
 \noindent get\_user\_model():
 \begin{itemize}
 \item output: user\_model = UserModel
-\item exception: NotInitializedError if IsInitialized is false
+\item exception: RuntimeError if IsInitialized is false
 \end{itemize}
+
 \noindent get\_item\_model():
 \begin{itemize}
-\item output: item\_model = UserModel
-\item exception: NotInitializedError if IsInitialized is false
+\item output: item\_model = ItemModel
+\item exception: RuntimeError if IsInitialized is false
 \end{itemize}
 
 \subsubsection{Local Functions}
 compute\_loss(user\_embeddings, item\_embeddings, ratings):
 \begin{itemize}
-  \item Type: $[\mathbb{R}^k]\times\mathbb{R}^k\times \mathbb{R}$
+  \item Type: $[\mathbb{R}^k]\times[\mathbb{R}^k]\times[\mathbb{R}] \rightarrow \mathbb{R}$
   \item Description: Computes MSE loss between predicted and actual ratings
 \end{itemize}
 
@@ -447,21 +487,21 @@ NeuralNetworkArchitecture, VectorOperations
 \subsection{Syntax}
 
 \subsubsection{Exported Constants}
-EMBEDDING\_DIMENSION = 128
+None
 \subsubsection{Exported Access Programs}
 
 \begin{center}
-\begin{tabular}{p{5cm} p{4cm} p{4cm} p{3cm}}
-\hline
-\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
-\hline
-initialize & user\_model: Model,item\_model: Model & - & ValueError \\
-\hline
-generate\_user\_embedding & users: [ProcessedUser] & embeddings: [Embedding] & NotInitializedError\\
-\hline
-generate\_item\_embedding & items: [ProcessedItem] & embeddings: [Embedding] & NotInitializedError\\
-\hline
-\end{tabular}
+  \begin{tabular}{p{5cm} p{4cm} p{4cm} p{3cm}}
+  \hline
+  \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+  \hline
+  initialize & user\_model: Model,item\_model: Model & - & ValueError \\
+  \hline
+  generate\_user\_embedding & users: [ProcessedUser] & embeddings: [Embedding] & RuntimeError\\
+  \hline
+  generate\_item\_embedding & items: [ProcessedItem] & embeddings: [Embedding] & RuntimeError\\
+  \hline
+  \end{tabular}
 \end{center}
 
 \subsection{Semantics}
@@ -471,6 +511,7 @@ generate\_item\_embedding & items: [ProcessedItem] & embeddings: [Embedding] & N
   \item UserModel: The neural network model for the user tower
   \item ItemModel: The neural network model for the item tower
   \item IsInitialized: Boolean indicating if the module has been initialized
+  \item Device: Computation device (CPU/GPU)
 \end{itemize}
 
 \subsubsection{Environment Variables}
@@ -481,6 +522,7 @@ None
 
 \begin{itemize}
   \item The models have been trained
+  \item User and item inputs have same dimensions
 \end{itemize}
 
 \subsubsection{Access Routine Semantics}
@@ -492,21 +534,22 @@ None
     \item UserModel = user\_model
     \item ItemModel = item\_model
     \item IsInitialized = true
+    \item Device = detection of available hardware (CPU or GPU)
   \end{itemize}
 \item exception: ValueError if models are incompatible
 \end{itemize}
 
 \noindent generate\_user\_embedding(users):
 \begin{itemize}
-\item output: embeddings := [UserModel(user) for user in users]
-\item exception: NotInitializedError if IsInitialized is false
+\item output: embeddings = embeddings for the provided users
+\item exception: RuntimeError if IsInitialized is false
 \end{itemize}
 
 
 \noindent generate\_item\_embedding(items):
 \begin{itemize}
-\item output: embeddings := [ItemModel(item) for item in items]
-\item exception: NotInitializedError if IsInitialized is false
+\item output: embeddings = embeddings for the provided items
+\item exception: RuntimeError if IsInitialized is false
 \end{itemize}
 
 
@@ -522,35 +565,34 @@ EmbeddingGenerator, ANNSearch, VectorOperations
 \subsection{Syntax}
 
 \subsubsection{Exported Constants}
-DEFAULT\_NUM\_RECOMMENDATIONS = 10
+DEFAULT\_NUM\_RECOMMENDATIONS = 10\\
 SIMILARITY\_THRESHOLD = 0.5
 \subsubsection{Exported Access Programs}
 
 \begin{center}
-\begin{tabular}{p{4cm} p{4cm} p{4cm} p{3cm}}
-\hline
-\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
-\hline
-initialize & ann\_index : ANNIndex& -& ValueError \\
-\hline
-get\_recommendations & user: ProcessedUser,
-
-num\_results: $\mathbb{Z}$ & recommendations: [Recommendation] & NotInitializedError,
-
-FormatError \\
-\hline
-evaluate\_rec & test\_data: DataSet,
-
-path: String & metrics: RecommendationMetrics & NotInitializedError \\
-\hline
-\end{tabular}
-\end{center}
+  \begin{tabular}{p{5cm} p{4cm} p{4cm} p{2cm}}
+  \hline
+  \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+  \hline
+  initialize & ann\_index: ANNIndex,
+  
+  embedding\_generator: EmbeddingGenerator,
+  
+  book\_lookup: dict & -& ValueError \\
+  \hline
+  get\_recommendations & user: ProcessedUser,
+  
+  num\_results: $\mathbb{Z}$ & recommendations: [dict] & RuntimeError \\
+  \hline
+  \end{tabular}
+  \end{center}
 
 \subsection{Semantics}
 
 \subsubsection{State Variables}
-ANNIndex: The index for approximate nearest neighbor search
-EmbeddingGen: Reference to the embedding generator
+ANNIndex: The index for approximate nearest neighbor search\\
+EmbeddingGenerator: Reference to the embedding generator\\
+BookLookup: Dictionary mapping item IDs to book details\\
 IsInitialized: Boolean indicating if the module has been initialized
 
 \subsubsection{Environment Variables}
@@ -562,36 +604,34 @@ None
 \begin{itemize}
   \item The ANN index has been built with item embeddings
   \item The embedding generator has been initialized with trained models
+  \item The book lookup dictionary contains valid mappings
 \end{itemize}
 
 \subsubsection{Access Routine Semantics}
 
-\noindent initialize(ann\_index):
+\noindent initialize(ann\_index, embedding\_generator, book\_lookup):
 \begin{itemize}
   \item transition:
   \begin{itemize}
     \item ANNIndex = ann\_index
+    \item EmbeddingGenerator = embedding\_generator
+    \item BookLookup = book\_lookup
     \item IsInitialized = true
   \end{itemize}
-\item exception: ValueError if ann\_index is invalid
+\item exception: ValueError if parameters are invalid
 \end{itemize}
 
 \noindent get\_recommendations(user, num\_results):
 \begin{itemize}
-\item output: recommendations = ranked list of recommended items with similarity scores
-\item exception: NotInitializedError if IsInitialized is false
+\item output: recommendations = list of dictionaries containing item details and similarity scores
+\item exception: RuntimeError if IsInitialized is false
 \end{itemize}
 
-\noindent evaluate\_recommendations(test\_data):
-\begin{itemize}
-\item output: metrics = evaluation metrics for recommendations
-\item exception: NotInitializedError if IsInitialized is false
-\end{itemize}
 \subsubsection{Local Functions}
 rank\_candidates(user\_embedding, candidate\_embeddings):
 \begin{itemize}
-  \item Description: Ranks candidates by similarity score (dot product)
   \item Type: $\mathbb{R}^k \times [\mathbb{R}^k] \rightarrow [(\mathbb{Z},\mathbb{R})]$
+  \item Description: Ranks candidates by similarity score (dot product)
 \end{itemize}
 
 \section{MIS of Neural Network Architecture Module} \label{ModuleNNA}
@@ -611,26 +651,24 @@ DEFAULT\_ACTIVATION = "relu"
 \subsubsection{Exported Access Programs}
 
 \begin{center}
-\begin{tabular}{p{4cm} p{4cm} p{4cm} p{2cm}}
-\hline
-\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
-\hline
-create\_user\_tower & input\_dim: $\mathbb{Z}$ ,
-
-hidden\_layers: $[\mathbb{Z}]$ ,
-
-embedding\_dim: $\mathbb{Z}$ & model: Model & ValueError \\
-\hline
-create\_item\_tower & input\_dim: $\mathbb{Z}$ ,
-
-hidden\_layers: $[\mathbb{Z}]$ ,
-
-embedding\_dim: $\mathbb{Z}$ & model: Model & ValueError \\
-\hline
-get\_layer\_config & model: Model & config: LayerConfig & ValueError \\
-\hline
-\end{tabular}
-\end{center}
+  \begin{tabular}{p{4cm} p{4cm} p{4cm} p{2cm}}
+  \hline
+  \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+  \hline
+  create\_user\_tower & input\_dim: $\mathbb{Z}$ ,
+  
+  hidden\_layers: $[\mathbb{Z}]$ ,
+  
+  embedding\_dim: $\mathbb{Z}$ & model: Model & ValueError \\
+  \hline
+  create\_item\_tower & input\_dim: $\mathbb{Z}$ ,
+  
+  hidden\_layers: $[\mathbb{Z}]$ ,
+  
+  embedding\_dim: $\mathbb{Z}$ & model: Model & ValueError \\
+  \hline
+  \end{tabular}
+  \end{center}
 
 \subsection{Semantics}
 
@@ -643,7 +681,10 @@ None
 
 \subsubsection{Assumptions}
 
-None
+\begin{itemize}
+  \item Input dimensions are valid positive integers
+  \item Hidden layers and embedding dimensions are compatible
+\end{itemize}
 
 \subsubsection{Access Routine Semantics}
 
@@ -659,12 +700,6 @@ None
 \item exception: ValueError if dimensions are invalid
 \end{itemize}
 
-\noindent get\_layer\_config(model):
-\begin{itemize}
-\item output: config := configuration of layers in the model
-\item exception: ValueError if model is invalid
-\end{itemize}
-
 \section{MIS of ANN Search Module} \label{ModuleANN}
 
 \subsection{Module}
@@ -677,39 +712,41 @@ VectorOperations
 \subsection{Syntax}
 
 \subsubsection{Exported Constants}
-DEFAULT\_SEARCH\_NPROBE := 10
-DEFAULT\_INDEX\_TYPE := "IVF"
+DEFAULT\_SEARCH\_NPROBE := 10\\
+DEFAULT\_INDEX\_TYPE := "Flat"
 \subsubsection{Exported Access Programs}
 
 \begin{center}
-\begin{tabular}{p{4cm} p{4cm} p{4cm} p{3cm}}
-\hline
-\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
-\hline
-build\_index & embeddings: [Embedding] ,
-
-item\_ids: $[\mathbb{Z}]$,
-
-index\_type: String & index: ANNIndex & ValueError \\
-\hline
-search & index: ANNIndex,
-
-query: Embedding,
-
-k: $\mathbb{Z}$
- & results: $[(\mathbb{Z}, \mathbb{R})]$ & ValueError \\
-\hline
-save\_index & index: ANNIndex, 
-
-path: String & success: $\mathbb{B}$ & IOError \\
-\hline
-load\_index & path: String 
- & index: ANNIndex & IOError, 
- 
- FormatError \\
-\hline
-\end{tabular}
-\end{center}
+  \begin{tabular}{p{4cm} p{4cm} p{4cm} p{3cm}}
+  \hline
+  \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+  \hline
+  build\_index & embeddings: [Embedding] ,
+  
+  item\_ids: $[\mathbb{Z}]$,
+  
+  index\_type: String & index: ANNIndex & ValueError \\
+  \hline
+  two\_stage\_search & index: ANNIndex,
+  
+  query: Embedding,
+  
+  candidates: $\mathbb{Z}$,
+  
+  final\_k: $\mathbb{Z}$
+   & results: $[(\mathbb{Z}, \mathbb{R})]$ & ValueError \\
+  \hline
+  save\_index & index: ANNIndex, 
+  
+  path: String & success: $\mathbb{B}$ & IOError \\
+  \hline
+  load\_index & path: String 
+   & index: ANNIndex & IOError, 
+   
+   FormatError \\
+  \hline
+  \end{tabular}
+  \end{center}
 
 \subsection{Semantics}
 
@@ -725,6 +762,7 @@ None
 \begin{itemize}
   \item Embeddings are of consistent dimension
   \item Query vector is of same dimension as indexed vectors
+  \item FAISS library is available
 \end{itemize}
 
 \subsubsection{Access Routine Semantics}
@@ -735,7 +773,7 @@ None
 \item exception: ValueError if parameters are invalid
 \end{itemize}
 
-\noindent search(index, query, k):
+\noindent two\_stage\_search(index, query, candidates, final\_k):
 \begin{itemize}
 \item output: results = list of (item\_id, similarity\_score) tuples for k nearest neighbors
 \item exception: ValueError if parameters are invalid
