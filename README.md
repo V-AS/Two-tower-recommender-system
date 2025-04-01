@@ -16,7 +16,9 @@ The folders and files for this project are as follows:
 
 - data - Folder for datasets
 
-- test - Test cases
+- test - code for system and unit tests
+
+- output - Folder for model outputs
 
 ## Running the Project
 
@@ -26,7 +28,22 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
-Train the model:
+
+Additionally, install `faiss-cpu` or `faiss-gpu` if you have an NVIDIA GPU:
+
+The `output` folder already contains the trained model. You can use it directly without training the model again.
+
+You can type the following to use the user interface:
+```bash
+python src/user_interface.py
+```
+
+If you want to see more details of the model, you can enable the debug mode:
+```bash 
+python src/user_interface.py --debug
+```
+
+Train the model locally:
 ```bash
 python src/main.py --mode train --epochs 3 --batch_size 10 --embedding_dim 32
 ```

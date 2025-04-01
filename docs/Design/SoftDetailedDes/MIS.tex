@@ -839,6 +839,85 @@ None
 \end{itemize}
 
 
+\section{MIS of User Interface Module} \label{ModuleUI}
+
+\subsection{Module}
+
+UserInterface
+
+\subsection{Uses}
+EmbeddingGenerator, Recommender, SystemInterface
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+OUTPUT\_DIR = "output"\\
+DATA\_PATH = "data/processed/recommender\_data.csv"\\
+NUM\_RECOMMENDATIONS = 10
+
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+  \begin{tabular}{p{5cm} p{4cm} p{4cm} p{2cm}}
+  \hline
+  \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+  \hline
+  initialize\_system & - & system: dict & RuntimeError \\
+  \hline
+  create\_user\_features & age: $\mathbb{R}$,
+  
+  state: String,
+  
+  country: String,
+  
+  system: dict & user\_features: $[\mathbb{R}]$ & ValueError \\
+  \hline
+  display\_recommendations & recommendations: [dict] & - & - \\
+  \hline
+  interactive\_mode & system: dict & - & RuntimeError \\
+  \hline
+  \end{tabular}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+None (stateless module)
+
+\subsubsection{Environment Variables}
+None
+
+\subsubsection{Assumptions}
+\begin{itemize}
+  \item The model files, ANN index, and book mapping exist in the output directory
+  \item Required modules (DataProcessor, EmbeddingGenerator, etc.) are available
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\noindent initialize\_system():
+\begin{itemize}
+\item output: system = dictionary containing initialized components (models, recommender, etc.)
+\item exception: RuntimeError if initialization fails
+\end{itemize}
+
+\noindent create\_user\_features(age, state, country, system):
+\begin{itemize}
+\item output: user\_features = feature vector for the user based on provided demographics
+\item exception: ValueError if inputs are invalid
+\end{itemize}
+
+\noindent display\_recommendations(recommendations):
+\begin{itemize}
+\item transition: Displays formatted recommendations to the console
+\end{itemize}
+
+\noindent interactive\_mode(system):
+\begin{itemize}
+\item transition: Starts interactive recommendation session with user input
+\item exception: RuntimeError if system components are not properly initialized
+\end{itemize}
+
 \newpage
 
 \bibliographystyle {plainnat}
