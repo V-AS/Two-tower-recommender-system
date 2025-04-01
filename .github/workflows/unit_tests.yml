@@ -1,0 +1,57 @@
+# .github/workflows/unit_tests.yml
+name: Run Unit Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**/*.py'  # Trigger on changes to Python files in src directory
+      - 'tests/unit/**/*.py'  # Also trigger when unit tests themselves change
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**/*.py'
+      - 'tests/unit/**/*.py'
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+          pip install numpy pandas torch faiss-cpu scikit-learn matplotlib
+      
+      - name: Run Vector Operations unit tests
+        run: python -m pytest tests/unit/test_vector_operations.py -v
+      
+      - name: Run ANN Search unit tests
+        run: python -m pytest tests/unit/test_ann_search.py -v
+      
+      - name: Run Data Processing unit tests
+        run: python -m pytest tests/unit/test_data_processing.py -v
+      
+      - name: Run Neural Network unit tests
+        run: python -m pytest tests/unit/test_neural_network.py -v
+      
+      - name: Run Embedding Generation unit tests
+        run: python -m pytest tests/unit/test_embedding_generation.py -v
+      
+      - name: Generate coverage report
+        run: |
+          python -m pytest tests/unit/ --cov=src --cov-report=xml
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
