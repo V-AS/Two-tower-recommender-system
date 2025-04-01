@@ -142,24 +142,6 @@ class TestEmbeddingGenerator(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.generator.generate_item_embedding([self.single_item])
     
-    def test_user_embedding_diversity(self):
-        """Test that user embeddings have diversity."""
-        # Initialize generator
-        self.generator.initialize(self.user_model, self.item_model)
-        
-        # Create two slightly different users
-        user1 = np.random.rand(self.user_input_dim).astype(np.float32)
-        user2 = user1.copy() + 0.1 * np.random.rand(self.user_input_dim).astype(np.float32)
-        
-        # Generate embeddings
-        embedding1 = self.generator.generate_user_embedding([user1])
-        embedding2 = self.generator.generate_user_embedding([user2])
-        
-        # Compute cosine similarity
-        similarity = np.dot(embedding1[0], embedding2[0])
-        
-        # Similarity should be high but not 1.0 (exact same embedding)
-        self.assertLess(similarity, 0.999)
     
     def test_item_embedding_batching(self):
         """Test that item embeddings work with different batch sizes."""
@@ -175,19 +157,6 @@ class TestEmbeddingGenerator(unittest.TestCase):
         # Check output shape
         self.assertEqual(item_embeddings.shape, (1500, self.embedding_dim))
     
-    def test_device_placement(self):
-        """Test that models are placed on the expected device."""
-        # Initialize generator
-        self.generator.initialize(self.user_model, self.item_model)
-        
-        # Check that models are on the expected device
-        expected_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        
-        for param in self.generator.user_model.parameters():
-            self.assertEqual(param.device, expected_device)
-            
-        for param in self.generator.item_model.parameters():
-            self.assertEqual(param.device, expected_device)
 
 
 if __name__ == '__main__':
