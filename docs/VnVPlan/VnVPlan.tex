@@ -300,41 +300,73 @@ The unit testing will focus on the four core modules of the system: Data Process
   Initial State: None
             
   Input: Path to test dataset
-
             
-  Output: Boolean value `True' if the dataset meets all validation criteria
+  Output: Boolean value True if the dataset meets all validation criteria
 
   Test Case Derivation: R1 requires the system to accept valid input data.
   
   How test will be performed: 
-  \begin{itemize}
-    \item Load the dataset
-    \item Run validation with the module's \texttt{validate\_data} method
-  \end{itemize}
+  Load the dataset and run validation with the module's validate\_data method.
+
+  \item{test-M2-2 Data Loading Test\\}
+  Type: Automatic, Functional
+
+  Initial State: None
+
+  Input: Path to CSV file
+
+  Output: Dataset containing loaded data
+
+  Test Case Derivation: The system needs to load data correctly.
+
+  How test will be performed: Load data from a test CSV and verify the shape and columns match expected values.
+
+  \item{test-M2-3 Data Preprocessing Test\\}
+  Type: Automatic, Functional
+
+  Initial State: None
+
+  Input: Dataset
+
+  Output: Processed dataset with derived features
+
+  Test Case Derivation: R1 requires the system to preprocess data.
+
+  How test will be performed: Process sample data and verify all expected derived features are created correctly.
+
+  \item{test-M2-4: Missing Value Handling Test\\}
+  
+  Type: Automatic, Functional
+
+  Initial State: None
+
+  Input: Dataset with missing values
+
+  Output: Processed Dataset without missing values
+
+  Test Case Derivation: The system must handle incomplete data gracefully.
+
+  How test will be performed: Create a DataFrame with missing values, process it, and verify no NaN values remain.
+
+  \item{test-M2-5: Training Data Creation Test\\}
+  Type: Automatic, Functional
+
+  Initial State: None
+
+  Input: dataset
+
+  Output: Dictionary containing training data arrays
+
+  Test Case Derivation: The system needs to convert dataset to training format.
+
+  How test will be performed: Create training data from processed sample and verify the structure and shapes of the output.
 \end{enumerate}
 
-\subsubsection{Model Training Module (M3)}
 
-\begin{enumerate}
-
-\item{test-M3-1\\}
-Type: Automatic, Functional
-					
-Initial State: Uninitialized ModelTrainer
-					
-Input: Valid training configuration
-					
-Output: ModelTrainer with initialized state (IsInitialized=True)
-
-Test Case Derivation: R2 requires the system to train embedding functions.
-
-How test will be performed: Initialize the ModelTrainer with the configuration and verify the state variables are set correctly.
-
-\end{enumerate}
 \subsubsection{Embedding Generation Module (M4)}
 \begin{enumerate}
 
-  \item{test-M4-1\\}
+  \item{test-M4-1: User Embedding Generation Test\\}
   Type: Automatic, Functional
             
   Initial State: Initialized EmbeddingGenerator
@@ -345,34 +377,42 @@ How test will be performed: Initialize the ModelTrainer with the configuration a
   
   Test Case Derivation: R4 requires the system to generate embeddings based on user features.
   
-  How test will be performed: Generate an embedding for an user from the dataset and verify its dimension matches the expected value.
+  How test will be performed: Generate an embedding for a user from the dataset and verify its dimension and normalization.
+
+  \item{test-M4-2: Item Embedding Generation Test\\}
   
+  Type: Automatic, Functional
+
+  Initial State: Initialized EmbeddingGenerator
+
+  Input: A random item data from the dataset
+
+  Output: Item embedding vector of the expected dimension.
+
+  Test Case Derivation: R4 requires the system to generate embeddings based on item features.
+
+  How test will be performed: Generate an embedding for an item from the dataset and verify its dimension and normalization.
+
+  \item{test-M4-3: Embedding Generator Initialization Test}
+  Type: Automatic, Functional
+
+  Initial State: None
+
+  Input: User and item models
+
+  Output: Initialized EmbeddingGenerator
+
+  Test Case Derivation: The system must initialize embedding generators with proper models.
+
+  How test will be performed: Initialize the generator with models and verify models are properly set.
   \end{enumerate}
 
-\subsubsection{Recommendation Module (M5)}
-
-\begin{enumerate}
-
-\item{test-M5-1\\}
-Type: Automatic, Functional
-					
-Initial State: Initialized Recommender
-					
-Input: Processed user data and number of results (10)
-					
-Output: Array of recommendation objects with length 10, each containing an item ID and similarity score
-
-Test Case Derivation: R6 requires the system to return ranked recommendations with similarity scores.
-
-How test will be performed: Generate recommendations for an user from the dataset and verify the output has the correct format and length.
-
-\end{enumerate}
 
 \subsubsection{Neural Network Architecture Module (M6)}
 
 \begin{enumerate}
 
-\item{test-M6-1\\}
+\item{test-M6-1: Network Architecture Test\\}
 Type: Automatic, Functional
 					
 Initial State: None
@@ -385,12 +425,54 @@ Test Case Derivation: R2 requires the system to create models for embedding gene
 
 How test will be performed: Create a model with the architecture and verify the layer structure matches the specification.
 
+\item{test-M6-2: Forward Pass Test\\}
+
+Type: Automatic, Functional
+
+Initial State: Initialized neural network
+
+Input: Batch of user/item features
+
+Output: Embeddings with expected shape and normalization
+
+Test Case Derivation: The network must produce properly normalized embeddings.
+
+How test will be performed: Run a forward pass on sample data and verify output dimensions and normalization.
+
+\item{test-M6-3: Network Initialization Test}
+
+Type: Automatic, Functional
+
+Initial State: None
+
+Input: Configuration parameters
+
+Output: Network with properly initialized weights
+
+Test Case Derivation: Proper weight initialization is essential for training convergence.
+
+How test will be performed: Create a network and verify weights are initialized according to the specified scheme.
+
+\item{test-M6-4: Batch Processing Test\\}
+
+Type: Automatic, Functional
+
+Initial State: Initialized neural network
+
+Input: Batch of features and individual features
+
+Output: Identical embeddings for batch and individual processing
+
+Test Case Derivation: Batch processing should behave the same as individual processing.
+
+How test will be performed: Compare embeddings generated by batch processing with those from individual processing.
+
 \end{enumerate}
 \subsubsection{ANN Search Module (M7)}
 
 \begin{enumerate}
 
-\item{test-M7-1\\}
+\item{test-M7-1: Exact Match Search Test\\}
 Type: Automatic, Functional
 					
 Initial State: None
@@ -401,8 +483,42 @@ Output: Array of (item\_id, similarity\_score) tuples with the expected length
 
 Test Case Derivation: R6 requires efficient retrieval of nearest items.
 
-How test will be performed: Build an index with item embeddings, search with an user embedding, and verify the results structure. The correctness will not be verified, as the external library (FAISS) is assumed to be correct.
+How test will be performed: Build an index with item embeddings, search for an exact match, and verify the result.
 
+\item{test-M7-2: Approximate Match Search Test\\}
+Type: Automatic, Functional
+
+Initial State: None
+
+Input: Array of item embeddings and a query embedding that is similar to one of the items
+
+Output: Array of (item\_id, similarity\_score) tuples where the top results include the similar item
+
+Test Case Derivation: R6 requires the system to find similar items.
+
+How test will be performed: Build an index, search with a similar query, and verify the results include the expected item.
+
+\item{test-M7-3: Index Save/Load Test}
+Type: Automatic, Functional
+
+Initial State: None
+
+Input: ANN index and path to save/load
+
+Output: Loaded index matching the saved index
+
+Test Case Derivation: R3 requires model storage and loading.
+
+How test will be performed: Save an index, load it back, and verify the loaded index produces the same search results.
+
+\item{test-M7-4: Multiple Results Test\\}
+Type: Automatic, Functional
+
+Initial State: None
+
+Input: Array of item embeddings, query embedding, and number of results
+
+Output: Array of (item\_id, similarity\_score) tuples with the 
 \end{enumerate}
 
 \subsubsection{Vector Operations Module (M8)}
