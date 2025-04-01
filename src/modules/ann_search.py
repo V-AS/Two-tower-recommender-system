@@ -8,7 +8,6 @@ import numpy as np
 import faiss
 import os
 
-from modules.vector_operations import dot_product
 
 DEFAULT_SEARCH_NPROBE = 10
 DEFAULT_INDEX_TYPE = "Flat"

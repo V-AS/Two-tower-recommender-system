@@ -116,7 +116,10 @@ class EmbeddingGenerator:
         self.item_model.eval()
         
         # Convert to tensor
-        items_tensor = torch.tensor(items, dtype=torch.float32).to(self.device)
+        items_array = np.array(items)
+        
+        
+        items_tensor = torch.tensor(items_array, dtype=torch.float32).to(self.device)
         
         # Generate embeddings in smaller batches to prevent OOM errors
         batch_size = 1024
