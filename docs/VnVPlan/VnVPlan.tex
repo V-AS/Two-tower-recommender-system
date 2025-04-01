@@ -289,25 +289,6 @@ All modules developed for this project will be tested. External libraries (PyTor
 
 \subsection{Tests for Functional Requirements}
 
-\subsubsection{System Interface Module (M1)}
-
-\begin{enumerate}
-
-  \item{test-M1-1\\}
-Type: Automatic, Functional
-					
-Initial State: File system with sufficient storage space
-
-Input: Trained model object
-					
-Output: Boolean value 'True' indicating successful save and load operation
-
-Test Case Derivation: R3 requires the system to store and retrieve trained embedding functions.
-
-How test will be performed: Use the fully trained production model, save it to disk, load it back, and verify the model parameters are preserved.
-
-
-\end{enumerate}
 
 \subsubsection{Data Processing Module (M2)}
 
@@ -317,13 +298,13 @@ How test will be performed: Use the fully trained production model, save it to d
             
   Initial State: None
             
-  Input: Path to the production dataset file
+  Input: Path to the dataset
             
-  Output: Boolean value 'True' indicating the dataset has no missing values and meets all validation criteria
+  Output: Boolean value 'True' indicating the dataset has no missing values
   
   Test Case Derivation: R1 requires the system to accept valid input data.
   
-  How test will be performed: Load the production dataset using the module and run validation to verify it meets all requirements.
+  How test will be performed: Load the dataset using the module and run validation to verify it meets all requirements.
   
 \end{enumerate}
 
@@ -434,49 +415,25 @@ Output: Scalar dot product value
 
 Test Case Derivation: The system relies on dot product for similarity calculation.
 
-How test will be performed: Calculate the dot product of two actual embedding vectors from the model and verify the result is a scalar value.
+How test will be performed: Calculate the dot product of two vectors and compare it with the expected value.
 
 \end{enumerate}
 
+
+\subsubsection{User Interface Module (M9)}
+\begin{enumerate}
+  \item test-M9-1\\
+  Type: Automatic, Functional\\
+  Initial State: Trained models and embeddings exist in output directory\\
+  Input: None\\
+  Output: Boolean (True/False)\\
+  Test Case Derivation: Verify the User Interface can correctly initialize system components\\
+  How test will be performed: Function will attempt to initialize system and return True if all components (user model, item model, recommender, embedding generator) are successfully loaded and initialized, False otherwise.
+  
+\end{enumerate}
 \subsection{Tests for Nonfunctional Requirements}
 
-
-\subsubsection{Scalability Test}
-
-\begin{enumerate}
-
-\item{test-NFR1-1\\}
-Type: Automatic, Performance
-					
-Initial State: Trained model
-					
-Input: New data
-					
-Output: An updated model
-
-Test Case Derivation: NFR1 requires incremental updates when new data becomes available.
-
-How test will be performed: Add new data to the existing model and verify the model parameters have been updated correctly.
-\end{enumerate}
-
-\subsubsection{Portability Test}
-
-\begin{enumerate}
-
-\item{test-NFR3-1\\}
-Type: Manual, Compatibility
-					
-Initial State: Complete system package
-					
-Input: Installation commands on different platforms
-					
-Output: System runs successfully on Windows, Linux, and macOS
-
-Test Case Derivation: NFR3 requires operation on multiple platforms.
-
-How test will be performed: Install and run the system on each platform, performing a standard recommendation operation.
-
-\end{enumerate}
+Unit testing the nonfunctional requirements is beyond the scope. 
 
 \subsection{Traceability Between Test Cases and Modules}
 The table \ref{Table:Unit} shows the traceability between test cases and modules.
@@ -484,21 +441,18 @@ The table \ref{Table:Unit} shows the traceability between test cases and modules
 
 \begin{table}[h!]\label{Table:Unit}
   \centering
-  \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+  \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|}
   \hline
-  \textbf{Test ID} & \textbf{M1} & \textbf{M2} & \textbf{M3} & \textbf{M4} & \textbf{M5} & \textbf{M6} & \textbf{M7} & \textbf{M8} \\
+  \textbf{Test ID} & \textbf{M1} & \textbf{M2} & \textbf{M3} & \textbf{M4} & \textbf{M5} & \textbf{M6} & \textbf{M7} & \textbf{M8} & \textbf{M9} \\
   \hline
-  test-M1-1 & X &   &   &   &   &   &   &   \\
-  test-M2-1 &   & X &   &   &   &   &   &   \\
-  test-M3-1 &   &   & X &   &   &   &   &   \\
-  test-M4-1 &   &   &   & X &   &   &   &   \\
-  test-M5-1 &   &   &   &   & X &   &   &   \\
-  test-M6-1 &   &   &   &   &   & X &   &   \\
-  test-M7-1 &   &   &   &   &   &  &  X &   \\
-  test-M8-1 &   &   &   &   &   &   &   & X \\
-  \hline
-  test-NFR1-1 &   &   & X &   &   &   &   &   \\
-  test-NFR3-1 & X & X & X & X & X & X & X & X \\
+  test-M2-1 &   & X &   &   &   &   &   &   &\\
+  test-M3-1 &   &   & X &   &   &   &   &   &\\
+  test-M4-1 &   &   &   & X &   &   &   &   &\\
+  test-M5-1 &   &   &   &   & X &   &   &   &\\
+  test-M6-1 &   &   &   &   &   & X &   &   &\\
+  test-M7-1 &   &   &   &   &   &  &  X &   &\\
+  test-M8-1 &   &   &   &   &   &   &   & X &\\
+  test-M9-1 &   &   &   &   &   &   &   &   & X \\
   \hline
   \end{tabular}
   \caption{Traceability Matrix Between Test Cases and Modules}
