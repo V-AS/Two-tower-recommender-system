@@ -285,7 +285,8 @@ The unit tests for this system will follow a hierarchical approach based on the 
 3. Mock objects for isolating modules from their dependencies
 
 \subsection{Unit Testing Scope}
-All modules developed for this project will be tested. External libraries (PyTorch, FAISS) are considered outside the scope of unit testing.
+
+The unit testing will focus on the four core modules of the system: Data Processing, Vector Operations, Neural Network Architecture, and Recommendation. Other modules will be tested indirectly through system tests or as part of the testing of these core modules. External libraries (PyTorch, FAISS) are considered outside the scope of unit testing.
 
 \subsection{Tests for Functional Requirements}
 
@@ -293,19 +294,23 @@ All modules developed for this project will be tested. External libraries (PyTor
 \subsubsection{Data Processing Module (M2)}
 
 \begin{enumerate}
-  \item{test-M2-1\\}
+  \item{test-M2-1: Dataset Validation Test\\}
   Type: Automatic, Functional
             
   Initial State: None
             
-  Input: Path to the dataset
+  Input: Path to test dataset
+
             
-  Output: Boolean value 'True' indicating the dataset has no missing values
-  
+  Output: Boolean value `True' if the dataset meets all validation criteria
+
   Test Case Derivation: R1 requires the system to accept valid input data.
   
-  How test will be performed: Load the dataset using the module and run validation to verify it meets all requirements.
-  
+  How test will be performed: 
+  \begin{itemize}
+    \item Load the dataset
+    \item Run validation with the module's \texttt{validate\_data} method
+  \end{itemize}
 \end{enumerate}
 
 \subsubsection{Model Training Module (M3)}
@@ -420,17 +425,6 @@ How test will be performed: Calculate the dot product of two vectors and compare
 \end{enumerate}
 
 
-\subsubsection{User Interface Module (M9)}
-\begin{enumerate}
-  \item test-M9-1\\
-  Type: Automatic, Functional\\
-  Initial State: Trained models and embeddings exist in output directory\\
-  Input: None\\
-  Output: Boolean (True/False)\\
-  Test Case Derivation: Verify the User Interface can correctly initialize system components\\
-  How test will be performed: Function will attempt to initialize system and return True if all components (user model, item model, recommender, embedding generator) are successfully loaded and initialized, False otherwise.
-  
-\end{enumerate}
 \subsection{Tests for Nonfunctional Requirements}
 
 Unit testing the nonfunctional requirements is beyond the scope. 
@@ -441,18 +435,17 @@ The table \ref{Table:Unit} shows the traceability between test cases and modules
 
 \begin{table}[h!]\label{Table:Unit}
   \centering
-  \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|}
+  \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
   \hline
-  \textbf{Test ID} & \textbf{M1} & \textbf{M2} & \textbf{M3} & \textbf{M4} & \textbf{M5} & \textbf{M6} & \textbf{M7} & \textbf{M8} & \textbf{M9} \\
+  \textbf{Test ID} & \textbf{M1} & \textbf{M2} & \textbf{M3} & \textbf{M4} & \textbf{M5} & \textbf{M6} & \textbf{M7} & \textbf{M8} \\
   \hline
-  test-M2-1 &   & X &   &   &   &   &   &   &\\
-  test-M3-1 &   &   & X &   &   &   &   &   &\\
-  test-M4-1 &   &   &   & X &   &   &   &   &\\
-  test-M5-1 &   &   &   &   & X &   &   &   &\\
-  test-M6-1 &   &   &   &   &   & X &   &   &\\
-  test-M7-1 &   &   &   &   &   &  &  X &   &\\
-  test-M8-1 &   &   &   &   &   &   &   & X &\\
-  test-M9-1 &   &   &   &   &   &   &   &   & X \\
+  test-M2-1 &   & X &   &   &   &   &   &   \\
+  test-M3-1 &   &   & X &   &   &   &   &   \\
+  test-M4-1 &   &   &   & X &   &   &   &   \\
+  test-M5-1 &   &   &   &   & X &   &   &   \\
+  test-M6-1 &   &   &   &   &   & X &   &   \\
+  test-M7-1 &   &   &   &   &   &  &  X &   \\
+  test-M8-1 &   &   &   &   &   &   &   & X \\
   \hline
   \end{tabular}
   \caption{Traceability Matrix Between Test Cases and Modules}

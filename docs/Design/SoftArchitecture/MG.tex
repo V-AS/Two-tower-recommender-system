@@ -199,7 +199,6 @@ actually be implemented.
 \item [\refstepcounter{mnum} \mthemnum \label{mNN}:] Neural Network Architecture Module
 \item [\refstepcounter{mnum} \mthemnum \label{mANN}:] ANN Search Module
 \item [\refstepcounter{mnum} \mthemnum \label{mVO}:] Vector Operations Module
-\item [\refstepcounter{mnum} \mthemnum \label{mUI}:] User Interface Module
 \end{description}
 
 
@@ -324,7 +323,7 @@ to be implemented.
 \item[Implemented By:] --
 \end{description}
 
-\subsection{Neural Network Architecture Module (\mref{mNN})}
+\subsubsection{Neural Network Architecture Module (\mref{mNN})}
 
 \begin{description}
 \item[Secrets:]The structure and parameters of the neural networks used for embedding.
@@ -333,7 +332,7 @@ to be implemented.
 \item[Type of Module:] Abstract Object
 \end{description}
 
-\subsection{ANN Search Module (\mref{mANN})}
+\subsubsection{ANN Search Module (\mref{mANN})}
 
 \begin{description}
 \item[Secrets:]The algorithm used for approximate nearest neighbor search.
@@ -342,22 +341,13 @@ to be implemented.
 \item[Type of Module:] Abstract Object
 \end{description}
 
-\subsection{Vector Operations Module (\mref{mVO})}
+\subsubsection{Vector Operations Module (\mref{mVO})}
 
 \begin{description}
 \item[Secrets:]The implementation of vector operations such as dot product and normalization.
 \item[Services:]Provides efficient vector operations for embeddings, including dot product and normalization.
 \item[Implemented By:] \progname
 \item[Type of Module:] Library
-\end{description}
-
-\subsubsection{User Interface Module (\mref{mUI})}
-
-\begin{description}
-\item[Secrets:] The user interaction mechanisms and presentation of recommendations.
-\item[Services:] Provides a command-line interface for users to interact with the recommendation system, including collecting user preferences, generating recommendations, and displaying results.
-\item[Implemented By:] \progname
-\item[Type of Module:] Application
 \end{description}
 
 \section{Traceability Matrix} \label{SecTM}
@@ -428,7 +418,7 @@ because they use modules from the lower levels.
 %\section*{References}
 
 \section{User Interfaces}
-The user interface for the \progname will be a simple terminal-based application that collects user information, processes it through the recommendation model, and displays a ranked list of recommended items.
+The user interface for the \progname will be a simple terminal-based application that collects user information, processes it through the recommendation model, and displays a ranked list of recommended items. Users will interact with the system by running the `user\_interface.py' script.
 
 \section{Design of Communication Protocols}
 

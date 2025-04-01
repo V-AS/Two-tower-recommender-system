@@ -3,7 +3,7 @@ Modified Recommendation Module.
 Generates recommendations based on user embeddings and ANN search.
 """
 import numpy as np
-from modules.vector_operations import dot_product
+from src.modules.vector_operations import dot_product
 
 DEFAULT_NUM_RECOMMENDATIONS = 10
 SIMILARITY_THRESHOLD = 0.5
