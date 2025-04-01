@@ -145,13 +145,13 @@ class TestNeuralNetwork(unittest.TestCase):
     def test_different_inputs_different_outputs(self):
         """Test that different inputs produce different embeddings."""
         network = TowerNetwork(input_dim=self.input_dim, embedding_dim=self.embedding_dim)
-        network.eval()  # Set to evaluation mode to remove noise
+        network.eval()
         
         # Create two different inputs
         input1 = torch.rand(1, self.input_dim)
         input2 = torch.rand(1, self.input_dim)
         
-        # Make sure they are actually different
+
         self.assertFalse(torch.allclose(input1, input2))
         
         # Run forward pass
