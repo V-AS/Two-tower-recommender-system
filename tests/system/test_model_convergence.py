@@ -5,9 +5,6 @@ Uses saved history file or checks model weights directly.
 """
 import sys
 import os
-import json
-import glob
-import torch
 import numpy as np
 
 # Add project root to path
