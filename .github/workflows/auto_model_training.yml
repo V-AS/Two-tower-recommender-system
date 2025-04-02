@@ -1,14 +1,13 @@
 # .github/workflows/auto_model_training.yml
-name: Auto Model Training on Dataset Changes
+name: Model Training
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'data/processed/recommender_data.csv'  # Only trigger on dataset changes
+  repository_dispatch:
+    types: [run-training]
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
-  check-and-train:
+  train-model:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -26,12 +25,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install numpy pandas torch faiss-cpu tqdm scikit-learn matplotlib
       
-      - name: Run data validation (System Test 1)
-        run: python tests/system/test_data_validation.py data/processed/recommender_data.csv
-      
-      - name: Run model training
+      # MODEL TRAINING
+      - name: Run Model Training
+        id: training
         run: |
-          echo "Starting automatic model training due to dataset changes..."
+          echo "Starting model training..."
           python src/main.py \
             --data_path data/processed/recommender_data.csv \
             --output_dir output \
@@ -40,17 +38,14 @@ jobs:
             --batch_size 20 \
             --embedding_dim 32
       
-      - name: Test model convergence (System Test 2)
-        run: python tests/system/test_model_convergence.py output
-      
-      - name: Test model storage (System Test 3)
-        run: python tests/system/test_model_storage.py output
-      
+      # COMMIT UPDATED MODELS
       - name: Configure Git LFS
+        if: success()
         run: |
           git lfs install
       
       - name: Commit updated models
+        if: success()
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
