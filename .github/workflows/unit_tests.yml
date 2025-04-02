@@ -46,4 +46,47 @@ jobs:
       - name: Run Embedding Generation unit tests
         run: python -m pytest tests/unit/test_embedding_generation.py -v
       
+      - name: Run all tests with coverage
+        run: |
+          python -m pytest tests/unit/ --cov=src --cov-report=xml --cov-report=html
       
+      - name: Upload XML coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report-xml
+          path: coverage.xml
+          retention-days: 30
+      
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report-html
+          path: htmlcov/
+          retention-days: 30
+      
+      - name: Generate coverage summary
+        run: |
+          echo "## Coverage Summary" > coverage_summary.md
+          python -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('coverage.xml')
+          root = tree.getroot()
+          coverage = root.get('line-rate')
+          coverage_pct = float(coverage) * 100
+          print(f'Overall coverage: {coverage_pct:.2f}%', file=open('coverage_summary.md', 'a'))
+          
+          # Print module-level coverage
+          print('\n| Module | Coverage |', file=open('coverage_summary.md', 'a'))
+          print('|--------|----------|', file=open('coverage_summary.md', 'a'))
+          for package in root.findall('.//package'):
+              name = package.get('name')
+              cov = float(package.get('line-rate')) * 100
+              print(f'| {name} | {cov:.2f}% |', file=open('coverage_summary.md', 'a'))
+          "
+      
+      - name: Upload coverage summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-summary
+          path: coverage_summary.md
+          retention-days: 30

@@ -30,11 +30,10 @@
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
-Date 1 & 1.0 & Notes\\
-Date 2 & 1.1 & Notes\\
+Apr. 2 2025 & 1.0 & First draft\\
 \bottomrule
 \end{tabularx}
-
+\nocite{*}
 ~\newpage
 
 \section{Symbols, Abbreviations and Acronyms}
@@ -62,21 +61,47 @@ Date 2 & 1.1 & Notes\\
 
 \pagenumbering{arabic}
 
-This document ...
+This document includes the results of \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/docs/VnVPlan/VnVPlan.pdf}{VnV plan}.
 
 \section{Functional Requirements Evaluation}
+
+The functional requirements are tested using both system tests and unit tests.
+
+\subsection{Dataset}
+
+To ensure the project receives a valid dataset for training:
+
+Manually, a Jupyter Notebook (data\_preprocessing.ipynb) is used to merge the raw data (three CSV files) into a single CSV file. 
+
+Then, the automated system test (test\_data\_validation.py) runs each time the dataset is updated before training starts to ensure that the input CSV file contains all the required columns.
+
+Additionally, an automated unit test (test\_data\_processing.py) runs on each push to verify the correctness of the data processor, which generates new features for users and items.
+
+All tests have passed successfully.
+
+\subsection{Model Training Convergence}
+The system test (test\_model\_convergence.py) checks whether the training loss decreases as training progresses.
+
+This test has passed successfully.
+
+\subsection{Model storage}
+
+The system test (test\_model\_storage.py) runs each time model training is completed. The test ensures that the trained model and computed embeddings are correctly stored in the `output' folder.
+
+This test has passed successfully.
+
+\subsection{Embedding generation}
+
+The unit test `test\_embedding\_generation.py' will check the correctness of embedding generation. This test has passed successfully.
 
 \section{Nonfunctional Requirements Evaluation}
 
 \subsection{Usability}
 		
-\subsection{Performance}
+\subsection{Reliability}
 
-\subsection{etc.}
+\subsection{Protability}
 	
-\section{Comparison to Existing Implementation}	
-
-This section will not be appropriate for every project.
 
 \section{Unit Testing}
 
