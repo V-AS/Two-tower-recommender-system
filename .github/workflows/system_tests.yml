@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install numpy pandas torch faiss-cpu pytest pytest-cov
+          pip install numpy pandas torch faiss-cpu pytest pytest-cov scikit-learn
       
       # SYSTEM TEST 1: Data Validation
       - name: Run System Test 1 - Dataset Validation
