@@ -40,8 +40,8 @@ def debug_print(*args, **kwargs):
     """Print only if debug mode is enabled."""
     if DEBUG_MODE:
         print(*args, **kwargs)
-        
-        
+
+
 def initialize_system():
     """Initialize the recommendation system components."""
     print(f"{Fore.BLUE}Initializing recommendation system...{Style.RESET_ALL}")
@@ -194,7 +194,6 @@ def create_user_features(age, state, country, system):
             country_frequency,  # Country-Frequency
         ]
     )
-
 
     debug_print(f"Created user features: {user_features}")
 
