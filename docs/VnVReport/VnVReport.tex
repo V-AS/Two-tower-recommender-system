@@ -2,6 +2,7 @@
 
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{graphicx}
 \usepackage{hyperref}
 \hypersetup{
     colorlinks,
@@ -44,10 +45,17 @@ Apr. 2 2025 & 1.0 & First draft\\
   \textbf{symbol} & \textbf{description}\\
   \midrule 
   T & Test\\
+  R & Requirement\\
+  NFR & Nonfunctional Requirement\\
+  TTE & Two Tower Embedding\\
+  RecSys & Recommendation System\\
+  ANN & Approximate Nearest Neighbor\\
+  SRS & Software Requirements Specification\\
+  FAISS & Facebook AI Similarity Search\\
+  DNN & Deep Neural Network\\
   \bottomrule
 \end{tabular}\\
 
-\wss{symbols, abbreviations or acronyms -- you can reference the SRS tables if needed}
 
 \newpage
 
@@ -80,45 +88,250 @@ Additionally, an automated unit test (test\_data\_processing.py) runs on each pu
 All tests have passed successfully.
 
 \subsection{Model Training Convergence}
-The system test (test\_model\_convergence.py) checks whether the training loss decreases as training progresses.
+The system test (test\_model\_convergence.py) checks whether the training loss decreases as training progresses. 
 
-This test has passed successfully.
+This test has passed successfully. 
 
 \subsection{Model storage}
 
+
 The system test (test\_model\_storage.py) runs each time model training is completed. The test ensures that the trained model and computed embeddings are correctly stored in the `output' folder.
 
-This test has passed successfully.
+This test has passed successfully, confirming that:
+\begin{itemize}
+    \item The user model (user\_model.pth) is saved with the correct state dictionary format
+    \item The item model (item\_model.pth) is saved with the correct state dictionary format
+    \item Item embeddings (item\_embeddings.npy) are saved with the expected shape
+    \item The ANN index is properly saved and can be loaded for inference
+\end{itemize}
 
-\subsection{Embedding generation}
+\subsection{Embedding Generation}
 
-The unit test `test\_embedding\_generation.py' will check the correctness of embedding generation. This test has passed successfully.
+The unit test `test\_embedding\_generation.py' verifies the correctness of embedding generation. This test has passed successfully, confirming that:
+\begin{itemize}
+    \item The embedding generator correctly initializes with both user and item models
+    \item Single user/item embeddings are generated with the expected dimensions
+    \item All embeddings are properly normalized (unit norm)
+\end{itemize}
 
 \section{Nonfunctional Requirements Evaluation}
 
 \subsection{Usability}
-		
+
+The usability of the system was evaluated using a survey as outlined in the VnV Plan. 
+
 \subsection{Reliability}
 
+Reliability testing was conducted through both system tests and unit tests. The system demonstrated robust performance with the following results:
+
+\begin{itemize}
+    \item All functional tests (test-id1, test-id2, test-id3) passed.
+    \item Data validation tests showed 100\% detection rate for improperly formatted inputs
+    \item The system correctly handled edge cases such as:
+        \begin{itemize}
+            \item Users with no location information
+            \item Extreme age values
+        \end{itemize}
+    \item Recovery from invalid input was graceful, with appropriate error messages
+\end{itemize}
+
+The system meets the reliability requirement (NFR2) by performing as expected and handling edge cases appropriately.
+
 \subsection{Protability}
-	
+
+The system's portability was tested across multiple operating systems as specified in NFR3:
 
 \section{Unit Testing}
+Unit tests were developed for five key modules. All unit tests were executed with pytest and integrated into the continuous integration pipeline.
+
+\subsection{Data Processing Module (M2)}
+The data processing module tests in `test\_data\_processing.py` verify:
+\begin{itemize}
+    \item Data loading functionality with both valid and invalid data files
+    \item Data validation correctly identifies valid and invalid dataset formats
+    \item Missing value handling ensures no NaN values
+    \item Training data creation produces correctly structured input for the model
+    \item Book mapping function correctly maps encoded IDs to book metadata
+\end{itemize}
+
+All tests passed successfully, indicating the data processing module functions as expected.
+
+\subsection{Embedding Generation Module (M4)}
+The embedding generation tests in `test\_embedding\_generation.py` verify:
+\begin{itemize}
+    \item Initialization with compatible and incompatible models
+    \item User embedding generation for both single users
+    \item Item embedding generation for both single items
+    \item All generated embeddings are properly normalized
+    \item Large batch handling for item embeddings
+\end{itemize}
+
+All tests passed successfully, confirming the embedding generation module meets its requirements.
+
+\subsection{Neural Network Module (M6)}
+The neural network tests in `test\_neural\_network.py` verify:
+\begin{itemize}
+    \item Tower network initialization with correct architecture
+    \item Forward pass produces normalized outputs of the expected dimension
+    \item User tower creation function produces correct models
+    \item Item tower creation function produces correct models
+    \item Weight initialization produces non-zero weights with expected properties
+    \item Different inputs produce different embeddings
+\end{itemize}
+
+All tests passed successfully, confirming the neural network module creates models with the expected behavior.
+
+\subsection{ANN Search Module (M7)}
+The ANN search tests in `test\_ann\_search.py` verify:
+\begin{itemize}
+    \item Building a flat index with proper structure
+    \item Exact match search correctly finds known vectors
+    \item Approximate match search finds vectors similar to the query
+    \item Multiple results retrieval with the correct number of candidates
+    \item Error handling for empty or mismatched inputs
+    \item Saving and loading indices preserves search functionality
+\end{itemize}
+
+All tests passed successfully, validating the ANN search module's ability to perform efficient vector similarity search.
+
+\subsection{Vector Operations Module (M8)}
+The vector operations tests in `test\_vector\_operations.py` verify:
+\begin{itemize}
+    \item Basic dot product calculation with different vector formats
+    \item Handling of empty vectors
+    \item Orthogonal, same-direction, and opposite-direction vectors
+    \item Handling of large and small values
+    \item Error detection for dimension mismatches
+\end{itemize}
+
+All tests passed successfully, confirming the vector operations module correctly implements mathematical operations needed for similarity calculations.
 
 \section{Changes Due to Testing}
 
-\wss{This section should highlight how feedback from the users and from 
-the supervisor (when one exists) shaped the final product.  In particular 
-the feedback from the Rev 0 demo to the supervisor (or to potential users) 
-should be highlighted.}
+Throughout the development process, many minor bugs and formatting issues in the document were fixed.
+
+The major change was due to the poor performance (accuracy) of the DNN model, which resulted from the limited data. The quality of the recommendation results was poor because the dataset contained very few user features. Additionally, many items received ratings from only a single user, and the item features were also limited. This led to embedding collapse, meaning the model generated nearly identical embeddings for different inputs.
+
+As a result, the system recommended very similar books to each different user.
+
+After applying techniques such as feature engineering and negative sampling, the issue improved but still persisted. Due to time constraints, I was unable to implement more advanced techniques. Therefore, I had to remove the performance requirements.
 
 \section{Automated Testing}
-		
+
+The project utilizes GitHub Actions for automated testing and continuous integration. The automated testing workflow follows a structured trigger-based approach:
+
+\begin{itemize}
+    \item All unit tests run automatically whenever there is a change to any file in the \texttt{src} directory
+    \item The dataset validation test (\texttt{test\_data\_validation.py}) executes whenever there are changes to the dataset files
+    \item When dataset changes are detected and validation passes, the model retraining process is triggered automatically
+    \item After model retraining completes, the model convergence test (\texttt{test\_} \texttt{model\_convergence.py}) and model storage test (\texttt{test\_model\_storage.py}) run sequentially to verify the new model
+\end{itemize}
+
+This automation pipeline ensures that code changes are continuously validated, data integrity is maintained, and the model quality is verified after each training cycle.
+
 \section{Trace to Requirements}
-		
+The following table shows the traceability between tests and functional requirements:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\textbf{Test ID} & \textbf{R1} & \textbf{R2} & \textbf{R3} & \textbf{R4} & \textbf{R5} & \textbf{R6} \\
+\hline
+test-id1 (Dataset Validation) & X &  &  &  &  &  \\
+\hline
+test-id2 (Model Convergence) &  & X &  & X & X &  \\
+\hline
+test-id3 (Model Storage) &  &  & X &  &  &  \\
+\hline
+test-data-processing &  X &  &  &  &  &  \\
+\hline
+test-embedding-generation &  &  &  & X &  &  \\
+\hline
+test-neural-network &  & X &  &  &  &  \\
+\hline
+test-ann-search &  &  &  &  & X & X \\
+\hline
+test-vector-operations &  &  &  &  & X & X \\
+\hline
+\end{tabular}
+\caption{Traceability Matrix Between Tests and Requirements}
+\label{Table:req_trace}
+\end{table}
+
+The test coverage demonstrates that each functional requirement is verified by at least one test, ensuring comprehensive validation of system functionality.
+
+For non-functional requirements:
+\begin{itemize}
+    \item NFR1 (Usability): Verified through user surveys
+    \item NFR2 (Reliability): Verified through system and unit tests.
+    \item NFR3 (Portability): Verified by manually installing and running the system on different computers.
+\end{itemize}
+
 \section{Trace to Modules}		
 
+The following table shows the traceability between tests and modules:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{Test ID} & \textbf{M1} & \textbf{M2} & \textbf{M3} & \textbf{M4} & \textbf{M5} & \textbf{M6} & \textbf{M7} & \textbf{M8} \\
+\hline
+test-id1 (Dataset Validation) &  & X &  &  &  &  &  &  \\
+\hline
+test-id2 (Model Convergence) &  &  & X &  &  & X &  &  \\
+\hline
+test-id3 (Model Storage) & X &  &  &  &  &  &  &  \\
+\hline
+test-data-processing &  & X &  &  &  &  &  &  \\
+\hline
+test-embedding-generation &  &  &  & X & X &  &  &  \\
+\hline
+test-neural-network &  &  &  &  &  & X &  &  \\
+\hline
+test-ann-search &  &  &  &  & X &  & X &  \\
+\hline
+test-vector-operations &  &  &  &  & X &  &  & X \\
+\hline
+\end{tabular}
+\caption{Traceability Matrix Between Tests and Modules}
+\label{Table:module_trace}
+\end{table}
+
+Each module in the system is covered by at least one test, providing confidence in the correctness of individual components as well as their integration.
+
 \section{Code Coverage Metrics}
+Code coverage metrics were collected using pytest-cov during the automated testing process. The following table summarizes the coverage results for unit tests:
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|l|c|c|c|c|}
+  \hline
+  \textbf{Module} & \textbf{statements} & \textbf{missing} & \textbf{excluded} & \textbf{coverage} \\
+  \hline
+  modules/data\_processing.py & 119 & 17 & 0 & 86\% \\
+  \hline
+  modules/embedding\_generation.py & 58 & 0 & 0 & 100\% \\
+  \hline
+  modules/neural\_network.py & 28 & 0 & 0 & 100\% \\
+  \hline
+  modules/ann\_search.py & 82 & 17 & 0 & 79\% \\
+  \hline
+  modules/vector\_operations.py & 14 & 5 & 0 & 64\% \\
+  \hline
+  \textbf{Overall} & 301 & 39 & 0 & 87\% \\
+  \hline
+  \end{tabular}
+  \caption{Code Coverage Metrics}
+  \label{Table:coverage}
+  \end{table}
+
+  Other modules, including \texttt{model\_training}, \texttt{recommendation}, and \texttt{system\_interface}, are inherently tested through system tests.
+
+  There is no unit testing for \texttt{main.py} and \texttt{user\_interface.py} due to limited time.
+  
+  The code coverage report is also available as an artifact for download in GitHub Actions after each run of all unit tests.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs/References}
