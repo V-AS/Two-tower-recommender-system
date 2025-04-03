@@ -1,7 +1,6 @@
 """
 System test for model training convergence (test-id2).
 Verifies that the model training loss decreases over iterations.
-Uses saved history file or checks model weights directly.
 """
 
 import sys
@@ -23,13 +22,10 @@ def output_dir():
 
 def test_model_convergence(output_dir):
     """
-    Test that model training was successful by:
-    1. Checking training history if available
-    2. Comparing model weights to default initialization otherwise
+    Test that model training was successful
     """
     print(f"Running Model Convergence Test on output in {output_dir}")
 
-    # First try: Check if we have a training history file
     history_path = os.path.join(output_dir, "training_history.json")
 
     if os.path.exists(history_path):

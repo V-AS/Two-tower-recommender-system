@@ -6,7 +6,6 @@ Tests generation of user and item embeddings.
 import sys
 import os
 import unittest
-import torch
 import numpy as np
 
 # Add project root to path

@@ -63,8 +63,6 @@ Apr. 2 2025 & 1.0 & First draft\\
 
 \listoftables %if appropriate
 
-\listoffigures %if appropriate
-
 \newpage
 
 \pagenumbering{arabic}
@@ -323,13 +321,15 @@ Code coverage metrics were collected using pytest-cov during the automated testi
   \textbf{Overall} & 301 & 39 & 0 & 87\% \\
   \hline
   \end{tabular}
-  \caption{Code Coverage Metrics}
+  \caption{Code Coverage}
   \label{Table:coverage}
   \end{table}
 
-  Other modules, including \texttt{model\_training}, \texttt{recommendation}, and \texttt{system\_interface}, are inherently tested through system tests.
+  There is no unit testing for \texttt{main.py}, \texttt{model\_training.py}, \texttt{recommendation.py}, \texttt{system\_interface.py}, and \texttt{user\_interface.py} due to limited time.
 
-  There is no unit testing for \texttt{main.py} and \texttt{user\_interface.py} due to limited time.
+  However, the modules \texttt{model\_training.py}, \texttt{recommendation.py}, and \texttt{system\_interface.py} are inherently tested through system tests and by users running the system using \texttt{user\_interface.py}.
+  
+
   
   The code coverage report is also available as an artifact for download in GitHub Actions after each run of all unit tests.
 

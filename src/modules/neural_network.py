@@ -38,7 +38,6 @@ class TowerNetwork(nn.Module):
         """Custom initialization to prevent embedding collapse."""
         for m in self.model:
             if isinstance(m, nn.Linear):
-                # Use Kaiming initialization with higher gain
                 nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
                 if m.bias is not None:
                     # Add some randomness to biases
