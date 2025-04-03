@@ -49,10 +49,10 @@ def parse_args():
         help="Operation mode",
     )
     parser.add_argument(
-        "--epochs", type=int, default=10, help="Number of training epochs"
+        "--epochs", type=int, default=5, help="Number of training epochs"
     )
     parser.add_argument(
-        "--batch_size", type=int, default=128, help="Training batch size"
+        "--batch_size", type=int, default=10, help="Training batch size"
     )
     parser.add_argument(
         "--embedding_dim", type=int, default=32, help="Embedding dimension"
