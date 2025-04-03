@@ -77,8 +77,8 @@ jobs:
     steps:
       - name: Sleep to wait for training workflow
         run: |
-          echo "Waiting for 7 minutes to allow training workflow to complete..."
-          sleep 420
+          echo "Waiting for 10 minutes to allow training workflow to complete..."
+          sleep 600
       
       - name: Checkout code with latest changes
         uses: actions/checkout@v3
