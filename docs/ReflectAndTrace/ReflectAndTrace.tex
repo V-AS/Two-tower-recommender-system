@@ -16,14 +16,8 @@
 
 \maketitle
 
-\plt{Reflection is an important component of getting the full benefits from a
-learning experience.  Besides the intrinsic benefits of reflection, this
-document will be used to help the TAs grade how well your team responded to
-feedback.  Therefore, traceability between Revision 0 and Revision 1 is and
-important part of the reflection exercise.  In addition, several CEAB (Canadian
-Engineering Accreditation Board) Learning Outcomes (LOs) will be assessed based
-on your reflections.}
 
+This document encapsulates the development process of \progname, including changes made based on feedback from Dr. Smith and Yuanqi, the challenges I faced while implementing the project, how I addressed them, and what I learned from the experience.
 \section{Changes in Response to Feedback}
 
 \plt{Summarize the changes made over the course of the project in response to
@@ -61,84 +55,126 @@ be able to grade your response to feedback.  In that case your grade on this
 document, and likely the Revision 1 versions of the other documents will be
 low.} 
 
-\subsection{SRS and Hazard Analysis}
+This project has two reviewers: the course instructor, Dr. Smith, and a peer reviewer, Yuanqi. Every piece of feedback and the corresponding response has been tracked in \href{https://github.com/V-AS/Two-tower-recommender-system/issues}{GitHub issues}. The following list summarizes the feedback and the changes made. The issue link provides more detailed feedback, and the commit link allows viewing the exact changes made based on the feedback.
+
+\subsection{SRS}
+Feedbacks from Dr. Smith
+\begin{enumerate}
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/10}{Issue 10}: Typos, formatting issues, and lack of explanations for some terminologies.  
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/46a581ffec8f09107f233065023d5e09764f8eb1}{commit 46a581f}: Fixed all typos and formatting issues and added more explanations for the terminologies used in the document. 
+    
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/11}{Issue 11}: TM is not abstract, lack of explanation of the symbols used in TM and IM.
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/9aa7710e560448bddbc17a60377ccdd5e0e5989a}{commit 9aa7710}: Add explanations of the symbols used in TM and IM.
+
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/39bd533753ef0951fa4a5d411c8ae693e7f99ee7}{commit 39bd533}: Update TM 
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/12}{Issue 12}: Split the functional requirements for the training and inference phases and add traceability to IM.  
+    Make the non-functional requirements unambiguous.  
+
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/f60e04293c87e0ce356bcfcb75288305ada5343f}{Commit f60e042}: Updated non-functional requirements and added traceability to IM.  
+
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/7cb31888f47dff465fedaf962dd89f10d9546b52}{Commit 7cb3188}: Updated functional requirements.  
+
+\end{enumerate}
+Feedbacks from Yuanqi
+
+\begin{enumerate}
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/4}{Issue 4}: Add a subtitle.  
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/1dcf561326107cf6e24e31ce233470af9759e686}{Commit 1dcf561}: Added a subtitle.  
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/5}{Issue 5}: Include a description of \texttt{argsort()} from IM2 and \(\gamma\) from IM3.  
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/bd10f3f0f50a86dc01775c60a1cfb17021bd3eea}{Commit bd10f3f}: Removed \texttt{argsort()} from IM2 since it may cause confusion and is unnecessary. Added missing mathematical notation.  
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/6}{Issue 6}: A minor formatting issue.  
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/bd10f3f0f50a86dc01775c60a1cfb17021bd3eea}{Commit bd10f3f}: Fixed the formatting issue.  
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/7}{Issue 7}: The image used in Section 3 does not correctly reflect the system description.  
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/3b09d2cee38c41d633e0225adf660de7cd1bfef5}{Commit 3b09d2c}: Updated the image. It now shows that the user's information is the input to the user embedding function, which outputs a user embedding for further processing.  
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/8}{Issue 8}: It is more beneficial to use a BibTeX file.  
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/68bc19ab40ea8c8ef814e4483daf31362086bb41}{Commit 68bc19a}: Switched to using a BibTeX file for all references.  
+\end{enumerate}
 
 \subsection{Design and Design Documentation}
 
-\subsection{VnV Plan and Report}
+Feedbacks from Yuanqi
 
+\begin{enumerate}
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/17}{Issue 17}: In the first paragraph of the Introduction section of MIS, it may be helpful to include both the project name and a brief one or two sentence overview of your project.
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/62c0f08fcc7f92887016aeb634b15b6e7793a360}{Commit 62c0f08}: Added a brief project overview to the Introduction section of MIS.
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/18}{Issue 18}: Some notations are used in the document but not listed in notation section.
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/62c0f08fcc7f92887016aeb634b15b6e7793a360}{Commit 62c0f08}: Updated notation section, removed some unnecessary notations.
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/19}{Issue 19}: Formatting issue in section 7 (MIS of the Data Processing Module).
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/51e9385ee64183b85093d1928ef3424c8759c587}{Commit 51e9385}: Update section7
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/20}{Issue 20}: 2 functions did not specific the input and output
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/51e9385ee64183b85093d1928ef3424c8759c587}{Commit 51e9385} Updated function definitions.
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/21}{Issue 21}: The Neural Network Architecture Module should not use Vector Operations Module.
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/51e9385ee64183b85093d1928ef3424c8759c587}{Commit 51e9385} Fixed this error.
+\end{enumerate}
+
+\subsection{VnV Plan and Report}
+Feedbacks from Dr. Smith
+
+\begin{enumerate}
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/15}{Issue 15}: Typos and formatting issues
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/387fdd7ecc6dce5318262a72c5775bf88147ec08}{Commit 387fdd7} Fixed typos and formatting issues. Added hyperlinks for documents and specified which tests will be automated.  
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/16}{Issue 16}: Be specific about the system tests for functional requirements. Some tests may be challenging to implement. Section 3.7, Software Validation Plan, is incorrect—it is not a validation plan but a verification exercise.
+ 
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/b5f0d11daf4a2c852395552be9d2ef751c515a0f}{Commit b5f0d11}, \href{https://github.com/V-AS/Two-tower-recommender-system/commit/4ef7829f9839398cdde3757c859d094fa82e90cb#diff-8d3e9ddbf3d26cf5e2a7027bf962071598c6f3916127fdabcb800f03d22ba969}{Commit 4ef7829}, \href{https://github.com/V-AS/Two-tower-recommender-system/commit/ad87f5a9632ae4926f5eedf60d9299e422eebe47}{Commit ad87f5a}: Rewrote Sections 4.1 and 4.2 to make each test explicitly define the input and output. Also simplified the system tests. Rewrote section 3.7.
+
+    After these changes, while implementing the project, I found that some tests were still challenging to implement. As a result, I rewrote a significant portion of the VnV Plan. \href{https://github.com/V-AS/Two-tower-recommender-system/commit/4ef7829f9839398cdde3757c859d094fa82e90cb#diff-8d3e9ddbf3d26cf5e2a7027bf962071598c6f3916127fdabcb800f03d22ba969}{Commit 4ef7829} 
+\end{enumerate}
+I haven't received the VnV Plan feedback from Yuanqi.
 \section{Challenge Level and Extras}
 
 \subsection{Challenge Level}
-
-\plt{State the challenge level (advanced, general, basic) for your project.  Your challenge level should exactly match what is included in your problem statement.  This should be the challenge level agreed on between you and the course instructor.}
+This is a non-research project.
 
 \subsection{Extras}
 
-\plt{Summarize the extras (if any) that were tackled by this project.  Extras
-can include usability testing, code walkthroughs, user documentation, formal
-proof, GenderMag personas, Design Thinking, etc.  Extras should have already
-been approved by the course instructor as included in your problem statement.}
+The extra component of the project is a user guide.
 
 \section{Design Iteration (LO11 (PrototypeIterate))}
 
-\plt{Explain how you arrived at your final design and implementation.  How did
-the design evolve from the first version to the final version?} 
+When designing the first version, I attempted to incorporate too many features without having comprehensive experience in project development, particularly in system and unit testing, which made the project unfeasible. The most significant difference between the initial design and the final implementation was that the system and unit tests were redesigned to be simpler and more straightforward to implement.
 
-\plt{Don't just say what you changed, say why you changed it.  The needs of the
-client should be part of the explanation.  For example, if you made changes in
-response to usability testing, explain what the testing found and what changes
-it led to.}
+Since I am following a widely used structure of a recommendation system, there is not a significant difference in the overall structure of different modules.
+
+In my initial design, I failed to recognize that developers and users are distinct stakeholders with different needs. Users require a simple, intuitive interface for interaction, while developers need control over system parameters such as the number of layers in a deep neural network or the number of training epochs. In the final version, I incorporated a user interface to facilitate easier project usage.
 
 \section{Design Decisions (LO12)}
 
-\plt{Reflect and justify your design decisions.  How did limitations,
- assumptions, and constraints influence your decisions?  Discuss each of these
- separately.}
+ A major limitation encountered during implementation was the poor quality of available datasets. I could only find public datasets with very limited personal information, and many items had received ratings from only a single user. This posed a significant challenge as personal information is crucial for recommendation systems, especially when employing deep neural network approaches which demand high-quality data.
 
-\section{Economic Considerations (LO23)}
+To address this issue, I devoted time to feature engineering, calculating additional features not present in the original dataset, such as frequency metrics. While this resulted in some improvement, the impact was minimal. Given the time constraints, I was unable to replace the deep neural network approach, as doing so would have necessitated restructuring the entire project. Instead, I modified the Software Requirements Specification (SRS) to adjust the quality and performance requirements for the recommendation system.
 
-\plt{Is there a market for your product? What would be involved in marketing your 
-product? What is your estimate of the cost to produce a version that you could 
-sell?  What would you charge for your product?  How many units would you have to 
-sell to make money? If your product isn't something that would be sold, like an 
-open source project, how would you go about attracting users?  How many potential 
-users currently exist?}
 
 \section{Reflection on Project Management (LO24)}
 
-\plt{This question focuses on processes and tools used for project management.}
 
-\subsection{How Does Your Project Management Compare to Your Development Plan}
-
-\plt{Did you follow your Development plan, with respect to the team meeting plan, 
-team communication plan, team member roles and workflow plan.  Did you use the 
-technology you planned on using?}
-
-\subsection{What Went Well?}
-
-\plt{What went well for your project management in terms of processes and 
-technology?}
-
+\subsection{What Went Well?} 
+The Continuous Integration (CI) with GitHub Actions worked very well. I was really nervous about CI and GitHub Actions before I implemented the project. However, the automated unit tests and auto-training were easier than I expected. GitHub Actions has very easy-to-follow instructions and a lot of online resources.
 \subsection{What Went Wrong?}
-
-\plt{What went wrong in terms of processes and technology?}
-
+The performance and the quality of the recommended results were not good. This was primarily due to the dataset being limited and my choice of a deep learning approach which requires a good dataset.
 \subsection{What Would you Do Differently Next Time?}
-
-\plt{What will you do differently for your next project?}
-
-\section{Reflection on Capstone}
-
-\plt{This question focuses on what you learned during the course of the capstone project.}
-
-\subsection{Which Courses Were Relevant}
-
-\plt{Which of the courses you have taken were relevant for the capstone project?}
-
-\subsection{Knowledge/Skills Outside of Courses}
-
-\plt{What skills/knowledge did you need to acquire for your capstone project
-that was outside of the courses you took?}
+I would first find a dataset, and then decide the appropriate learning algorithm to use based on the dataset I have. I should not choose an algorithm then find a dataset. This is especially important for a project related to learning. I will not be able to get good results if the dataset is bad or if I am not using a suitable learning algorithm.
 
 \end{document}
