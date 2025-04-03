@@ -8,9 +8,29 @@ jobs:
   run-all-system-tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install git-lfs
+          git lfs install
+      - name: Checkout code with LFS
         uses: actions/checkout@v3
+        with:
+          lfs: true
+          fetch-depth: 0  # Fetch all history for LFS files
       
+      - name: Pull LFS files
+        run: |
+          git lfs pull
+          # Verify LFS files were downloaded by checking file sizes
+          echo "Model file sizes:"
+          ls -lh output/ || echo "Output directory not found"
+          echo "Verifying LFS files are actual files, not pointers:"
+          file output/user_model.pth || echo "User model not found"
+          file output/item_model.pth || echo "Item model not found"
+          file output/item_embeddings.npy || echo "Item embeddings not found"
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
