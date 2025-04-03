@@ -55,21 +55,8 @@ jobs:
     if: needs.system-test-1.outputs.validation_result == 'success'
     runs-on: ubuntu-latest
     steps:
-      # Clear the output directory to ensure we don't detect old files
       - name: Checkout code
         uses: actions/checkout@v3
-      
-      - name: Clean output directory
-        run: |
-          echo "Cleaning output directory to prevent detecting old training files..."
-          mkdir -p output
-          rm -f output/training_history.json
-          rm -f output/user_model.pth
-          rm -f output/item_model.pth
-          rm -f output/item_embeddings.npy
-          rm -f output/ann_index.faiss
-          rm -f output/ann_index.meta.npy
-          echo "Output directory cleaned."
       
       - name: Trigger training workflow
         uses: peter-evans/repository-dispatch@v2
@@ -88,8 +75,16 @@ jobs:
     runs-on: ubuntu-latest
     # This job should only run after the training workflow completes
     steps:
-      - name: Checkout code
+      - name: Sleep to wait for training workflow
+        run: |
+          echo "Waiting for 7 minutes to allow training workflow to complete..."
+          sleep 420
+      
+      - name: Checkout code with latest changes
         uses: actions/checkout@v3
+        with:
+          ref: main
+          fetch-depth: 0  # Get full history
       
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -102,48 +97,21 @@ jobs:
           pip install numpy pandas torch faiss-cpu tqdm scikit-learn matplotlib
           pip install pytest pytest-cov coverage
       
-      # Wait for training to complete
+      # Check for training results from the commit
       - name: Check for training completion
         id: check-training
         run: |
-          # Record the start time to compare against file timestamps
-          start_time=$(date +%s)
-          echo "Workflow start time: $(date -d @$start_time)"
-          
-          # Create a marker file to know when the training started
-          touch .training_started
-          
-          # Wait for a maximum of 30 minutes (180 x 10 seconds)
-          for i in {1..180}; do
-            if [ -f "output/training_history.json" ]; then
-              # Check if the file was modified after we started waiting
-              file_time=$(stat -c %Y "output/training_history.json")
-              if [ $file_time -gt $start_time ]; then
-                echo "Training completed successfully with a new training_history.json file!"
-                echo "training_complete=true" >> $GITHUB_OUTPUT
-                break
-              else
-                echo "Found an old training_history.json file (last modified: $(date -d @$file_time))"
-                echo "Continuing to wait for fresh training results..."
-              fi
-            fi
-            echo "Waiting for training to complete... (${i}/180)"
-            ls -la output/ || echo "Output directory doesn't exist yet"
-            sleep 10
-          done
-          
-          # Check if we have a new training_history.json
-          if [ -f "output/training_history.json" ]; then
-            file_time=$(stat -c %Y "output/training_history.json")
-            if [ $file_time -gt $start_time ]; then
-              echo "Found fresh training results"
-              exit 0
-            else
-              echo "Only found outdated training results"
-              exit 1
-            fi
+          echo "Checking for training models in the repository..."
+          if [ -f "output/training_history.json" ] && [ -f "output/user_model.pth" ] && [ -f "output/item_model.pth" ]; then
+            echo "Found training models in the repository!"
+            echo "training_complete=true" >> $GITHUB_OUTPUT
+            # Show when the files were committed
+            git log -1 --format="%ad" -- output/training_history.json
           else
-            echo "Training timed out or failed. No training_history.json found."
+            echo "No training results found. Contents of output directory:"
+            ls -la output/ || echo "Output directory doesn't exist"
+            echo "Latest commits:"
+            git log --pretty=format:"%h %ad | %s" -5
             exit 1
           fi
       

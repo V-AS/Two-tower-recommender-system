@@ -33,6 +33,7 @@ jobs:
         id: training
         run: |
           echo "Starting model training..."
+          mkdir -p output
           python src/main.py \
             --data_path data/processed/recommender_data.csv \
             --output_dir output \
@@ -40,19 +41,45 @@ jobs:
             --epochs 5 \
             --batch_size 20 \
             --embedding_dim 32
+          
+          # Verify files were created
+          echo "Checking training results..."
+          ls -la output/
       
       # COMMIT UPDATED MODELS
+      - name: Configure Git
+        if: success()
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+      
       - name: Configure Git LFS
         if: success()
         run: |
           git lfs install
       
-      - name: Commit updated models
+      - name: Add and Commit updated models
         if: success()
         run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
+          # Make sure output directory exists
+          mkdir -p output
+          
+          # Track files with Git LFS if needed
+          git lfs track "output/*.pth" || true
+          git lfs track "output/*.npy" || true
+          git lfs track "output/*.faiss" || true
+          
+          # Add the files to git
           git add output/user_model.pth output/item_model.pth output/item_embeddings.npy 
           git add output/ann_index.faiss output/ann_index.meta.npy output/training_history.json
+          git add .gitattributes || true
+          
+          # Commit with meaningful message
           git commit -m "Update models based on dataset changes [skip ci]" || echo "No changes to commit"
-          git push
+      
+      - name: Push changes
+        if: success()
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
