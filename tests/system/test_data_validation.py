@@ -17,7 +17,6 @@ sys.path.append(
 from src.modules.data_processing import DataProcessor
 
 
-# Default path for the dataset when running as a pytest test
 @pytest.fixture
 def data_path():
     return "data/processed/recommender_data.csv"
