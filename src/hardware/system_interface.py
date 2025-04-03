@@ -108,7 +108,7 @@ def load_model(path):
         if not os.path.exists(path):
             raise IOError(f"File not found: {path}")
 
-        state_dict = torch.load(path, map_location="cpu", weights_only=False)
+        state_dict = torch.load(path, map_location="cpu", weights_only=False, strict=False)
 
         return state_dict
 
