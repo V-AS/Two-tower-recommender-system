@@ -50,10 +50,6 @@ jobs:
           python tests/system/test_data_validation.py data/processed/recommender_data.csv
         continue-on-error: false  # Fail the workflow if validation fails
       
-      # Generate coverage for test 1
-      - name: Generate Coverage Data for System Test 1
-        run: |
-          python -m pytest tests/system/test_data_validation.py --cov=src --cov-report=xml:validation-coverage.xml
       
       # Verify that trained models exist before continuing
       - name: Check for existing trained models
@@ -77,10 +73,6 @@ jobs:
           echo "Running System Test 2: Model Convergence..."
           python tests/system/test_model_convergence.py output
       
-      # Generate coverage for test 2
-      - name: Generate Coverage Data for System Test 2
-        run: |
-          python -m pytest tests/system/test_model_convergence.py --cov=src --cov-report=xml:convergence-coverage.xml
       
       # SYSTEM TEST 3: Model Storage
       - name: Run System Test 3 - Model Storage
@@ -90,18 +82,13 @@ jobs:
           # Run with pytest instead of direct script execution
           python -m pytest tests/system/test_model_storage.py -v
       
-      # Generate coverage for test 3
-      - name: Generate Coverage Data for System Test 3
-        run: |
-          python -m pytest tests/system/test_model_storage.py --cov=src --cov-report=xml:storage-coverage.xml
       
-      # Merge Coverage Reports
-      - name: Merge Coverage Reports
+      - name: Generate Coverage Data
         run: |
-          echo "Merging coverage data from all system tests..."
-          # Merge the coverage files
-          coverage combine validation-coverage.xml convergence-coverage.xml storage-coverage.xml
-          # Create final reports
+          echo "Generating code coverage for all system tests..."
+          python -m pytest tests/system/test_data_validation.py tests/system/test_model_convergence.py tests/system/test_model_storage.py --cov=src
+            
+          # Generate reports from that file
           coverage xml -o coverage.xml
           coverage html
       
