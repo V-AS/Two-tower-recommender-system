@@ -16,34 +16,46 @@ The folders and files for this project are as follows:
 
 - data - Folder for datasets
 
-- test - code for system and unit tests
+- tests - Code for system and unit tests
 
 - output - Folder for model outputs
 
 ## Running the Project
 
-Create a virtual environment and install the dependencies:
+1. Clone the repository:
+
+```bash
+git clone https://github.com/V-AS/Two-tower-recommender-system.git
+cd Two-tower-recommender-system
+```
+
+2. Create a virtual environment and install the dependencies:
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Additionally, install `faiss-cpu` or `faiss-gpu` if you have an NVIDIA GPU:
+**Additionally**, install `faiss-cpu` or `faiss-gpu` if you have an NVIDIA GPU:
 
 The `output` folder already contains the trained model. You can use it directly without training the model again.
 
 You can type the following to use the user interface:
+
 ```bash
 python src/user_interface.py
 ```
 
 If you want to see more details of the model, you can enable the debug mode:
-```bash 
+
+```bash
 python src/user_interface.py --debug
 ```
 
 Train the model locally:
+
 ```bash
 python src/main.py --mode train --epochs 3 --batch_size 10 --embedding_dim 32
 ```
+Note: The training process may take 5 mins. The above parameters are the best parameters I found for the current dataset. 

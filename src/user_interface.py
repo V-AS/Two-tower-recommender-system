@@ -339,9 +339,15 @@ def main():
     parser.add_argument(
         "--interactive", action="store_true", help="Run in interactive mode"
     )
-
+    parser.add_argument("--debug", action="store_true", help="Enable debug mode")
+    
     args = parser.parse_args()
 
+    global DEBUG_MODE
+    DEBUG_MODE = args.debug
+
+    if DEBUG_MODE:
+        print(f"{Fore.YELLOW}Debug mode enabled{Style.RESET_ALL}")
     # Initialize the system
     system = initialize_system()
 
