@@ -1,4 +1,4 @@
-# Project Name Source Code
+# TTE RecSys Source Code
 
 The folders and files for this project are as follows:
 ```
