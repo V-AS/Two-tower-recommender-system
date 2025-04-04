@@ -291,48 +291,6 @@ def main():
                 f"{i}. {rec.get('title', 'Unknown')} by {rec.get('author', 'Unknown')} (Estimated Rating: {rec['score']:.4f})"
             )
 
-    elif args.mode == "update":
-        # Load models
-        print("Loading models...")
-        user_model = load_model(os.path.join(args.output_dir, "user_model.pth"))
-        item_model = load_model(os.path.join(args.output_dir, "item_model.pth"))
-
-        # Split data for incremental update (simulating new data)
-        print("Preparing data for incremental update...")
-        _, new_data = data_processor.split_data(processed_data, train_ratio=0.7)
-
-        # Create training dataset
-        training_dataset = data_processor.create_training_data(new_data)
-
-        # Initialize trainer
-        print("Initializing model trainer...")
-        trainer = ModelTrainer()
-        trainer.initialize(
-            {
-                "user_architecture": user_model,
-                "item_architecture": item_model,
-                "learning_rate": 0.0005,  # Lower learning rate for fine-tuning
-                "batch_size": args.batch_size,
-                "regularization": 0.01,
-            }
-        )
-
-        # Update model with new data
-        print("Updating model with new data...")
-        updated_model = trainer.update_model(training_dataset, epochs=5)
-
-        # Save updated models
-        print("Saving updated models...")
-        save_model(
-            updated_model["user_model"],
-            os.path.join(args.output_dir, "user_model_updated.pth"),
-        )
-        save_model(
-            updated_model["item_model"],
-            os.path.join(args.output_dir, "item_model_updated.pth"),
-        )
-
-        print("Model successfully updated!")
 
 
 if __name__ == "__main__":
