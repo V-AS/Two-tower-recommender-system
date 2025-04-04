@@ -1,2 +1,8 @@
-Instructions for installing your software.  You should also include uninstall
-instructions.
+**Installation**
+```
+git clone https://github.com/V-AS/Two-tower-recommender-system.git
+```
+
+**Uninstallation**
+
+Delete the Two-tower-recommender-system folder.
