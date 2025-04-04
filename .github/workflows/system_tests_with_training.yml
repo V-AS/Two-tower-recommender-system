@@ -80,11 +80,28 @@ jobs:
           echo "Waiting for 10 minutes to allow training workflow to complete..."
           sleep 600
       
-      - name: Checkout code with latest changes
+      - name: Install Git LFS
+        run: |
+            sudo apt-get update
+            sudo apt-get install git-lfs
+            git lfs install
+
+      - name: Checkout code with LFS
         uses: actions/checkout@v3
         with:
-          ref: main
-          fetch-depth: 0  # Get full history
+          lfs: true
+          fetch-depth: 0  # Fetch all history for LFS files
+        
+      - name: Pull LFS files
+        run: |
+          git lfs pull
+          # Verify LFS files were downloaded by checking file sizes
+          echo "Model file sizes:"
+          ls -lh output/ || echo "Output directory not found"
+          echo "Verifying LFS files are actual files, not pointers:"
+          file output/user_model.pth || echo "User model not found"
+          file output/item_model.pth || echo "Item model not found"
+          file output/item_embeddings.npy || echo "Item embeddings not found"
       
       - name: Set up Python
         uses: actions/setup-python@v4
