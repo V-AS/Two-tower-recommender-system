@@ -1,61 +1,100 @@
 # Project Name: Two-tower-recommentation-system
 
+A recommendation system based on the Two-Tower Embeddings architecture, developed for personalized book recommendations.
+
 Developer Names: Yinying Huo
 
 Date of project start: Jan 2025
 
 This project is to fulfill the CAS 741 project.
 
-The folders and files for this project are as follows:
+## Overview
 
-- docs - Documentation for the project
+This project implements a recommendation system using a Two-Tower Embedding (TTE) model architecture. The system maps user and item features into a shared embedding space and uses Approximate Nearest Neighbor (ANN) search with FAISS to efficiently retrieve relevant items. This approach enables fast and scalable personalized recommendations even with large item catalogs.
 
-- refs - Reference material used for the project, including papers
+## Directory Structure
 
-- src - Source code
+```bash
+Two-tower-recommender-system/
+├── docs/                 # Documentation (SRS, MG, VnV, etc.)
+├── refs/                 # Reference material and papers
+├── src/                  # Source code
+│   ├── hardware/         # Hardware-hiding module
+│   ├── modules/          # Core modules (neural network, ANN search, etc.)
+│   ├── utils/            # Utility functions and configuration
+│   ├── main.py           # Primary execution script
+│   └── user_interface.py # Terminal-based user interface
+├── data/                 # Data files
+│   ├── raw/              # Original dataset
+│   └── processed/        # Preprocessed data for model training
+├── tests/                # System and unit tests
+│   ├── system/           # System test scripts
+│   └── unit/             # Unit test scripts
+├── output/               # Trained models and embeddings
+└── requirements.txt      # Project dependencies
+```
 
-- data - Folder for datasets
+## Prerequisites
 
-- tests - Code for system and unit tests
+- Python 3.9 or higher
+- PyTorch 1.9 or higher
+- FAISS for vector similarity search
+- Other dependencies as listed in `requirements.txt`
 
-- output - Folder for model outputs
-
-## Running the Project
+## Installation
 
 1. Clone the repository:
+   ```bash
+   git clone https://github.com/V-AS/Two-tower-recommender-system.git
+   cd Two-tower-recommender-system
+   ```
 
-```bash
-git clone https://github.com/V-AS/Two-tower-recommender-system.git
-cd Two-tower-recommender-system
-```
+2. Create and activate a virtual environment:
+  ```bash
+  python3 -m venv .venv
+  source .venv/bin/activate   # On Windows: .venv\Scripts\activate
+  ```
+3. Install dependencies:
+  ```bash
+  pip install -r requirements.txt
+  ```
 
-2. Create a virtual environment and install the dependencies:
+4. Install FAISS:
+  ```bash
+  # For CPU-only systems:
+  pip install faiss-cpu
+  
+  # For systems with NVIDIA GPU:
+  pip install faiss-gpu
+  ```
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+## Usage
 
-**Additionally**, install `faiss-cpu` or `faiss-gpu` if you have an NVIDIA GPU:
-
-The `output` folder already contains the trained model. You can use it directly without training the model again.
-
-You can type the following to use the user interface:
+The `output` folder contains pre-trained models, so you can immediately use the recommendation system:
 
 ```bash
 python src/user_interface.py
 ```
 
-If you want to see more details of the model, you can enable the debug mode:
+or
 
 ```bash
 python src/user_interface.py --debug
 ```
 
-Train the model locally:
-
+## Training the Model locally
 ```bash
 python src/main.py --mode train --epochs 3 --batch_size 10 --embedding_dim 32
 ```
-Note: The training process may take 5 mins. The above parameters are the best parameters I found for the current dataset. 
+
+**Note**: The training process takes approximately 5 minutes with the recommended parameters, which have been optimized for the current dataset.
+
+## Run a specific test file locally
+```bash
+pytest tests/unit/test_embedding_generation.py
+```
+
+
+
+
+
