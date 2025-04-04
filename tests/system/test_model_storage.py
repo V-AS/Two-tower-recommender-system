@@ -80,7 +80,7 @@ def test_model_storage(output_dir):
         print(f"Item model state dict contains {len(item_model_state)} parameters")
         print(f"Item embeddings shape: {item_embeddings.shape}")
         print("Model storage test passed!")
-
+        return True
     except Exception as e:
         print(f"Error loading models or embeddings: {e}")
         raise
