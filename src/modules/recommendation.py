@@ -8,7 +8,6 @@ import numpy as np
 from src.modules.vector_operations import dot_product
 
 DEFAULT_NUM_RECOMMENDATIONS = 10
-SIMILARITY_THRESHOLD = 0.5
 
 
 class Recommender:

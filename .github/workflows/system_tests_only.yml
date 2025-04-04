@@ -3,6 +3,10 @@ name: System Tests Only (No Training)
 
 on:
   workflow_dispatch:  # Allow manual triggering
+  push:
+    branches: [main]
+    paths:
+      - 'src/**/*.py'  # Trigger on changes to Python files in src directory
 
 jobs:
   run-all-system-tests:

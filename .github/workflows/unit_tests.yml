@@ -7,11 +7,8 @@ on:
     paths:
       - 'src/**/*.py'  # Trigger on changes to Python files in src directory
       - 'tests/unit/**/*.py'  # Also trigger when unit tests themselves change
-  pull_request:
-    branches: [main]
-    paths:
-      - 'src/**/*.py'
-      - 'tests/unit/**/*.py'
+
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   unit-tests:
