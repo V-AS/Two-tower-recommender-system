@@ -1,12 +1,12 @@
 """
-Main execution script for the Two-Tower Embeddings Recommendation System.
+Author: Yinying Huo
+Date: 2025-04-03
+Purpose: Main training script for the Two-Tower Embedding Recommendation System.
 """
 
 import os
 import argparse
-import pandas as pd
 import numpy as np
-import torch
 
 from modules.data_processing import DataProcessor
 from modules.neural_network import create_user_tower, create_item_tower
@@ -18,10 +18,8 @@ from hardware.system_interface import (
     save_model,
     load_model,
     save_embeddings,
-    load_embeddings,
     save_training_history,
 )
-from utils.evaluation import evaluate_model
 
 
 def parse_args():

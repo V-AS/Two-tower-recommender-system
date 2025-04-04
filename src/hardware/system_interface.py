@@ -1,6 +1,7 @@
 """
-Improved Hardware-Hiding Module for system interface operations.
-Handles file I/O operations for models and embeddings with better metadata preservation.
+Author: Yinying Huo
+Date: 2025-04-03
+Purpose: Handle file I/O operations for models and embeddings.
 """
 
 import os

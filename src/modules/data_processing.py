@@ -1,6 +1,7 @@
 """
-Robust Data Processing Module.
-Focuses on preventing NaN values.
+Author: Yinying Huo
+Date: 2025-04-03
+Purpose: This module provides functions to load, validate, preprocess, and split data for training.
 """
 
 import pandas as pd

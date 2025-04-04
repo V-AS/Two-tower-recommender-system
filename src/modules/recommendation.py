@@ -1,6 +1,7 @@
 """
-Modified Recommendation Module.
-Generates recommendations based on user embeddings and ANN search.
+Author: Yinying Huo
+Date: 2025-04-03
+Purpose: This module provides a recommender system that generates recommendations based on user embeddings and ANN search.
 """
 
 import numpy as np

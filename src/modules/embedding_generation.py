@@ -1,5 +1,7 @@
 """
-Generates embeddings for users and items using trained models.
+Author: Yinying Huo
+Date: 2025-04-03
+Purpose: This module provides an interface for generating embeddings for users and items.
 """
 
 import torch

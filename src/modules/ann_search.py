@@ -1,8 +1,7 @@
 """
-ANN Search Module.
-Implements Approximate Nearest Neighbor search using FAISS.
-Supports both exact search (IndexFlatIP) for small datasets and
-approximate nearest neighbor search (IndexIVFFlat) for larger datasets.
+Author: Yinying Huo
+Date: 2025-04-03
+Purpose: This module provides an interface for Approximate Nearest Neighbor (ANN) search.
 """
 
 import numpy as np

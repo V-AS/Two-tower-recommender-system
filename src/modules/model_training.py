@@ -1,6 +1,7 @@
 """
-Simplified Model Training Module.
-Focuses on ensuring embedding diversity.
+Author: Yinying Huo
+Date: 2025-04-03
+Purpose: This module provides an interface for training a two-tower model with user and item embeddings.
 """
 
 import torch

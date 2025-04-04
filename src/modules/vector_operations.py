@@ -1,6 +1,7 @@
 """
-Vector Operations Module.
-Provides vector mathematics functions.
+Author: Yinying Huo
+Date: 2025-04-03
+Purpose: This module provides vector operations such as dot product and normalization.
 """
 
 import numpy as np

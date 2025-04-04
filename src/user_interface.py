@@ -1,5 +1,7 @@
 """
-Terminal-based User Interface for Book Recommendation System
+Author: Yinying Huo
+Date: 2025-04-03
+Purpose: This script provides a command-line interface for users to interact with the book recommendation system.
 """
 
 import os
@@ -340,7 +342,7 @@ def main():
         "--interactive", action="store_true", help="Run in interactive mode"
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
-    
+
     args = parser.parse_args()
 
     global DEBUG_MODE

@@ -1,11 +1,12 @@
 """
-Neural Network Architecture Module.
+Author: Yinying Huo
+Date: 2025-04-03
+Purpose: This module provides a deep neural network for generating embeddings for users and items.
 """
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 
 class TowerNetwork(nn.Module):
