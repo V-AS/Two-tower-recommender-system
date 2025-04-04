@@ -14,9 +14,7 @@ src/
 │   ├── ann_search.py              # FAISS-based ANN implementation
 │   └── vector_operations.py       # Vector math operations
 ├── utils/
-│   ├── config.py                  # Configuration parameters
-│   └── evaluation.py              # Evaluation metrics
+│   └── data_preprocessing.ipynb   # Notebook to merge the data from 3 separate csv files into one csv file.
 ├── main.py                        # Main execution script
-├── user_interface.py
-└── requirements.txt               # Dependencies
+└── user_interface.py
 ```
