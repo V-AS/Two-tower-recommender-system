@@ -154,42 +154,29 @@ jobs:
           echo "Running System Test 3: Model Storage..."
           python tests/system/test_model_storage.py output
       
-      # CODE COVERAGE FOR SYSTEM TESTS 2 & 3
-      - name: Generate Additional System Tests Coverage
-        if: steps.storage.outcome == 'success'
+      - name: Generate Coverage Data
         run: |
-          echo "Generating code coverage for remaining system tests..."
-          python -m pytest tests/system/test_model_convergence.py tests/system/test_model_storage.py --cov=src --cov-report=xml:tests-coverage.xml
-      
-      # Merge Coverage Reports
-      - name: Merge Coverage Reports
-        if: steps.storage.outcome == 'success'
-        run: |
-          echo "Merging coverage data from all system tests..."
-          # Merge the coverage files
-          coverage combine coverage-data/validation-coverage.xml tests-coverage.xml
-          # Create final reports
+          echo "Generating code coverage for all system tests..."
+          python -m pytest tests/system/test_data_validation.py tests/system/test_model_convergence.py tests/system/test_model_storage.py --cov=src
+            
+          # Generate reports from that file
           coverage xml -o coverage.xml
           coverage html
-      
-      - name: Upload XML coverage report
-        if: steps.storage.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: system-test-coverage-xml
-          path: coverage.xml
-          retention-days: 30
-      
+          - name: Upload XML coverage report
+          uses: actions/upload-artifact@v4
+          with:
+            name: system-test-coverage-xml
+            path: coverage.xml
+            retention-days: 30
+        
       - name: Upload HTML coverage report
-        if: steps.storage.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: system-test-coverage-html
           path: htmlcov/
           retention-days: 30
-      
+        
       - name: Generate coverage summary
-        if: steps.storage.outcome == 'success'
         run: |
           echo "## System Test Coverage Summary" > coverage_summary.md
           python -c "
@@ -210,7 +197,6 @@ jobs:
           "
       
       - name: Upload coverage summary
-        if: steps.storage.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: system-test-coverage-summary
