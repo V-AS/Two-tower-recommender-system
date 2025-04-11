@@ -20,27 +20,6 @@
 This document encapsulates the development process of \progname, including changes made based on feedback from Dr. Smith and Yuanqi, the challenges I faced while implementing the project, how I addressed them, and what I learned from the experience.
 \section{Changes in Response to Feedback}
 
-\plt{Summarize the changes made over the course of the project in response to
-feedback from TAs, the instructor, teammates, other teams, the project
-supervisor (if present), and from user testers.}
-
-\plt{For those teams with an external supervisor, please highlight how the feedback 
-from the supervisor shaped your project.  In particular, you should highlight the 
-supervisor's response to your Rev 0 demonstration to them.}
-
-\plt{Version control can make the summary relatively easy, if you used issues
-and meaningful commits.  If you feedback is in an issue, and you responded in
-the issue tracker, you can point to the issue as part of explaining your
-changes.  If addressing the issue required changes to code or documentation, you
-can point to the specific commit that made the changes.  Although the links are
-helpful for the details, you should include a label for each item of feedback so
-that the reader has an idea of what each item is about without the need to click
-on everything to find out.}
-
-\plt{If you were not organized with your commits, traceability between feedback
-and commits will not be feasible to capture after the fact.  You will instead
-need to spend time writing down a summary of the changes made in response to
-each item of feedback.}
 
 \plt{You should address EVERY item of feedback.  A table or itemized list is
 recommended.  You should record every item of feedback, along with the source of
@@ -128,6 +107,32 @@ Feedbacks from Yuanqi
     \href{https://github.com/V-AS/Two-tower-recommender-system/commit/51e9385ee64183b85093d1928ef3424c8759c587}{Commit 51e9385} Fixed this error.
 \end{enumerate}
 
+Feedbacks from Dr. Smith
+\begin{enumerate}
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/22}{Issue 22}: The system inference module is a behavior-hiding model, not a hardware-hiding model.
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/2ba21e3990ce2f0be6d8195ed314264c62737fde}{Commit 2ba21e3}: Changed the system inference module to a behavior-hiding model in both MG.pdf and MIS.pdf.
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/22}{Issue 22} \& \href{https://github.com/V-AS/Two-tower-recommender-system/issues/23}{Issue 23}: Many data types are not defined in Section 4 (Notation) of the MIS. Additionally, the inputs and outputs of several functions are ambiguous.
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/2ba21e3990ce2f0be6d8195ed314264c62737fde}{Commit 2ba21e3} \& \href{https://github.com/V-AS/Two-tower-recommender-system/commit/ae146e1d1d0a29160bcef0dcfc530141b75d0cae}{Commit ae146e1}: Rewrite Section 4. It now has a clear definition of all the data types used in MIS. Change all ambiguous function inputs and outputs.
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/23}{Issue 23}: Some local functions seem to be unused in the specification.
+    
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/ae146e1d1d0a29160bcef0dcfc530141b75d0cae}{Commit ae146e1}: Add explanations of how the module uses local functions.
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/23}{Issue 23}: Formatting issues. Each new module should begin on a new page.
+
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/ae146e1d1d0a29160bcef0dcfc530141b75d0cae}{Commit ae146e1}: Fixed formatting issues and enhanced the formatting to make the document easier to view.
+
+    \item \href{https://github.com/V-AS/Two-tower-recommender-system/issues/24}{Issue 24}: Section 10: The local function is not utilized in the specification. Section 13: Is the dot product the only vector operation, and what does Len() represent?
+
+    \href{https://github.com/V-AS/Two-tower-recommender-system/commit/b3360c18fbc69895e2156de6beeffb04c890721e}{Commit b3360c1}: Add an explanation of how the module uses local functions. I removed the Len() function and used an alternative method to represent it.
+    
+    The dot product is the only vector operation, which I am using to compute the estimated rating for an item-user pair. Since I am using PyTorch for model training, PyTorch handles all the calculations during the training process.
+
+
+\end{enumerate}
+
 \subsection{VnV Plan and Report}
 Feedbacks from Dr. Smith
 
@@ -142,7 +147,7 @@ Feedbacks from Dr. Smith
 
     After these changes, while implementing the project, I found that some tests were still challenging to implement. As a result, I rewrote a significant portion of the VnV Plan. \href{https://github.com/V-AS/Two-tower-recommender-system/commit/4ef7829f9839398cdde3757c859d094fa82e90cb#diff-8d3e9ddbf3d26cf5e2a7027bf962071598c6f3916127fdabcb800f03d22ba969}{Commit 4ef7829} 
 \end{enumerate}
-I haven't received the VnV Plan feedback from Yuanqi.
+\textbf{I haven't received the VnV Plan feedback from Yuanqi.}
 \section{Challenge Level and Extras}
 
 \subsection{Challenge Level}
