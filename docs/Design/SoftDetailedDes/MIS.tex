@@ -96,7 +96,7 @@ The following table summarizes the primitive data types used by \progname.
 \toprule 
 \textbf{Data Type} & \textbf{Notation} & \textbf{Description}\\ 
 \midrule
-character & char & A single character\\
+Character & char & A single character\\
 String & string & A sequence of characters representing text\\
 Array & $[T]$ & A sequence of elements of type $T$\\
 Dictionary/Map & dict & A Python dictionary\\
@@ -104,7 +104,7 @@ Vector & $\mathbb{R}^n$ & An ordered collection of n real numbers\\
 Matrix &$[T]^{m\times n}$ & A 2D array of type T with m rows and n columns\\
 Boolean & $\mathbb{B}$ & True or False value\\
 Integer & $\mathbb{Z}$ & A number without a fractional component in (-$\infty$, $\infty$) \\
-real & $\mathbb{R}$ & Any number in (-$\infty$, $\infty$)\\
+Real & $\mathbb{R}$ & Any number in (-$\infty$, $\infty$)\\
 Tuple & $(T_1, T_2, ...)$ & An ordered collection of elements with possibly different types\\
 \bottomrule
 \end{tabular} 
@@ -117,16 +117,16 @@ described by giving their type signature followed by their specification.
 
 The specification also uses derived data types:
 \begin{itemize}
-  \item Embedding: A vector of real numbers
-  \item Tensors: Multi-dimensional arrays
-  \item User: A type representing user features
-  \item Item: A type representing item features
-  \item DataSet: A collection of data records containing user, item, and interaction information
-  \item Model: A neural network model
-  \item ANNIndex: An index structure for approximate nearest neighbor search
-  \item TrainingConfig: A dictionary containing configuration parameters for model training (learning rate, batch size, etc.)
-  \item LayerConfig: A dictionary describing the configuration of neural network layers
-  \item EvaluationMetrics: A dictionary of evaluation metric names and values
+  \item \textbf{Embedding}: A vector of real numbers representing learned features.
+  \item \textbf{Tensor}: A multi-dimensional array, used for numerical computations.
+  \item \textbf{DataFrame}: A two-dimensional array-like structure with labeled axes (rows and columns), typically used for storing tabular data.
+  
+  \item \textbf{User Feature}: A dictionary where the key is a string and the value is the corresponding feature value for the user.
+  \item \textbf{Item Feature}: A dictionary where the key is a string and the value is the corresponding feature value for the item.
+
+  \item \textbf{Model}: A neural network used for learning user and item representations.
+  \item \textbf{ANNIndex}: A data structure used for approximate nearest neighbor search in embedding space.
+  \item \textbf{EvaluationMetrics}: A dictionary mapping evaluation metric names (strings) to their computed values (e.g., accuracy, RMSE).
 \end{itemize}
 
 \section{Module Decomposition}
@@ -184,23 +184,23 @@ None
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-save\_model & model: Model, path: String & success: $\mathbb{B}$ & IOError \\
+save\_model & model: Model, path: String & $\mathbb{B}$ & IOError \\
 \hline
-load\_model & path: String & model: Model & IOError,
+load\_model & path: String &  Model & IOError,
 
 FormatError \\
 \hline
 save\_emds & embeddings: [Embedding],
 
-path: String & success: $\mathbb{B}$ & IOError \\
+path: String &  $\mathbb{B}$ & IOError \\
 \hline
-load\_emds & path: String & embeddings: [Embedding] & IOError \\
+load\_emds & path: String &  [Embedding] & IOError \\
 \hline
 
 
-save\_training\_history & history: dict, path: String & success: $\mathbb{B}$ & IOError \\
+save\_training\_history & history: Dictionary, path: String & $\mathbb{B}$ & IOError \\
 \hline
-load\_training\_history & path: String & history: dict & IOError, 
+load\_training\_history & path: String & Dictionary & IOError, 
 
 FormatError \\
 \hline
@@ -225,41 +225,43 @@ FileSystem: The file system where models and embeddings are stored
 
 \subsubsection{Access Routine Semantics}
 
-\noindent save\_model(model, path):
+\noindent \texttt{save\_model(model, path)}:
 \begin{itemize}
-\item output:  True if operation succeeds
+\item output:  \texttt{True} if the operation succeeds; \texttt{False} otherwise.
 \item exception: IOError if file cannot be written
 \end{itemize}
 
-\noindent load\_model(path):
+\noindent \texttt{load\_model(path)}:
 \begin{itemize}
-\item output: Model
+\item output: \texttt{Model}
 \item exception: IOError if file cannot be read, FormatError if file format is invalid
 \end{itemize}
 
-\noindent save\_embeddings(embeddings, path):
+\noindent \texttt{save\_embeddings(embeddings, path)}:
 \begin{itemize}
-\item output: True if operation succeeds
+\item output: \texttt{True} if the operation succeeds; \texttt{False} otherwise.
 \item exception: IOError if file cannot be written
 \end{itemize}
 
-\noindent load\_embeddings(path):
+\noindent \texttt{load\_embeddings(path)}:
 \begin{itemize}
-\item output: embeddings
+\item output: \texttt{Embeddings}
 \item exception: IOError if file cannot be read, FormatError if file format is invalid
 \end{itemize}
 
-\noindent save\_training\_history(history, path):
+\noindent \texttt{save\_training\_history(history, path)}:
 \begin{itemize}
-\item output: True if operation succeeds
+\item output: \texttt{True} if the operation succeeds; \texttt{False} otherwise.
 \item exception: IOError if file cannot be written
 \end{itemize}
 
-\noindent load\_training\_history(path):
+\noindent \texttt{load\_training\_history(path)}:
 \begin{itemize}
-\item output: history = training metrics dictionary
+\item output: \texttt{Dictionary}
 \item exception: IOError if file cannot be read, FormatError if file format is invalid
 \end{itemize}
+
+\newpage
 
 \section{MIS of Data Processing Module} \label{ModuleDP}
 
@@ -281,23 +283,23 @@ None
   \hline
   \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
   \hline
-  load\_data & path: String & data: DataSet & IOError,
+  load\_data & path: String &  DataFrame & IOError,
   
   FormatError\\
   \hline
-  validate\_data & data: DataSet & is\_valid: $\mathbb{B}$ & -\\
+  validate\_data & data: DataFrame &  $\mathbb{B}$ & -\\
   \hline
-  prep\_data & data: DataSet & processed\_dataset: DataSet & - \\
+  prep\_data & data: DataFrame &  DataFrame & - \\
   \hline
-  split\_data & data: DataSet,
+  split\_data & data: DataFrame,
   
-  train\_ratio: $\mathbb{R}$ & train\_data: DataSet,
+  train\_ratio: $\mathbb{R}$ &  DataFrame,
   
-  test\_data: DataSet & ValueError \\
+  DataFrame & ValueError \\
   \hline
-  create\_training\_data & data: DataSet & dataset: dict & ValueError \\
+  create\_training\_data & data: DataFrame & Dictionary & ValueError \\
   \hline
-  get\_book\_mapping & data: DataSet & mapping: dict & - \\
+  get\_book\_mapping & data: DataFrame & Dictionary & - \\
   \hline
   \end{tabular}
   \end{center}
@@ -317,46 +319,46 @@ None
 \begin{itemize}
   \item Input data follows the expected schema
 \end{itemize}
-
 \subsubsection{Access Routine Semantics}
 
-\noindent load\_data(path):
+\noindent \texttt{load\_data(path)}:
 \begin{itemize}
-\item output: data = data from file at path
-\item exception: IOError if file cannot be read, FormatError if file format is invalid
+\item output: \texttt{DataFrame} that contains the data from the file at the specified path
+\item exception: \texttt{IOError} if the file cannot be read; \texttt{FormatError} if the file format is invalid
 \end{itemize}
 
-\noindent validate\_data(data)::
+\noindent \texttt{validate\_data(data)}:
 \begin{itemize}
-\item output: is\_valid = true if data meets all validation criteria
+\item output: \texttt{True} if the data meets all validation criteria
 \end{itemize}
 
-\noindent preprocess\_data(data):
+\noindent \texttt{preprocess\_data(data)}:
 \begin{itemize}
-\item output: processed\_data = dataset after applying feature engineering transformations, including normalization, frequency encoding, and derived feature creation.
+\item output: \texttt{DataFrame} that contains the input data after applying normalization and feature creation
 \end{itemize}
 
-\noindent split\_data(data, train\_ratio):
+\noindent \texttt{split\_data(data, train\_ratio)}:
 \begin{itemize}
-\item output: (train\_data, test\_data) where:
+\item output: (\texttt{train\_data}, \texttt{test\_data}) where:
 \begin{itemize}
-  \item train\_data = subset of data for training (size $\approx$ train\_ratio $* |data|$)
-  \item test\_data = subset of data for training (size $\approx$ (1-train\_ratio) $* |data|$)
+  \item \texttt{train\_data}: \texttt{DataFrame} that contains the data for training
+  \item \texttt{test\_data}: \texttt{DataFrame} that contains the data for testing
 \end{itemize}
-\item exception: ValueError if train\_ratio is not in $(0,1)$
-\end{itemize}
-
-\noindent create\_training\_data(data):
-\begin{itemize}
-\item output: dataset = dictionary containing user\_ids, item\_ids, ratings, user\_features, and item\_features
-\item exception: ValueError if features are missing
+\item exception: \texttt{ValueError} if \texttt{train\_ratio} is not in $(0,1)$
 \end{itemize}
 
-\noindent get\_book\_mapping(data):
+\noindent \texttt{create\_training\_data(data)}:
 \begin{itemize}
-\item output: mapping = dictionary mapping encoded book IDs to book details (title, author, year, publisher)
+\item output: \texttt{Dictionary} containing user\_ids, item\_ids, ratings, user\_features, and item\_features
+\item exception: \texttt{ValueError} if required features are missing
 \end{itemize}
 
+\noindent \texttt{get\_book\_mapping(data)}:
+\begin{itemize}
+\item output: \texttt{Dictionary} where each key is a book ID and the value is a tuple of the associated title, author, year, and publisher
+\end{itemize}
+
+\newpage
 
 \section{MIS of Model Training Module} \label{ModuleMT}
 
@@ -386,19 +388,19 @@ DEFAULT\_REGULARIZATION = 0.0001
   
   epochs: $\mathbb{Z}$
   
-  & model: dict & RuntimeError \\
+  & Dictionary & RuntimeError \\
   \hline
   evaluate & test\_data: DataSet,
   
-  & metrics: EvaluationMetrics & RuntimeError \\
+  & EvaluationMetrics & RuntimeError \\
   \hline
   get\_user\_model & 
   
-  - & user\_model: Model & RuntimeError \\
+  - &  Model & RuntimeError \\
   \hline
   get\_item\_model & 
   
-  - & item\_model: Model & RuntimeError \\
+  - &  Model & RuntimeError \\
   \hline
   \end{tabular}
   \end{center}
@@ -407,8 +409,8 @@ DEFAULT\_REGULARIZATION = 0.0001
 
 \subsubsection{State Variables}
 \begin{itemize}
-  \item UserModel: The neural network model for the user tower
-  \item ItemModel: The neural network model for the item tower
+  \item UserModel: The neural network model for the user
+  \item ItemModel: The neural network model for the item 
   \item IsInitialized: Boolean indicating if the module has been initialized
   \item Config: Training configuration parameters
   \item Optimizer: Optimization algorithm
@@ -428,53 +430,56 @@ None
 
 \subsubsection{Access Routine Semantics}
 
-\noindent initialize(config):
+\noindent \texttt{initialize(config)}:
 \begin{itemize}
 \item transition:
 \begin{itemize}
-  \item UserModel = config[`user\_architecture']
-  \item ItemModel = config[`item\_architecture']
-  \item Config = config
-  \item Optimizer = initialize optimization algorithm
-  \item IsInitialized = true
+  \item \texttt{UserModel} $\leftarrow$ \texttt{config[`user\_architecture']}
+  \item \texttt{ItemModel} $\leftarrow$ \texttt{config[`item\_architecture']}
+  \item \texttt{Optimizer} $\leftarrow$ initialize optimization algorithm
+  \item \texttt{IsInitialized} $\leftarrow$ \texttt{True}
 \end{itemize}
-\item exception: ValueError if config contains invalid parameters
+\item exception: \texttt{ValueError} if \texttt{config} contains invalid parameters
 \end{itemize}
 
-
-\noindent train(train\_data, epochs):
+\noindent \texttt{train(train\_data, epochs)}:
 \begin{itemize}
 \item transition:
-  \begin{itemize}
-    \item Update UserModel and ItemModel parameters through training
-  \end{itemize}
-\item output: model = dictionary containing user\_model, item\_model, and training history
-\item exception: RuntimeError if IsInitialized is false
-\end{itemize}
-\noindent evaluate(test\_data):
 \begin{itemize}
-\item output: metrics = evaluation metrics on test data
-\item exception: RuntimeError if IsInitialized is false
+  \item Use \texttt{Optimizer} to optimize the loss function of the user and item models
+  \item The loss is computed using the local function \texttt{compute\_loss}
+\end{itemize}
+\item output: \texttt{Dictionary} where keys are strings \texttt{`user\_model'}, \texttt{`item\_model'}, and \texttt{`training\_history'}, and values are the corresponding user model, item model, and training history
+\item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
-\noindent get\_user\_model():
+\noindent \texttt{evaluate(test\_data)}:
 \begin{itemize}
-\item output: user\_model = UserModel
-\item exception: RuntimeError if IsInitialized is false
+\item output: Evaluation metrics computed on the test data
+\item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
-\noindent get\_item\_model():
+\noindent \texttt{get\_user\_model()}:
 \begin{itemize}
-\item output: item\_model = ItemModel
-\item exception: RuntimeError if IsInitialized is false
+\item output: \texttt{UserModel}
+\item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
+\end{itemize}
+
+\noindent \texttt{get\_item\_model()}:
+\begin{itemize}
+\item output: \texttt{ItemModel}
+\item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
 \subsubsection{Local Functions}
-compute\_loss(user\_embeddings, item\_embeddings, ratings):
+
+\noindent \texttt{compute\_loss(user\_embeddings, item\_embeddings, ratings)}:
 \begin{itemize}
-  \item Type: $[\mathbb{R}^k]\times[\mathbb{R}^k]\times[\mathbb{R}] \rightarrow \mathbb{R}$
-  \item Description: Computes MSE loss between predicted and actual ratings
+\item Type: $[\mathbb{R}^k] \times [\mathbb{R}^k] \times [\mathbb{R}] \rightarrow \mathbb{R}$
+\item Description: Computes the mean squared error (MSE) loss between predicted and actual ratings
 \end{itemize}
+
+\newpage
 
 \section{MIS of Embedding Generation Module} \label{ModuleEG}
 
@@ -498,9 +503,9 @@ None
   \hline
   initialize & user\_model: Model,item\_model: Model & - & ValueError \\
   \hline
-  generate\_user\_embedding & users: [ProcessedUser] & embeddings: [Embedding] & RuntimeError\\
+  generate\_user\_embedding & users: [User Feature] & [Embedding] & RuntimeError\\
   \hline
-  generate\_item\_embedding & items: [ProcessedItem] & embeddings: [Embedding] & RuntimeError\\
+  generate\_item\_embedding & items: [Item Feature] & [Embedding] & RuntimeError\\
   \hline
   \end{tabular}
 \end{center}
@@ -525,34 +530,34 @@ None
   \item The models have been trained
   \item User and item inputs have same dimensions
 \end{itemize}
-
 \subsubsection{Access Routine Semantics}
 
-\noindent initialize(user\_model, item\_model):
+\noindent \texttt{initialize(user\_model, item\_model)}:
 \begin{itemize}
 \item transition:
   \begin{itemize}
-    \item UserModel = user\_model
-    \item ItemModel = item\_model
-    \item IsInitialized = true
-    \item Device = detection of available hardware (CPU or GPU)
+    \item \texttt{UserModel} $\leftarrow$ \texttt{user\_model}
+    \item \texttt{ItemModel} $\leftarrow$ \texttt{item\_model}
+    \item \texttt{IsInitialized} $\leftarrow$ \texttt{true}
+    \item \texttt{Device} $\leftarrow$ detected available hardware (CPU or GPU)
   \end{itemize}
-\item exception: ValueError if models are incompatible
+\item exception: \texttt{ValueError} if the models are incompatible
 \end{itemize}
 
-\noindent generate\_user\_embedding(users):
+\noindent \texttt{generate\_user\_embedding(users)}:
 \begin{itemize}
-\item output: embeddings = embeddings for the provided users
-\item exception: RuntimeError if IsInitialized is false
+\item output: \texttt{embedding} for the provided user(s)
+\item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
-
-\noindent generate\_item\_embedding(items):
+\noindent \texttt{generate\_item\_embedding(items)}:
 \begin{itemize}
-\item output: embeddings = embeddings for the provided items
-\item exception: RuntimeError if IsInitialized is false
+\item output: \texttt{embedding} for the provided item(s)
+\item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
+
+\newpage
 
 \section{MIS of Recommendation Module } \label{ModuleR}
 
