@@ -120,13 +120,15 @@ The specification also uses derived data types:
   \item \textbf{Embedding}: A vector of real numbers representing learned features.
   \item \textbf{Tensor}: A multi-dimensional array, used for numerical computations.
   \item \textbf{DataFrame}: A two-dimensional array-like structure with labeled axes (rows and columns), typically used for storing tabular data.
-  
+  \item \textbf{Dataset}: A collection of data used for training or testing machine learning models.
   \item \textbf{User Feature}: A dictionary where the key is a string and the value is the corresponding feature value for the user.
   \item \textbf{Item Feature}: A dictionary where the key is a string and the value is the corresponding feature value for the item.
-
   \item \textbf{Model}: A neural network used for learning user and item representations.
   \item \textbf{ANNIndex}: A data structure used for approximate nearest neighbor search in embedding space.
   \item \textbf{EvaluationMetrics}: A dictionary mapping evaluation metric names (strings) to their computed values (e.g., accuracy, RMSE).
+  \item \textbf{TrainingConfig}: A dictionary containing configuration parameters for model training.
+  \item \textbf{FormatError}: An exception raised when a file has an incorrect format.
+  \item \textbf{DimensionMismatchError}: An exception raised when vectors of incompatible dimensions are used in operations.
 \end{itemize}
 
 \section{Module Decomposition}
@@ -227,37 +229,37 @@ FileSystem: The file system where models and embeddings are stored
 
 \noindent \texttt{save\_model(model, path)}:
 \begin{itemize}
-\item output:  \texttt{True} if the operation succeeds; \texttt{False} otherwise.
+\item output: True if success, False otherwise
 \item exception: IOError if file cannot be written
 \end{itemize}
 
 \noindent \texttt{load\_model(path)}:
 \begin{itemize}
-\item output: \texttt{Model}
+\item output: Model
 \item exception: IOError if file cannot be read, FormatError if file format is invalid
 \end{itemize}
 
-\noindent \texttt{save\_embeddings(embeddings, path)}:
+\noindent \texttt{save\_emds(embeddings, path)}:
 \begin{itemize}
-\item output: \texttt{True} if the operation succeeds; \texttt{False} otherwise.
+\item output: True if success, False otherwise
 \item exception: IOError if file cannot be written
 \end{itemize}
 
 \noindent \texttt{load\_embeddings(path)}:
 \begin{itemize}
-\item output: \texttt{Embeddings}
+\item output: [Embedding]
 \item exception: IOError if file cannot be read, FormatError if file format is invalid
 \end{itemize}
 
 \noindent \texttt{save\_training\_history(history, path)}:
 \begin{itemize}
-\item output: \texttt{True} if the operation succeeds; \texttt{False} otherwise.
+\item output: True if success, False otherwise
 \item exception: IOError if file cannot be written
 \end{itemize}
 
 \noindent \texttt{load\_training\_history(path)}:
 \begin{itemize}
-\item output: \texttt{Dictionary}
+\item output: Dictionary where keys are strings representing metrics ('loss', 'accuracy', etc.) and values are lists of corresponding numeric values for each training epoch
 \item exception: IOError if file cannot be read, FormatError if file format is invalid
 \end{itemize}
 
@@ -293,9 +295,7 @@ None
   \hline
   split\_data & data: DataFrame,
   
-  train\_ratio: $\mathbb{R}$ &  DataFrame,
-  
-  DataFrame & ValueError \\
+  train\_ratio: $\mathbb{R}$ &  (DataFrame, DataFrame) & ValueError \\
   \hline
   create\_training\_data & data: DataFrame & Dictionary & ValueError \\
   \hline
@@ -323,39 +323,35 @@ None
 
 \noindent \texttt{load\_data(path)}:
 \begin{itemize}
-\item output: \texttt{DataFrame} that contains the data from the file at the specified path
+\item output: DataFrame containing the data from the file at the specified path
 \item exception: \texttt{IOError} if the file cannot be read; \texttt{FormatError} if the file format is invalid
 \end{itemize}
 
 \noindent \texttt{validate\_data(data)}:
 \begin{itemize}
-\item output: \texttt{True} if the data meets all validation criteria
+\item output: True if the data meets all validation criteria, False otherwise
 \end{itemize}
 
 \noindent \texttt{preprocess\_data(data)}:
 \begin{itemize}
-\item output: \texttt{DataFrame} that contains the input data after applying normalization and feature creation
+\item output: DataFrame containing the input data after applying normalization and feature creation
 \end{itemize}
 
 \noindent \texttt{split\_data(data, train\_ratio)}:
 \begin{itemize}
-\item output: (\texttt{train\_data}, \texttt{test\_data}) where:
-\begin{itemize}
-  \item \texttt{train\_data}: \texttt{DataFrame} that contains the data for training
-  \item \texttt{test\_data}: \texttt{DataFrame} that contains the data for testing
-\end{itemize}
+\item output: (DataFrame, DataFrame) representing training data and testing data
 \item exception: \texttt{ValueError} if \texttt{train\_ratio} is not in $(0,1)$
 \end{itemize}
 
 \noindent \texttt{create\_training\_data(data)}:
 \begin{itemize}
-\item output: \texttt{Dictionary} containing user\_ids, item\_ids, ratings, user\_features, and item\_features
+\item output: Dictionary where keys are `user\_ids', `item\_ids', `ratings', `user\_features', and `item\_features', and values are the corresponding arrays of user IDs, item IDs, rating values, user feature dictionaries, and item feature dictionaries
 \item exception: \texttt{ValueError} if required features are missing
 \end{itemize}
 
 \noindent \texttt{get\_book\_mapping(data)}:
 \begin{itemize}
-\item output: \texttt{Dictionary} where each key is a book ID and the value is a tuple of the associated title, author, year, and publisher
+\item output: Dictionary where each key is a book ID ($\mathbb{Z}$) and the value is a tuple of (String, String, $\mathbb{Z}$, String) representing the associated title, author, year, and publisher
 \end{itemize}
 
 \newpage
@@ -384,13 +380,13 @@ DEFAULT\_REGULARIZATION = 0.0001
   \hline
   initialize & config: TrainingConfig & - & ValueError \\
   \hline
-  train & train\_data: DataSet,
+  train & train\_data: Dataset,
   
   epochs: $\mathbb{Z}$
   
   & Dictionary & RuntimeError \\
   \hline
-  evaluate & test\_data: DataSet,
+  evaluate & test\_data: Dataset
   
   & EvaluationMetrics & RuntimeError \\
   \hline
@@ -449,25 +445,25 @@ None
   \item Use \texttt{Optimizer} to optimize the loss function of the user and item models
   \item The loss is computed using the local function \texttt{compute\_loss}
 \end{itemize}
-\item output: \texttt{Dictionary} where keys are strings \texttt{`user\_model'}, \texttt{`item\_model'}, and \texttt{`training\_history'}, and values are the corresponding user model, item model, and training history
+\item output: Dictionary where keys are strings `loss', `training\_loss', and `validation\_loss', and values are list of real number.
 \item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
 \noindent \texttt{evaluate(test\_data)}:
 \begin{itemize}
-\item output: Evaluation metrics computed on the test data
+\item output: EvaluationMetrics computed on the test data
 \item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
 \noindent \texttt{get\_user\_model()}:
 \begin{itemize}
-\item output: \texttt{UserModel}
+\item output: Model
 \item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
 \noindent \texttt{get\_item\_model()}:
 \begin{itemize}
-\item output: \texttt{ItemModel}
+\item output: Model
 \item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
@@ -546,13 +542,13 @@ None
 
 \noindent \texttt{generate\_user\_embedding(users)}:
 \begin{itemize}
-\item output: \texttt{embedding} for the provided user(s)
+\item output: [Embedding] for the provided user(s)
 \item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
 \noindent \texttt{generate\_item\_embedding(items)}:
 \begin{itemize}
-\item output: \texttt{embedding} for the provided item(s)
+\item output: [Embedding] for the provided item(s)
 \item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
@@ -584,11 +580,11 @@ SIMILARITY\_THRESHOLD = 0.5
   
   embedding\_generator: EmbeddingGenerator,
   
-  book\_lookup: dict & -& ValueError \\
+  book\_lookup: Dictionary & -& ValueError \\
   \hline
-  get\_recommendations & user: ProcessedUser,
+  get\_recommendations & user: User Feature,
   
-  num\_results: $\mathbb{Z}$ & recommendations: [dict] & RuntimeError \\
+  num\_results: $\mathbb{Z}$ & [($\mathbb{Z}$, String, $\mathbb{R}$)] & RuntimeError \\
   \hline
   \end{tabular}
   \end{center}
@@ -615,30 +611,34 @@ None
 
 \subsubsection{Access Routine Semantics}
 
-\noindent initialize(ann\_index, embedding\_generator, book\_lookup):
+\noindent \texttt{initialize(ann\_index, embedding\_generator, book\_lookup)}:
 \begin{itemize}
   \item transition:
   \begin{itemize}
-    \item ANNIndex = ann\_index
-    \item EmbeddingGenerator = embedding\_generator
-    \item BookLookup = book\_lookup
-    \item IsInitialized = true
+    \item \texttt{ANNIndex} $\leftarrow$ \texttt{ann\_index}
+    \item \texttt{EmbeddingGenerator} $\leftarrow$ \texttt{embedding\_generator}
+    \item \texttt{BookLookup} $\leftarrow$ \texttt{book\_lookup}
+    \item \texttt{IsInitialized} $\leftarrow$ \texttt{true}
   \end{itemize}
-\item exception: ValueError if parameters are invalid
+  \item exception: \texttt{ValueError} if any parameter is invalid
 \end{itemize}
 
-\noindent get\_recommendations(user, num\_results):
+\noindent \texttt{get\_recommendations(user, num\_results)}:
 \begin{itemize}
-\item output: recommendations = list of dictionaries containing item details and similarity scores
-\item exception: RuntimeError if IsInitialized is false
+  \item output: [($\mathbb{Z}$, String, $\mathbb{R}$)] representing a list of (item\_id, item\_title, similarity\_score) tuples
+  \item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
 \subsubsection{Local Functions}
-rank\_candidates(user\_embedding, candidate\_embeddings):
+
+\noindent \texttt{rank\_candidates(user\_embedding, candidate\_embeddings)}:
 \begin{itemize}
-  \item Type: $\mathbb{R}^k \times [\mathbb{R}^k] \rightarrow [(\mathbb{Z},\mathbb{R})]$
-  \item Description: Ranks candidates by similarity score (dot product)
+  \item Type: $\mathbb{R}^k \times [\mathbb{R}^k] \rightarrow [(\mathbb{Z}, \mathbb{R})]$
+  \item Description: Ranks candidate items based on similarity scores computed using the dot product; returns a list of item indices with associated scores.
 \end{itemize}
+
+
+\newpage
 
 \section{MIS of Neural Network Architecture Module} \label{ModuleNNA}
 
@@ -652,7 +652,7 @@ VectorOperations
 \subsection{Syntax}
 
 \subsubsection{Exported Constants}
-DEFAULT\_HIDDEN\_LAYERS = [256, 128]
+DEFAULT\_HIDDEN\_LAYERS = [256, 128]\\
 DEFAULT\_ACTIVATION = "relu"
 \subsubsection{Exported Access Programs}
 
@@ -665,13 +665,13 @@ DEFAULT\_ACTIVATION = "relu"
   
   hidden\_layers: $[\mathbb{Z}]$ ,
   
-  embedding\_dim: $\mathbb{Z}$ & model: Model & ValueError \\
+  embedding\_dim: $\mathbb{Z}$ &  Model & ValueError \\
   \hline
   create\_item\_tower & input\_dim: $\mathbb{Z}$ ,
   
   hidden\_layers: $[\mathbb{Z}]$ ,
   
-  embedding\_dim: $\mathbb{Z}$ & model: Model & ValueError \\
+  embedding\_dim: $\mathbb{Z}$ &  Model & ValueError \\
   \hline
   \end{tabular}
   \end{center}
@@ -696,15 +696,17 @@ None
 
 \noindent create\_user\_tower(input\_dim, hidden\_layers, embedding\_dim):
 \begin{itemize}
-\item output: model = neural network model for user tower
+\item output: Model for user tower
 \item exception: ValueError if dimensions are invalid
 \end{itemize}
 
 \noindent create\_item\_tower(input\_dim, hidden\_layers, embedding\_dim):
 \begin{itemize}
-\item output: model = neural network model for item tower
+\item output: Model for item tower
 \item exception: ValueError if dimensions are invalid
 \end{itemize}
+
+\newpage
 
 \section{MIS of ANN Search Module} \label{ModuleANN}
 
@@ -731,7 +733,7 @@ DEFAULT\_INDEX\_TYPE := "Flat"
   
   item\_ids: $[\mathbb{Z}]$,
   
-  index\_type: String & index: ANNIndex & ValueError \\
+  index\_type: String & ANNIndex & ValueError \\
   \hline
   two\_stage\_search & index: ANNIndex,
   
@@ -740,14 +742,14 @@ DEFAULT\_INDEX\_TYPE := "Flat"
   candidates: $\mathbb{Z}$,
   
   final\_k: $\mathbb{Z}$
-   & results: $[(\mathbb{Z}, \mathbb{R})]$ & ValueError \\
+   & $[(\mathbb{Z}, \mathbb{R})]$ & ValueError \\
   \hline
   save\_index & index: ANNIndex, 
   
-  path: String & success: $\mathbb{B}$ & IOError \\
+  path: String & $\mathbb{B}$ & IOError \\
   \hline
   load\_index & path: String 
-   & index: ANNIndex & IOError, 
+   & ANNIndex & IOError, 
    
    FormatError \\
   \hline
@@ -773,29 +775,31 @@ None
 
 \subsubsection{Access Routine Semantics}
 
-\noindent build\_index(embeddings, item\_ids, index\_type):
+\noindent \texttt{build\_index(embeddings, item\_ids, index\_type)}:
 \begin{itemize}
-\item output: index = ANN index built from embeddings and associated item IDs
-\item exception: ValueError if parameters are invalid
+  \item output: ANNIndex
+  \item exception: \texttt{ValueError} if any parameter is invalid
 \end{itemize}
 
-\noindent two\_stage\_search(index, query, candidates, final\_k):
+\noindent \texttt{two\_stage\_search(index, query, candidates, final\_k)}:
 \begin{itemize}
-\item output: results = list of (item\_id, similarity\_score) tuples for k nearest neighbors
-\item exception: ValueError if parameters are invalid
+  \item output: $[(\mathbb{Z}, \mathbb{R})]$ representing a list of (item\_id, similarity\_score) pairs for the top-$k$ nearest neighbors
+  \item exception: \texttt{ValueError} if any parameter is invalid
 \end{itemize}
 
-\noindent save\_index(index, path):
+\noindent \texttt{save\_index(index, path)}:
 \begin{itemize}
-\item output: success := true if operation succeeds
-\item exception: IOError if file cannot be written
+  \item output: True if success, False otherwise
+  \item exception: \texttt{IOError} if the file cannot be written
 \end{itemize}
 
-\noindent load\_index(path):
+\noindent \texttt{load\_index(path)}:
 \begin{itemize}
-  \item output: index := ANNIndex loaded from file
-  \item exception: IOError if file cannot be read, FormatError if file format is invalid
+  \item output: ANNIndex
+  \item exception: \texttt{IOError} if the file cannot be read; \texttt{FormatError} if the file format is invalid
 \end{itemize}
+
+\newpage
 
 \section{MIS of Vector Operations Module} \label{ModuleVO}
 
@@ -817,7 +821,7 @@ EPSILON := 1e-8 (small value to prevent division by zero)
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-dot\_product & v1: $[\mathbb{R}]$, v2: $[\mathbb{R}]$ & result: $\mathbb{R}$ & DimensionMismatchError \\
+dot\_product & v1: $[\mathbb{R}]$, v2: $[\mathbb{R}]$ & $\mathbb{R}$ & DimensionMismatchError \\
 
 \hline
 \end{tabular}
@@ -838,13 +842,11 @@ None
 
 \subsubsection{Access Routine Semantics}
 
-\noindent dot\_product(v1, v2):
+\noindent \texttt{dot\_product(v1, v2)}:
 \begin{itemize}
-\item output: result = $\sum_i^{len(v1)} v1[i] * v2[i]$
-\item exception: DimensionMismatchError if len(v1) $\neq$ len(v2)
+  \item output: $\mathbb{R}$ representing $\sum_{i=1}^{n} v1_i \cdot v2_i$, where $n$ is the number of elements in each vector
+  \item exception: \texttt{DimensionMismatchError} if the input vectors do not have the same number of elements
 \end{itemize}
-
-
 
 
 \newpage
