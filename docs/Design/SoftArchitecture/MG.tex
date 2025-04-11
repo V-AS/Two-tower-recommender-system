@@ -191,7 +191,8 @@ below, which are leaves in the hierarchy tree, are the modules that will
 actually be implemented.
 
 \begin{description}
-\item [\refstepcounter{mnum} \mthemnum \label{mHH}:] Hardware-Hiding Module
+
+\item [\refstepcounter{mnum} \mthemnum \label{mSI}:] System Interface Module
 \item [\refstepcounter{mnum} \mthemnum \label{mDP}:] Data Processing Module
 \item [\refstepcounter{mnum} \mthemnum \label{mMT}:] Model Training Module
 \item [\refstepcounter{mnum} \mthemnum \label{mEG}:] Embedding Generation Module
@@ -212,7 +213,9 @@ actually be implemented.
 {Hardware-Hiding Module} & ~ \\
 \midrule
 
-\multirow{7}{0.3\textwidth}{Behaviour-Hiding Module} & Data Processing Module\\
+\multirow{7}{0.3\textwidth}{Behaviour-Hiding Module} 
+& System Interface Module\\
+& Data Processing Module\\
 & Model Training Module\\
 & Embedding Generation Module\\
 & Recommendation Module\\
@@ -271,6 +274,15 @@ to be implemented.
   hardware-hiding module and the software decision module. The programs in this
   module will need to change if there are changes in the SRS.
 \item[Implemented By:] --
+\end{description}
+
+\subsubsection{System Interface Module (\mref{mSI})}
+
+\begin{description}
+\item[Secrets:]How the project saves and loads files in the folder.
+\item[Services:]Loads and stores a file to a specific location.
+\item[Implemented By:] \progname
+\item[Type of Module:] Library
 \end{description}
 
 \subsubsection{Data Processing Module (\mref{mDP})}
