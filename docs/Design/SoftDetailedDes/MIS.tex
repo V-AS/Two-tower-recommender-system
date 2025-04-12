@@ -123,7 +123,7 @@ The specification also uses derived data types:
   \item \textbf{DataFrame}: A two-dimensional list with labeled axes (rows and columns), typically used for storing tabular data.
   \item \textbf{User Feature}: A dictionary where the key is a string and the value is the corresponding feature value for the user.
   \item \textbf{Item Feature}: A dictionary where the key is a string and the value is the corresponding feature value for the item.
-  \item \textbf{Model}: A neural network used for learning user and item representations.
+  \item \textbf{Model}: A PyTorch neural network (nn.Module) used for learning user and item representations.
   \item \textbf{ANNIndex}: A data structure used by FAISS for approximate nearest neighbor search in embedding space.
   \item \textbf{EvaluationMetrics}: A dictionary mapping evaluation metric names (strings) to their computed values (e.g., accuracy, RMSE).
   \item \textbf{TrainingConfig}: A dictionary containing configuration parameters for model training.
@@ -344,7 +344,7 @@ None
 \noindent \texttt{create\_training\_data(data)}:
 \begin{itemize}
 \item output: Dictionary where keys are strings 'user\_ids', 'item\_ids', 'ratings', 'user\_features', and 'item\_features', with values being arrays of user identifiers, arrays of item identifiers, arrays of numerical rating values, lists of User Feature dictionaries, and lists of Item Feature dictionaries, respectively
-\item exception: \texttt{ValueError} if required features are missing
+\item exception: \texttt{ValueError} if any key did not have an associtaed value.
 \end{itemize}
 
 \noindent \texttt{get\_book\_mapping(data)}:
@@ -361,7 +361,7 @@ None
 ModelTrainer
 
 \subsection{Uses}
-DataProcessor, NeuralNetworkArchitecture, VectorOperations
+DataProcessor, NeuralNetworkArchitecture
 
 \subsection{Syntax}
 
