@@ -99,8 +99,8 @@ The following table summarizes the primitive data types used by \progname.
 \midrule
 Character & char & A single character\\
 String & string & A sequence of characters representing text\\
-Array & $[T]$ & A sequence of elements of type $T$\\
-Dictionary/Map & dict & A Python dictionary\\
+List & $[T]$ & A sequence of elements of type $T$\\
+Dictionary & dict & A Python dictionary\\
 Vector & $\mathbb{R}^n$ & An ordered collection of n real numbers\\
 Matrix &$[T]^{m\times n}$ & A 2D array of type T with m rows and n columns\\
 Boolean & $\mathbb{B}$ & True or False value\\
@@ -118,18 +118,15 @@ described by giving their type signature followed by their specification.
 
 The specification also uses derived data types:
 \begin{itemize}
-  \item \textbf{Embedding}: A vector of real numbers representing learned features.
-  \item \textbf{Tensor}: A multi-dimensional array, used for numerical computations.
-  \item \textbf{DataFrame}: A two-dimensional array-like structure with labeled axes (rows and columns), typically used for storing tabular data.
-  \item \textbf{Dataset}: A collection of data used for training or testing machine learning models.
+  \item \textbf{Embedding}: A list of real numbers representing learned features.
+  \item \textbf{Tensor}: A multi-dimensional list, used for numerical computations.
+  \item \textbf{DataFrame}: A two-dimensional list with labeled axes (rows and columns), typically used for storing tabular data.
   \item \textbf{User Feature}: A dictionary where the key is a string and the value is the corresponding feature value for the user.
   \item \textbf{Item Feature}: A dictionary where the key is a string and the value is the corresponding feature value for the item.
   \item \textbf{Model}: A neural network used for learning user and item representations.
-  \item \textbf{ANNIndex}: A data structure used for approximate nearest neighbor search in embedding space.
+  \item \textbf{ANNIndex}: A data structure used by FAISS for approximate nearest neighbor search in embedding space.
   \item \textbf{EvaluationMetrics}: A dictionary mapping evaluation metric names (strings) to their computed values (e.g., accuracy, RMSE).
   \item \textbf{TrainingConfig}: A dictionary containing configuration parameters for model training.
-  \item \textbf{FormatError}: An exception raised when a file has an incorrect format.
-  \item \textbf{DimensionMismatchError}: An exception raised when vectors of incompatible dimensions are used in operations.
 \end{itemize}
 
 \section{Module Decomposition}
@@ -375,19 +372,19 @@ DEFAULT\_REGULARIZATION = 0.0001
 \subsubsection{Exported Access Programs}
 
 \begin{center}
-  \begin{tabular}{p{3cm} p{4cm} p{4cm} p{2cm}}
+  \begin{tabular}{p{3cm} p{5cm} p{4cm} p{2cm}}
   \hline
   \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
   \hline
   initialize & config: TrainingConfig & - & ValueError \\
   \hline
-  train & train\_data: Dataset,
+  train & train\_data: Dictionary,
   
   epochs: $\mathbb{Z}$
   
   & Dictionary & RuntimeError \\
   \hline
-  evaluate & test\_data: Dataset
+  evaluate & test\_data: Dictionary
   
   & EvaluationMetrics & RuntimeError \\
   \hline
@@ -626,7 +623,7 @@ None
 
 \noindent \texttt{get\_recommendations(user, num\_results)}:
 \begin{itemize}
-  \item output: [($\mathbb{Z}$, String, $\mathbb{R}$)] representing a list of (item\_id, item\_title, similarity\_score) tuples
+  \item output: [($\mathbb{Z}$, String, $\mathbb{R}$)] representing a ranked list of (item\_id, item\_title, similarity\_score) tuples. The ranks are calculated using the local function \texttt{rank\_candidates}.
   \item exception: \texttt{RuntimeError} if \texttt{IsInitialized} is \texttt{false}
 \end{itemize}
 
@@ -722,7 +719,7 @@ VectorOperations
 
 \subsubsection{Exported Constants}
 DEFAULT\_SEARCH\_NPROBE := 10\\
-DEFAULT\_INDEX\_TYPE := "Flat"
+DEFAULT\_INDEX\_TYPE := ``Flat"
 \subsubsection{Exported Access Programs}
 
 \begin{center}
