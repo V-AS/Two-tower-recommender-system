@@ -46,7 +46,8 @@
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
-Mar 2 2025 & 1.0 & First Draft\\
+Mar. 2 2025 & 1.0 & First Draft\\
+Apr. 11 2025 & 2.0 & Revision 1\\
 \bottomrule
 \end{tabularx}
 
@@ -253,7 +254,7 @@ Only the leaf modules in the hierarchy have to be implemented. If a dash
 (\emph{--}) is shown, this means that the module is not a leaf and will not have
 to be implemented.
 
-\subsection{Hardware Hiding Modules (\mref{mHH})}
+\subsection{Hardware Hiding Modules}
 
 \begin{description}
 \item[Secrets:]The data structure and algorithm used to implement the virtual
@@ -377,7 +378,7 @@ requirements and between the modules and the anticipated changes.
 \midrule
 R1 & \mref{mDP}\\
 R2 & \mref{mMT}, \mref{mNN}\\
-R3 & \mref{mHH}, \mref{mMT}\\
+R3 & \mref{mSI}, \mref{mMT}\\
 R4 & \mref{mEG}, \mref{mNN}\\
 R5 & \mref{mRe}, \mref{mVO}\\
 R6 & \mref{mRe}, \mref{mANN}\\
@@ -393,7 +394,7 @@ R6 & \mref{mRe}, \mref{mANN}\\
 \toprule
 \textbf{AC} & \textbf{Modules}\\
 \midrule
-\acref{acHardware} & \mref{mHH}\\
+\acref{acHardware} & \mref{mSI}\\
 \acref{acInput} & \mref{mDP}\\
 \acref{acUserNN} & \mref{mNN}\\
 \acref{acItemNN} & \mref{mNN}\\

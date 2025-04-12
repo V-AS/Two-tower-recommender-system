@@ -53,7 +53,8 @@ urlcolor=cyan          % color of external links
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
-March 2 2025 & 1.0 & First Draft\\
+Mar. 2 2025 & 1.0 & First Draft\\
+Apr. 11 2025 & 2.0 & Revision 1\\
 \bottomrule
 \end{tabularx}
 
@@ -345,7 +346,7 @@ None
 
 \noindent \texttt{create\_training\_data(data)}:
 \begin{itemize}
-\item output: Dictionary where keys are `user\_ids', `item\_ids', `ratings', `user\_features', and `item\_features', and values are the corresponding arrays of user IDs, item IDs, rating values, user feature dictionaries, and item feature dictionaries
+\item output: Dictionary where keys are strings 'user\_ids', 'item\_ids', 'ratings', 'user\_features', and 'item\_features', with values being arrays of user identifiers, arrays of item identifiers, arrays of numerical rating values, lists of User Feature dictionaries, and lists of Item Feature dictionaries, respectively
 \item exception: \texttt{ValueError} if required features are missing
 \end{itemize}
 

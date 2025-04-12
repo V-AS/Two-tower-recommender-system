@@ -32,6 +32,7 @@
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
 Apr. 2 2025 & 1.0 & First draft\\
+Apr. 11 2025 & 2.0 & Revision 1\\
 \bottomrule
 \end{tabularx}
 \nocite{*}
@@ -219,7 +220,7 @@ After applying techniques such as feature engineering and negative sampling, the
 The project utilizes GitHub Actions for automated testing and continuous integration. The automated testing workflow follows a structured trigger-based approach:
 
 \begin{itemize}
-    \item All unit tests run automatically whenever there is a change to any file in the \texttt{src} directory
+    \item All unit tests and system tests run automatically whenever there is a change to any file in the \texttt{src} directory
     \item The dataset validation test (\texttt{test\_data\_validation.py}) executes whenever there are changes to the dataset files
     \item When dataset changes are detected and validation passes, the model retraining process is triggered automatically
     \item After model retraining completes, the model convergence test (\texttt{test\_} \texttt{model\_convergence.py}) and model storage test (\texttt{test\_model\_storage.py}) run sequentially to verify the new model

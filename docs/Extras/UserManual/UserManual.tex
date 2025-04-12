@@ -95,6 +95,7 @@ The system is based on a modular architecture that follows the principle of info
     \item \textbf{Hardware-Hiding Module}: Handles system interactions like file I/O
     \item \textbf{Behavior-Hiding Modules}: Implement the core functionality
         \begin{itemize}
+            \item System Interface Module
             \item Data Processing Module
             \item Model Training Module
             \item Embedding Generation Module
@@ -381,15 +382,12 @@ pytest tests/unit/test_embedding_generation.py
     
     \item[Two-Tower Architecture] A neural network architecture with two parallel networks (towers) that process different types of inputs (users and items) and map them to a shared embedding space.
     
-    \item[Cosine Similarity] A measure of similarity between two vectors based on the cosine of the angle between them. Used to rank items for recommendation.
-    
     \item[Feature Engineering] The process of creating new features from raw data to improve model performance.
     
     \item[Dot Product] A vector operation that calculates the sum of the products of corresponding elements. Used to calculate similarity between embeddings.
     
     \item[Normalization] The process of scaling values to a standard range, typically [0, 1].
     
-    \item[Incremental Learning] Updating a model with new data without retraining from scratch.
 \end{description}
 
 \backmatter

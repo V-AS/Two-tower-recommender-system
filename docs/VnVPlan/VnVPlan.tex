@@ -34,6 +34,7 @@ Feb. 24, 2025 & 1.0 & First draft - Unit tests will be added after the MIS has b
 Feb. 25, 2025 & 1.1 & Minor updates after VnV presentation\\
 Mar. 27, 2025 & 1.2 & Addressed comments from Dr. Smith.\\
 Apr. 2, 2025 & 1.3 & Added unit tests.\\
+Apr. 11 2025 & 2.0 & Revision 1\\
 \bottomrule
 \end{tabularx}
 
@@ -232,7 +233,7 @@ Output/Result: The results of all automatic tests and feedback from users.
 
 How test will be performed: All automatic tests will be conducted during the continuous integration workflow. Potential users will install the project on their computers (Windows, macOS, or Linux) and follow the instructions in \href{https://github.com/V-AS/Two-tower-recommender-system/blob/main/README.md}{README.md} to run the software. 
 \end{enumerate}
-
+\subsubsection{Usability}
 \begin{enumerate}
 
   \item{test-id5\\}
@@ -297,8 +298,8 @@ The unit testing will focus on the modules with direct user interaction and core
 
 The following modules are not directly tested with unit tests but are verified through system tests or user interaction:
 
-\noindent\textbf{Hardware System Interface (M1)}\\
-The Hardware System Interface module is tested indirectly through:
+\noindent\textbf{System Interface Module(M1)}\\
+The System Interface module is tested indirectly through:
 \begin{itemize}
     \item System test-id3 (Model Storage), which verifies the file I/O capabilities of this module
     \item Usage within other modules, which depend on its functionality for loading and saving models and embeddings
@@ -317,14 +318,12 @@ The Model Training module is tested indirectly through:
 The Recommendation module is tested indirectly through:
 \begin{itemize}
     \item Usability testing (test-id5), where users evaluate the quality of recommendations
-    \item System-level evaluation that uses this module to generate final recommendations
 \end{itemize}
 
 This module integrates the outputs of other tested modules (embedding generation and ANN search), so thorough testing of those components provides confidence in this module's correct operation.
 
 
 \subsection{Tests for Functional Requirements}
-
 
 \subsubsection{Data Processing Module (M2)}
 
@@ -388,11 +387,11 @@ This module integrates the outputs of other tested modules (embedding generation
 
   Initial State: None
 
-  Input: Processed Pandas DataFrame with all required derived features
+  Input: Pandas DataFrame with all required derived features
 
-  Output: Dictionary containing training data arrays: `user\_ids', `item\_ids', `ratings', `user\_features', and `item\_features'
+  Output: Dictionary where keys are strings `user\_ids', `item\_ids', `ratings', `user\_features', and `item\_features', with values being arrays of user identifiers, arrays of item identifiers, arrays of numerical rating values, lists of User Feature dictionaries, and lists of Item Feature dictionaries, respectively
 
-  Test Case Derivation: The system needs to convert preprocessed DataFrame to a format suitable for neural network training.
+  Test Case Derivation: The system needs to convert DataFrame to a format suitable for neural network training.
 
   How test will be performed: Pass a processed sample DataFrame to \texttt{create\_training\_data} and verify the returned dictionary contains all required keys with arrays of correct shapes.
 \end{enumerate}
@@ -540,7 +539,7 @@ This module integrates the outputs of other tested modules (embedding generation
   
   Input: ANN index object and path to save/load location
   
-  Output: Loaded index that produces identical search results to the original saved index
+  Output: All load and save operations run successfully.
   
   Test Case Derivation: R3 requires model and index storage and loading.
   
