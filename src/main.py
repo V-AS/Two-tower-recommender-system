@@ -14,7 +14,7 @@ from modules.model_training import ModelTrainer
 from modules.embedding_generation import EmbeddingGenerator
 from modules.ann_search import ANNSearch
 from modules.recommendation import Recommender
-from hardware.system_interface import (
+from modules.system_interface import (
     save_model,
     load_model,
     save_embeddings,

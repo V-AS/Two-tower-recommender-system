@@ -12,7 +12,7 @@ sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
-from src.hardware.system_interface import load_training_history
+from src.modules.system_interface import load_training_history
 
 
 @pytest.fixture

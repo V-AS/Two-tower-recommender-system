@@ -29,7 +29,7 @@ from modules.neural_network import create_user_tower, create_item_tower
 from modules.embedding_generation import EmbeddingGenerator
 from modules.recommendation import Recommender
 from modules.ann_search import ANNSearch
-from hardware.system_interface import load_model
+from modules.system_interface import load_model
 from modules.data_processing import DataProcessor
 
 # Configuration
